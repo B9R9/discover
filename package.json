@@ -1,0 +1,22 @@
+{
+  "name": "discover",
+  "private": true,
+  "workspaces": [
+    "app",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "overrides": {
+    "react": "19.2.3"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}
