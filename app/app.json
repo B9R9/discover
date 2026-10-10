@@ -42,6 +42,7 @@
         }
       ],
       "@maplibre/maplibre-react-native",
+      "./plugins/withSingleTopActivity",
       [
         "expo-location",
         {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { listPlacesWithDiscovery, type CachedPlace } from '@/db/placesCache';
 import type { Db, GeoPoint } from '@/db/types';
+import { usePurchasedMaps } from '@/features/purchases/PurchasesProvider';
 
 import { nearbyPlaces, type NearbyPlace } from './nearbyPlaces';
 import { syncPlaces } from './syncPlaces';
@@ -16,7 +17,10 @@ export function useNearbyPlaces(
 ): { places: NearbyPlace[]; lockedArea: Area | null } {
   const [places, setPlaces] = useState<CachedPlace[]>([]);
   const [lockedArea, setLockedArea] = useState<Area | null>(null);
-  const synced = useRef(false);
+  const purchased = usePurchasedMaps();
+  // Purchases joined in the key: buying the map of the area the phone is in downloads its places.
+  const syncKey = purchased.map((map) => map.areaId).join();
+  const synced = useRef<string | null>(null);
 
   const reload = useCallback(() => {
     listPlacesWithDiscovery(db).then(setPlaces).catch(console.warn);
@@ -24,17 +28,17 @@ export function useNearbyPlaces(
 
   useFocusEffect(reload);
 
-  // ponytail: one refresh per app launch, for the area of the first position; refresh on area change if users travel mid-session.
+  // ponytail: one refresh per app launch (and per purchase), for the area of the first position; refresh on area change if users travel mid-session.
   useEffect(() => {
-    if (!position || synced.current) return;
-    synced.current = true;
-    syncPlaces(db, position)
+    if (!position || synced.current === syncKey) return;
+    synced.current = syncKey;
+    syncPlaces(db, position, undefined, fetch, purchased)
       .then((result) => {
         setLockedArea(result?.kind === 'locked' ? result.area : null);
         reload();
       })
       .catch(console.warn);
-  }, [db, position, reload]);
+  }, [db, position, reload, purchased, syncKey]);
 
   const nearby = useMemo(
     () => (position ? nearbyPlaces(places, position) : []),

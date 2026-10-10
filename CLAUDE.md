@@ -9,7 +9,7 @@ App mobile qui montre les activités et lieux autour de l'utilisateur. La carte 
 
 - Lieu découvert : l'app donne l'itinéraire.
 - Lieu pas découvert : l'app donne seulement la direction à vol d'oiseau.
-- Une carte = un département, sauf les grandes villes (plus de 100 000 habitants) qui ont leur propre carte. La carte du département de l'utilisateur est offerte (sans ses grandes villes). Payant : une grande ville seule, ou un département entier grandes villes comprises (plus cher qu'une ville).
+- Une carte = un département, sauf les grandes villes (plus de 100 000 habitants) qui ont leur propre carte. L'app est payante au téléchargement (prix du store), et donne la carte du département de l'utilisateur (sans ses grandes villes). Dans l'app, seulement des achats uniques de cartes (RevenueCat) : une grande ville seule, un département entier grandes villes comprises (plus cher qu'une ville), ou la France entière.
 
 ## Stack
 
@@ -65,7 +65,7 @@ lib/         petits utilitaires (dont i18n/ : textes français et t())
 
 - `discovered_places` : id du lieu, date, chemin parcouru, id de la photo
 - `photos` : chemin du fichier local, position, date
-- `owned_maps` : cartes débloquées, département ou grande ville (offerte ou achetée)
+- `owned_maps` : la carte offerte. Les cartes achetées viennent de RevenueCat (store), qui les garde en cache sur l'appareil
 
 Le serveur garde les lieux (nom, position, source), les cartes partageables, les commentaires et les achats.
 
@@ -158,4 +158,4 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 - [x] Stockage local des découvertes (SQLite, migrations, requêtes)
 - [x] Backend et collecte des lieux (phase 5 : Supabase en ligne, collecte OSM chaque semaine, API sur Render, comptes par code e-mail et suppression de compte ; reste un domaine pour les e-mails avant la bêta)
 - [ ] Partage et commentaires
-- [ ] Achat de cartes (phase 6 : zones départements et grandes villes, carte offerte et zone bloquée faites en local ; reste mise en ligne, écran des cartes, RevenueCat)
+- [ ] Achat de cartes (phase 6 : zones départements et grandes villes, carte offerte et zone bloquée faites en local ; écran des cartes fait ; achats de cartes codés avec le Test Store RevenueCat, reste produits dans le tableau de bord, test d'achat, stores)

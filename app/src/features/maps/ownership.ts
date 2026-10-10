@@ -2,15 +2,17 @@ import type { Area } from '@discover/shared';
 
 import { addOwnedMap, listOwnedMaps, type MapSource, type OwnedMap } from '@/db/ownedMaps';
 import type { Db } from '@/db/types';
+import { COUNTRY_MAP } from '@/features/purchases/mapProducts';
 
 export type MapStatus = MapSource | 'locked';
 
-// A bought department unlocks its big cities too; the free one does not.
+// A bought department unlocks its big cities too, the country map unlocks everything; the free department
+// unlocks only itself. Bought wins over free: the free department may be bought later for its big cities.
 export function mapStatus(area: Area, owned: readonly OwnedMap[]): MapStatus {
-  const own = owned.find((map) => map.areaId === area.id);
-  if (own) return own.source;
-  const department = owned.find((map) => map.areaId === area.departmentId);
-  return department?.source === 'purchased' ? 'purchased' : 'locked';
+  const covers = (map: OwnedMap) =>
+    map.areaId === area.id || map.areaId === area.departmentId || map.areaId === COUNTRY_MAP;
+  if (owned.some((map) => map.source === 'purchased' && covers(map))) return 'purchased';
+  return owned.some((map) => map.areaId === area.id) ? 'free' : 'locked';
 }
 
 export function isUnlocked(area: Area, owned: readonly OwnedMap[]): boolean {

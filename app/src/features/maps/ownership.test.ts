@@ -41,6 +41,19 @@ test('listMaps puts owned departments first, each followed by its big cities', (
   expect(mapStatus(bordeaux, bought)).toBe('purchased');
 });
 
+test('buying the free department or the country unlocks the big cities', () => {
+  const freeThenBought = [
+    { areaId: 'gironde', source: 'free' as const, unlockedAt: 1 },
+    { areaId: 'gironde', source: 'purchased' as const, unlockedAt: 0 },
+  ];
+  expect(mapStatus(gironde, freeThenBought)).toBe('purchased');
+  expect(mapStatus(bordeaux, freeThenBought)).toBe('purchased');
+
+  const country = [{ areaId: 'france', source: 'purchased' as const, unlockedAt: 0 }];
+  expect(mapStatus(landes, country)).toBe('purchased');
+  expect(mapStatus(bordeaux, country)).toBe('purchased');
+});
+
 test('claimFreeMap gives the department of the first area, once', async () => {
   const db = openTestDb();
   await migrate(db);

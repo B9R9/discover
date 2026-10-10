@@ -292,7 +292,17 @@ Décision du 2026-10-10 : une carte = un **département** (OSM `admin_level=6`).
 5. [x] **Zone non débloquée** : pas de lieux téléchargés, message « Carte à débloquer » dans le panneau. Le chemin parcouru s'enregistre et se dévoile comme ailleurs (seuls les lieux restent cachés).
 6. [x] **Écran des cartes** : section « Mes cartes » du Profil (choix du 2026-10-10), départements et grandes villes avec leur état. Prix et bouton d'achat à l'étape 7 (prix localisés venus des stores).
    - règle « possédée » (fonction pure, testée) : une zone est débloquée si elle est dans `owned_maps`, ou si c'est une grande ville dont le département est **acheté** (`purchased`). Le département offert (`free`) ne débloque pas ses grandes villes.
-7. [ ] **RevenueCat** : un produit par carte (App Store et Play Store), restauration des achats, compte de la phase 5b comme identifiant. Nouvelle dépendance `react-native-purchases` (RevenueCat, prévu dans la stack).
+7. [ ] **RevenueCat** (décision du 2026-10-10 : l'app est payante au téléchargement dans Google Play et l'App Store ; dans l'app, on n'achète que des cartes. Pas d'abonnement, pas de paywall, pas de Customer Center) :
+   - [x] Dépendance `react-native-purchases`. Clé publique dans `.env` : `EXPO_PUBLIC_REVENUECAT_KEY` (clé `test_` du Test Store pour le développement, clés Play et App Store ensuite). Plugin `plugins/withSingleTopActivity.js` (activité `singleTop`, demandé par RevenueCat).
+   - [x] `features/purchases/` : `Purchases.configure` au démarrage, utilisateur anonyme ; `Purchases.logIn(id Supabase)` à la connexion, `logOut` à la déconnexion. Rien du jeu n'est envoyé à RevenueCat.
+   - [x] Cartes : un produit non consommable par carte, `map_<areaId>`. Achetées = `allPurchasedProductIdentifiers` (`purchasedMaps`, testée), pas écrites dans `owned_maps`. Pas d'entitlement par carte.
+   - [x] Carte pays : `map_france`, débloque toutes les zones (`mapStatus`). Prix : ville < département < pays.
+   - [x] Section « Mes cartes » : « Débloquer · prix » (prix localisé), aussi sur le département offert ; « Restaurer mes achats ». Un achat relance le téléchargement des lieux de la zone.
+   - [x] Erreurs : annulé (silencieux), réseau, paiement en attente, autre. Zone sans produit : « À débloquer » sans bouton.
+   - [ ] Toi, tableau de bord RevenueCat : produits `map_landes`, `map_gironde`, `map_gironde-bordeaux`, `map_france` dans le Test Store. Retirer l'offering `default` (monthly, yearly, lifetime) qui ne sert plus.
+   - [ ] Test d'achat d'une carte sur le téléphone, puis restauration.
+   - [ ] Prix de l'app dans la Play Console et App Store Connect, produits des cartes dans les deux stores, clés RevenueCat de production.
+   - [ ] Lancement lent (vu le 2026-10-10, existait avant RevenueCat) : environ 30 s de calcul JS et d'affichage au démarrage avec 3 493 lieux en cache ; un appui pendant ce temps donne une ANR. À mesurer (brouillard ? lieux sur la carte ?) et corriger avant la bêta.
 8. [ ] **Tests** : `findArea` (grande ville avant département), collecte (Bordeaux hors Gironde), achat sandbox iOS et Android, restauration sur un autre appareil.
 9. [ ] **Doc** : `docs/README.md`, `docs/runbook.md` (ajouter un département), `CLAUDE.md`, bilan.
 
@@ -332,6 +342,7 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 - Première source de lieux : OpenStreetMap via l'API Overpass
 - Chemin parcouru : enregistré aussi en arrière-plan (les points restent sur l'appareil)
 - Cartes : une par département, les communes de plus de 100 000 habitants à part. Département de l'utilisateur offert, sans ses grandes villes. Achat d'une grande ville seule ou d'un département entier, grandes villes comprises (2026-10-10)
+- Accès : l'app est payante au téléchargement (Google Play, App Store) et donne la carte offerte. Dans l'app, seulement des cartes à l'unité : ville, département, France entière (`map_france`). Pas d'abonnement ni de paywall (2026-10-10)
 
 ## Questions ouvertes
 - Sauvegarde des découvertes si perte du téléphone : aucune, export manuel, ou sauvegarde chiffrée volontaire (phase 5)

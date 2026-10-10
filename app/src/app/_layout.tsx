@@ -7,13 +7,16 @@ import { useEffect, useState } from 'react';
 import { DATABASE_NAME } from '@/db/database';
 import { migrate } from '@/db/migrations';
 import { getSetting } from '@/db/settings';
+import { PurchasesProvider } from '@/features/purchases/PurchasesProvider';
 import { t } from '@/lib/i18n/t';
 import { OnboardingScreen } from '@/screens/OnboardingScreen';
 
 export default function RootLayout() {
   return (
     <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrate}>
-      <App />
+      <PurchasesProvider>
+        <App />
+      </PurchasesProvider>
     </SQLiteProvider>
   );
 }

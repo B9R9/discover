@@ -119,6 +119,21 @@ Vérifier la tâche de fond (permission « Toujours » + réglage actif) : la no
 adb shell dumpsys activity services com.b9r9.discover | grep -i location
 ```
 
+## RevenueCat (achats)
+
+Clé publique du SDK dans `app/.env` : `EXPO_PUBLIC_REVENUECAT_KEY`. En développement, la clé `test_…` du Test Store : achats simulés, sans compte Play ni App Store. Après un changement de `.env`, relancer Metro (`npm start`), la valeur est copiée dans le bundle.
+
+L'app est payante au téléchargement (prix fixé dans la Play Console et App Store Connect) : RevenueCat ne vend que les cartes. Configurer le projet dans le tableau de bord RevenueCat (app.revenuecat.com), Test Store :
+
+1. Product catalog > Products : une carte par zone, achat unique, `map_<id de zone>` (`map_landes`, `map_gironde`, `map_gironde-bordeaux`), et `map_france`. Prix : ville < département < France.
+2. Rien d'autre : ni entitlement, ni offering, ni paywall. L'app lit les cartes par `getProducts` et les achats par `allPurchasedProductIdentifiers`.
+
+Ajouter un département : le collecter (voir plus haut), puis créer ses produits `map_<id>` pour lui et chaque grande ville. Une zone sans produit s'affiche « À débloquer », sans bouton.
+
+Tester un achat sur le téléphone : Profil > Mes cartes > « Débloquer · prix », puis « Test valid purchase » dans la fenêtre du Test Store. La carte passe à « Débloquée ». Logs : `adb logcat | grep -i purchases`.
+
+Après un ajout de module natif comme `react-native-purchases`, `prebuild --clean` efface `android/local.properties` : `ANDROID_HOME` doit être exporté (voir Installer), sinon Gradle échoue avec `SDK location not found`.
+
 ## Clé OpenRouteService
 
 1. Créer un compte sur https://openrouteservice.org/dev/#/signup, puis une clé dédiée à l'app.
@@ -266,4 +281,4 @@ Repartir d'une base vide : `adb shell pm clear com.b9r9.discover` (efface toutes
 
 ## Restaurer
 
-Offre gratuite Supabase : aucune sauvegarde. Si la base en ligne est perdue, recréer le projet, puis `supabase db push`, `supabase config push` et la collecte (voir Déployer le serveur). Lieux et zones reviennent par la collecte ; les comptes sont perdus (les utilisateurs se reconnectent avec leur e-mail, rien d'autre n'est lié au compte). Les découvertes ne sont jamais sur le serveur. Restauration des achats (RevenueCat) : phase 6.
+Offre gratuite Supabase : aucune sauvegarde. Si la base en ligne est perdue, recréer le projet, puis `supabase db push`, `supabase config push` et la collecte (voir Déployer le serveur). Lieux et zones reviennent par la collecte ; les comptes sont perdus (les utilisateurs se reconnectent avec leur e-mail, rien d'autre n'est lié au compte). Les découvertes ne sont jamais sur le serveur. Achats : gardés par les stores et RevenueCat, jamais dans notre base ; « Restaurer mes achats » (Profil) les retrouve sur un nouveau téléphone, avec le même compte de store.

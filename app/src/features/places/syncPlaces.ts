@@ -2,6 +2,7 @@ import type { Area, AreaId } from '@discover/shared';
 
 import { listCachedAreas, replaceCachedAreas } from '@/db/areasCache';
 import { replaceCachedPlaces } from '@/db/placesCache';
+import type { OwnedMap } from '@/db/ownedMaps';
 import type { Db, GeoPoint } from '@/db/types';
 import { claimFreeMap, isUnlocked } from '@/features/maps/ownership';
 
@@ -23,7 +24,7 @@ async function loadAreas(db: Db, baseUrl: string, fetchFn: Fetch): Promise<Area[
 
 export type SyncResult = { kind: 'synced'; areaId: AreaId } | { kind: 'locked'; area: Area };
 
-// Refreshes places_cache for the area the phone is in, if the user owns its map.
+// Refreshes places_cache for the area the phone is in, if the user owns its map (free in owned_maps, or purchased).
 // Offline or server down: the cache stays as is.
 // Returns null when the phone is in no known area or the refresh failed.
 export async function syncPlaces(
@@ -31,6 +32,7 @@ export async function syncPlaces(
   position: GeoPoint,
   baseUrl: string | undefined = process.env.EXPO_PUBLIC_API_URL,
   fetchFn: Fetch = fetch,
+  purchased: readonly OwnedMap[] = [],
 ): Promise<SyncResult | null> {
   if (!baseUrl) {
     console.warn('EXPO_PUBLIC_API_URL is missing, places not refreshed');
@@ -38,7 +40,8 @@ export async function syncPlaces(
   }
   const area = findArea(position, await loadAreas(db, baseUrl, fetchFn));
   if (!area) return null;
-  if (!isUnlocked(area, await claimFreeMap(db, area, Date.now()))) return { kind: 'locked', area };
+  const owned = [...(await claimFreeMap(db, area, Date.now())), ...purchased];
+  if (!isUnlocked(area, owned)) return { kind: 'locked', area };
   try {
     const places = await fetchAreaPlaces(baseUrl, area.id, fetchFn);
     await replaceCachedPlaces(db, area.id, places, Date.now());

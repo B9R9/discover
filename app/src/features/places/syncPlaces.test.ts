@@ -111,4 +111,10 @@ test('syncPlaces downloads nothing for an area whose map is not owned', async ()
   expect(await syncPlaces(db, INSIDE, API, fetchFn)).toEqual({ kind: 'locked', area: landes });
   expect(urls).toEqual([`${API}/areas`]);
   expect(await listCachedPlaces(db, 'landes')).toEqual([]);
+
+  const bought = [{ areaId: 'landes', source: 'purchased' as const, unlockedAt: 0 }];
+  expect(await syncPlaces(db, INSIDE, API, fetchFn, bought)).toEqual({
+    kind: 'synced',
+    areaId: 'landes',
+  });
 });
