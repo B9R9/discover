@@ -43,3 +43,6 @@ Format :
 
 - **Erreur** : clé secrète Supabase enregistrée depuis `supabase projects api-keys` sans `--reveal` : le CLI renvoie une valeur masquée (`sb_secret_3o··········`) de la bonne longueur, refusée ensuite avec `Invalid API key`.
 - **Règle** : après avoir enregistré un secret, le tester tout de suite par un appel réel (ici l'endpoint admin, attendu 200) avant de s'en servir ailleurs.
+
+- **Erreur** : la tâche de fond ouvrait la base avec `openDatabaseAsync` puis `closeAsync` à chaque position. expo-sqlite lui rend la connexion native déjà ouverte par `SQLiteProvider` ; quand le ramasse-miettes JS libère cette poignée, `sharedObjectDidRelease` ferme la connexion partagée, et toute requête de l'app échoue ensuite (`NativeDatabase.prepareAsync has been rejected`, `NullPointerException`). Invisible avec 106 lieux, systématique vers 20 s avec 3 500 lieux en cache (plus de mémoire, ramasse-miettes plus tôt).
+- **Règle** : une seule poignée expo-sqlite par base et par processus, gardée en vie, jamais fermée par un module qui partage la connexion de `SQLiteProvider`. Après un changement de volume de données, laisser l'app ouverte au moins 2 min sur le téléphone en lisant `adb logcat -s ReactNativeJS:V`.
