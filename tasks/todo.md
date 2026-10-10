@@ -324,6 +324,9 @@ Fait le 2026-10-10 (étapes 1 à 5, en local) : collecte Gironde (5355 lieux, Bo
 - [ ] Build EAS iOS/Android
 - [ ] Bêta TestFlight + test interne Play Store
 
+## Bugs
+- [ ] **« Mes cartes » : Gironde et Bordeaux côte à côte sans lien** (vu le 2026-10-10). L'écran liste Gironde et Bordeaux comme deux cartes au même niveau. Bordeaux est dans la Gironde, mais rien ne le dit : l'utilisateur croit qu'acheter la Gironde ne donne pas Bordeaux, ou que la Gironde offerte contient Bordeaux. À afficher : la grande ville rattachée à son département (ex. « Bordeaux, dans la Gironde »), « Gironde (sans Bordeaux) » quand le département est offert, et « Gironde, Bordeaux compris » quand il est à acheter. Textes dans `lib/i18n/`.
+
 ## Décisions prises
 - Ville de développement : Biscarrosse
 - Tuiles de carte : OpenFreeMap (OpenStreetMap, sans clé API)
