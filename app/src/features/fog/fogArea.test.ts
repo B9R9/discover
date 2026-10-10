@@ -113,6 +113,8 @@ test('stays fast with 500 places and 20 000 walked points', () => {
   fog.edges();
   const step = performance.now() - start;
 
-  expect(build).toBeLessThan(1500);
-  expect(step).toBeLessThan(50);
+  // Absolute times depend on the machine (about 1.2 s on a Mac, 2.2 s on GitHub CI): only a loose ceiling.
+  expect(build).toBeLessThan(5000);
+  // What keeps the map fluid: a new point recomputes a few tiles, not everything (a global union cost 20 % of a build).
+  expect(step).toBeLessThan(build / 20);
 });

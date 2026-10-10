@@ -22,3 +22,6 @@ Format :
 
 - **Erreur** : l'app ouverte et la tâche de fond pouvaient écrire une position en même temps ; les deux lisaient le même dernier point, d'où deux points à 0,8 m.
 - **Règle** : toute écriture qui lit puis écrit (`recordLocations`) passe par une file unique.
+
+- **Erreur** : le test de perf du brouillard imposait 1,5 s en temps absolu ; il passait sur le Mac (1,2 s) et a cassé la CI GitHub (2,2 s).
+- **Règle** : pas de seuil en millisecondes absolues dans un test qui tourne en CI. Comparer deux mesures sur la même machine (ici : un nouveau point coûte moins de 1/20 de la construction complète), avec au plus un plafond large contre les régressions énormes.
