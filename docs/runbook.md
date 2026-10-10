@@ -48,13 +48,13 @@ cd server && npm run dev    # Node exécute le TypeScript directement
 Supabase local, ports 544xx (un autre projet Supabase du poste peut occuper les ports 543xx par défaut) :
 
 ```
-cd server && supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
+cd server && supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor
 cd server && npm run collect -- biscarrosse   # environ 1 min, plus si Overpass est chargé (504 : 30 s d'attente puis nouvel essai)
 cd server && npm run dev
 curl -s localhost:3000/cities/biscarrosse/places | head -c 300
 ```
 
-`supabase start` applique les migrations de `server/supabase/migrations/` au premier lancement. Studio (lecture des tables) : http://127.0.0.1:54423. SQL en ligne de commande, sans `psql` installé :
+`supabase start` applique les migrations de `server/supabase/migrations/` au premier lancement. Studio (lecture des tables) : http://127.0.0.1:54423. E-mails de connexion envoyés en local (codes) : Mailpit, http://127.0.0.1:54424. SQL en ligne de commande, sans `psql` installé :
 
 ```
 echo "select category, count(*) from places group by 1" | docker exec -i supabase_db_detour psql -U postgres
@@ -180,7 +180,49 @@ _À remplir en phase 8 : EAS Build iOS/Android, TestFlight, Play Store._
 
 ## Déployer le serveur
 
-_À remplir en phase 5._
+Secrets du projet en ligne dans `server/.env.production` (ignoré par git, droits 600) : `SUPABASE_DB_PASSWORD`, `DATABASE_URL`, `RESEND_API_KEY`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`. Le recréer à la main depuis le tableau de bord Supabase (Database > Connect > Session pooler, et Settings > API Keys) et Resend si le fichier est perdu. Le CLI masque les clés secrètes sans `--reveal` :
+
+```
+supabase projects api-keys --project-ref oqlyowhfpfueslepdlzi --reveal -o json
+```
+
+Base en ligne (CLI déjà lié au projet `oqlyowhfpfueslepdlzi`, voir `server/supabase/.temp/`) :
+
+```
+cd server && supabase link --project-ref oqlyowhfpfueslepdlzi   # une fois par poste
+cd server && source .env.production && supabase db push -p "$SUPABASE_DB_PASSWORD"
+cd server && set -a && source .env.production && set +a && supabase config push   # Auth, modèles d'e-mail, SMTP Resend
+cd server && node --env-file=.env.production src/collect/index.ts biscarrosse   # collecte à la main sur la base en ligne
+```
+
+`supabase config push` affiche le diff et demande confirmation : relire avant de dire oui. Le SMTP Resend n'est défini que pour le projet en ligne (`[remotes.production]` dans `config.toml`) : sans `RESEND_API_KEY` dans l'environnement, le push échoue.
+
+API sur Render : déploiement automatique à chaque push sur `main`. Build `npm ci -w server`, démarrage `node server/src/index.ts`, `NODE_VERSION=24`, variables `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`. Vérifier :
+
+```
+curl -s https://detour-api-30ul.onrender.com/health
+```
+
+Tableau de bord : https://dashboard.render.com/web/srv-db55qr4s728c73bv7g50 (journaux, variables, déploiements). Après 15 min sans requête, l'offre gratuite s'endort : le premier appel prend environ 30 s, l'app garde son cache pendant ce temps (délai de 10 s puis repli).
+
+Collecte planifiée : GitHub Actions, chaque lundi à 03:00 UTC (`.github/workflows/collect.yml`). Lancer à la main et suivre :
+
+```
+gh workflow run collect.yml -R B9R9/discover
+gh run watch -R B9R9/discover $(gh run list -R B9R9/discover -w collect.yml -L 1 --json databaseId -q '.[0].databaseId')
+```
+
+Le secret `DATABASE_URL` du dépôt vient de `server/.env.production` ; à refaire si le mot de passe de la base change :
+
+```
+grep '^DATABASE_URL=' server/.env.production | cut -d= -f2- | gh secret set DATABASE_URL -R B9R9/discover
+```
+
+Lancer l'API du Mac sur la base en ligne (test de la suppression de compte avec le téléphone, `adb reverse tcp:3000 tcp:3000`) :
+
+```
+cd server && node --env-file=.env --env-file=.env.production src/index.ts
+```
 
 ## Diagnostiquer une panne
 
@@ -195,6 +237,9 @@ _Une entrée par panne rencontrée : symptôme, cause, correctif._
 - **Logcat : `MapLibre Native [WARN] ... Invalid geometry in line layer`**. Sans gravité : vient des tuiles OpenFreeMap (le warning reste quand nos couches de lignes sont retirées).
 - **`supabase start` : `Bind for 0.0.0.0:54322 failed: port is already allocated`**. Cause : un autre projet Supabase local tourne avec les ports par défaut. Correctif : nos ports sont déjà en 544xx dans `server/supabase/config.toml` ; si le conflit revient, `docker ps` montre qui tient le port.
 - **Collecte : `Overpass answered 504`** après 3 essais. Cause : Overpass surchargé. Correctif : relancer plus tard ; la base garde les lieux précédents (une collecte en échec n'écrit rien).
+- **Connexion : « Trop de demandes. Réessaie dans quelques minutes. »**. Cause : une demande de code par minute et par adresse (`max_frequency`). Correctif : attendre 60 s.
+- **Le code n'arrive pas (en ligne)**. Cause probable : l'expéditeur `onboarding@resend.dev` ne livre qu'au titulaire du compte Resend. Vérifier dans Resend (Emails) l'état de l'envoi. Correctif durable : domaine Détour vérifié dans Resend, puis `admin_email` dans `[remotes.production.auth.email.smtp]`.
+- **`supabase config push` : `Email template modification is not available for free tier projects using the default email provider`**. Cause : SMTP Resend absent du push (`RESEND_API_KEY` non exporté). Correctif : `set -a && source .env.production && set +a` avant le push.
 - **L'app ne rappelle pas l'API au lancement (rien dans le journal du serveur), sans erreur**. Normal pendant une heure : le cache HTTP d'Android sert `/cities` et `/cities/:id/places` (`Cache-Control: max-age=3600`). Pour forcer un appel : `adb shell run-as com.b9r9.discover rm -rf cache/http-cache`, app arrêtée.
 - **L'app garde les anciens lieux**. Cause : API injoignable (serveur arrêté, `adb reverse` perdu, `EXPO_PUBLIC_API_URL` absent ou Metro pas relancé). Metro affiche `Cities not refreshed, using the cache`. Correctif : relancer `npm run dev`, `adb reverse tcp:3000 tcp:3000`, Metro.
 - **Gradle échoue avec une erreur de version Java**. Cause : JDK 25 par défaut. Correctif : `JAVA_HOME` sur le JDK d'Android Studio (voir Installer).
@@ -213,4 +258,4 @@ Repartir d'une base vide : `adb shell pm clear com.b9r9.discover` (efface toutes
 
 ## Restaurer
 
-_À remplir en phase 5 : sauvegardes Postgres, restauration des achats (RevenueCat)._
+Offre gratuite Supabase : aucune sauvegarde. Si la base en ligne est perdue, recréer le projet, puis `supabase db push`, `supabase config push` et la collecte (voir Déployer le serveur). Lieux et villes reviennent par la collecte ; les comptes sont perdus (les utilisateurs se reconnectent avec leur e-mail, rien d'autre n'est lié au compte). Les découvertes ne sont jamais sur le serveur. Restauration des achats (RevenueCat) : phase 6.

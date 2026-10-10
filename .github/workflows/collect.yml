@@ -1,0 +1,22 @@
+name: Collect places
+
+# Weekly refresh of the places in the online database. Free here, unlike a Render cron job.
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci -w server
+      # One city after the other: Overpass asks for one request at a time.
+      - run: node server/src/collect/index.ts biscarrosse
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

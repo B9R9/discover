@@ -37,3 +37,9 @@ Format :
 
 - **Erreur** : test hors ligne sur le téléphone (serveur arrêté) jugé d'abord comme un `fetch` bloqué. En fait, le cache HTTP d'Android répondait à la place du serveur (`Cache-Control: max-age=3600`) : ni requête, ni erreur, et le repli sur SQLite n'était pas testé du tout.
 - **Règle** : pour tester un repli hors ligne ou un appel réseau sur l'appareil, vider d'abord le cache HTTP de l'app (`run-as ... rm -rf cache/http-cache`) et prouver par un log quel chemin a été pris, au lieu de déduire à partir d'un silence.
+
+- **Erreur** : appuis `adb` à des coordonnées lues sur une capture : après la fermeture du clavier la page avait bougé, l'appui est tombé sur le mauvais bouton et le test de connexion est reparti de zéro (un code e-mail perdu, 60 s d'attente).
+- **Règle** : sur le téléphone, appuyer sur un élément par son texte, avec les coordonnées lues dans `uiautomator dump` juste avant l'appui, jamais d'après une capture plus ancienne.
+
+- **Erreur** : clé secrète Supabase enregistrée depuis `supabase projects api-keys` sans `--reveal` : le CLI renvoie une valeur masquée (`sb_secret_3o··········`) de la bonne longueur, refusée ensuite avec `Invalid API key`.
+- **Règle** : après avoir enregistré un secret, le tester tout de suite par un appel réel (ici l'endpoint admin, attendu 200) avant de s'en servir ailleurs.

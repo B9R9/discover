@@ -71,7 +71,7 @@ Le serveur garde les lieux (nom, position, source), les cartes partageables, les
 
 ## Collecte des lieux (server)
 
-Les lieux viennent de web scraping et d'APIs. Ces jobs tournent côté serveur et écrivent dans Postgres. L'app ne scrape rien et ne parle qu'à notre API. Respecte les conditions d'usage et le robots.txt de chaque source.
+Les lieux viennent de web scraping et d'APIs. Ces jobs tournent côté serveur et écrivent dans Postgres. L'app ne scrape rien et ne parle qu'à notre API, avec une seule exception : la connexion et la session passent directement par Supabase Auth (`app/src/features/account/`). Respecte les conditions d'usage et le robots.txt de chaque source.
 
 ## Comment travailler
 
@@ -140,7 +140,7 @@ npm run format           # Prettier
 cd app && npm run android   # development build sur le téléphone Android
 cd app && npm start         # serveur Metro pour le development build
 cd server && npm run dev    # Node 24 exécute le TypeScript directement
-cd server && supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit   # base locale
+cd server && supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor   # base locale
 cd server && npm run collect -- biscarrosse   # collecte des lieux
 ```
 
