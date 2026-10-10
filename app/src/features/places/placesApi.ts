@@ -1,5 +1,7 @@
 import type { City, CityId, Place } from '@discover/shared';
 
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
+
 type Fetch = typeof fetch;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -29,25 +31,15 @@ function isPlace(value: unknown): value is Place {
   );
 }
 
-// fetch has no timeout of its own: on a bad network it can hang for good.
-const TIMEOUT_MS = 10_000;
-
 async function getList<T>(
   baseUrl: string,
   path: string,
   isItem: (value: unknown) => value is T,
   fetchFn: Fetch,
 ): Promise<T[]> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  let body: unknown;
-  try {
-    const response = await fetchFn(`${baseUrl}${path}`, { signal: controller.signal });
-    if (!response.ok) throw new Error(`GET ${path} answered ${response.status}`);
-    body = await response.json();
-  } finally {
-    clearTimeout(timer);
-  }
+  const response = await fetchWithTimeout(`${baseUrl}${path}`, {}, fetchFn);
+  if (!response.ok) throw new Error(`GET ${path} answered ${response.status}`);
+  const body: unknown = JSON.parse(response.text);
   if (!Array.isArray(body) || !body.every(isItem)) throw new Error(`GET ${path}: unexpected reply`);
   return body;
 }

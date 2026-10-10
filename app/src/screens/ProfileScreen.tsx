@@ -1,8 +1,9 @@
 import type { PlaceId } from '@discover/shared';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
+import { AccountSection } from '@/components/AccountSection';
 import { DiscoveryGallery } from '@/components/DiscoveryGallery';
 import { PlaceDetailModal } from '@/components/PlaceDetailModal';
 import { Screen } from '@/components/Screen';
@@ -30,26 +31,30 @@ export function ProfileScreen() {
   }
 
   return (
-    <Screen>
-      <ScrollView>
-        <ScreenTitle>{t('profile.title')}</ScreenTitle>
-        <View style={styles.row}>
-          <View style={styles.texts}>
-            <Text style={styles.label}>{t('profile.backgroundTracking')}</Text>
-            <Text style={styles.hint}>{t('profile.backgroundTrackingHint')}</Text>
+    <Screen edges={['top', 'right', 'left']}>
+      {/* The account form has text fields: Android edge-to-edge does not shrink the screen for the keyboard. */}
+      <KeyboardAvoidingView behavior="padding" style={styles.keyboard}>
+        <ScrollView keyboardShouldPersistTaps="handled">
+          <ScreenTitle>{t('profile.title')}</ScreenTitle>
+          <View style={styles.row}>
+            <View style={styles.texts}>
+              <Text style={styles.label}>{t('profile.backgroundTracking')}</Text>
+              <Text style={styles.hint}>{t('profile.backgroundTrackingHint')}</Text>
+            </View>
+            <Switch
+              accessibilityLabel={t('profile.backgroundTracking')}
+              value={background}
+              onValueChange={toggle}
+              trackColor={{ true: palette.light.discovered }}
+            />
           </View>
-          <Switch
-            accessibilityLabel={t('profile.backgroundTracking')}
-            value={background}
-            onValueChange={toggle}
-            trackColor={{ true: palette.light.discovered }}
-          />
-        </View>
-        <Text style={styles.section} accessibilityRole="header">
-          {t('profile.discoveries')}
-        </Text>
-        <DiscoveryGallery discoveries={discoveries} onOpen={setOpenId} />
-      </ScrollView>
+          <Text style={styles.section} accessibilityRole="header">
+            {t('profile.discoveries')}
+          </Text>
+          <DiscoveryGallery discoveries={discoveries} onOpen={setOpenId} />
+          <AccountSection />
+        </ScrollView>
+      </KeyboardAvoidingView>
       <PlaceDetailModal
         key={openId ?? 'closed'}
         discovery={opened}
@@ -61,6 +66,7 @@ export function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  keyboard: { flex: 1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xl },
   texts: { flex: 1 },
   label: { fontSize: 16, lineHeight: 24, color: palette.light.text },

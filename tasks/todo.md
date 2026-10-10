@@ -233,6 +233,51 @@ Fait sur le téléphone le 2026-10-10 : 106 lieux reçus, nouvelles catégories 
 
 Hors 5a : comptes, jobs planifiés, hébergement de l'API et projet Supabase en ligne (5b). Autres sources que OSM. Lieux de plusieurs villes en même temps. Sauvegarde des découvertes (question encore ouverte).
 
+### Plan détaillé phase 5b : comptes et mise en ligne (validé le 2026-10-10)
+
+Décisions du 2026-10-10 :
+- connexion par code à 6 chiffres reçu par e-mail (Supabase Auth, sans mot de passe)
+- exception à « l'app ne parle qu'à notre API » : l'app parle directement à Supabase Auth, seulement pour la connexion et la session ; les données passent toujours par l'API
+- API et collecte planifiée sur Render
+- projet Supabase en ligne, offre gratuite, en Europe
+
+1. [ ] **Projet Supabase en ligne** `detour`, région Paris (`eu-west-3`) :
+   - lier le CLI au projet (`supabase link`), puis `supabase db push` pour la migration de la 5a
+   - collecte de Biscarrosse sur la base en ligne
+   - conseils de sécurité Supabase (advisors) relus
+2. [ ] **Config de connexion** dans `server/supabase/config.toml` puis `supabase config push` :
+   - code à 6 chiffres, valable 10 min
+   - modèle d'e-mail en français, qui montre le code (`{{ .Token }}`) et non un lien
+   - limite : le SMTP fourni par Supabase n'envoie qu'aux membres de l'équipe et quelques e-mails par heure, ce qui suffit pour le développement. Un SMTP à nous (Resend, avec un domaine) sera nécessaire avant la bêta (phase 8).
+3. [ ] **App, connexion** :
+   - dépendance `@supabase/supabase-js`
+   - session gardée dans `expo-sqlite/localStorage`, déjà installé (SecureStore limite chaque valeur à 2 Ko, une session dépasse souvent)
+   - logique dans `features/account/` : demander un code, vérifier le code, se déconnecter, session courante
+   - Profil, section « Compte » : e-mail puis code ; connecté : e-mail affiché, « Se déconnecter », « Supprimer mon compte »
+   - le jeu reste entièrement utilisable sans compte, et la connexion n'envoie aucune donnée du jeu
+4. [ ] **Suppression de compte** (obligatoire App Store) :
+   - route `DELETE /me` sur l'API, avec le jeton de session en `Authorization: Bearer`
+   - le serveur vérifie le jeton auprès de Supabase Auth (`GET /auth/v1/user`), puis supprime l'utilisateur (`DELETE /auth/v1/admin/users/:id`, clé secrète côté serveur seulement). Juste `fetch`, aucune dépendance.
+   - confirmation dans l'app avant ; les découvertes locales restent sur le téléphone (elles n'ont jamais été liées au compte)
+   - routes testées avec un faux client Auth
+5. [ ] **Render** (blueprint `render.yaml` dans le dépôt) :
+   - service web `detour-api` (offre gratuite, s'endort après 15 min) : `npm ci`, puis `node server/src/index.ts`
+   - cron `detour-collect` : `npm run collect -- biscarrosse` une fois par semaine. Le cron est payant chez Render : facturé à la seconde, minimum 1 $ par mois.
+   - variables : `DATABASE_URL` (pooler Supabase, car Render n'a pas d'IPv6), `SUPABASE_URL`, `SUPABASE_SECRET_KEY`
+   - Render doit avoir accès au dépôt GitHub `B9R9/discover`
+6. [ ] **App vers l'API en ligne** : `EXPO_PUBLIC_API_URL` pointe sur l'URL Render (ajout de `EXPO_PUBLIC_SUPABASE_URL` et de la clé publique) ; `localhost` reste possible en dev
+7. [ ] **Vérification** :
+   - typecheck, lint, format, tests
+   - sur le téléphone : connexion avec un vrai code, déconnexion, suppression du compte (le compte disparaît dans Supabase), lieux servis par Render
+   - journal Render relu : aucune position
+8. [ ] **Doc** :
+   - `docs/README.md` : comptes, exception Auth, hébergement
+   - `docs/runbook.md` : déployer, variables, relancer la collecte, restaurer (offre gratuite sans sauvegarde : migrations puis collecte ; comptes perdus)
+   - `CLAUDE.md` : exception Auth, « État actuel »
+   - bilan
+
+Hors 5b : connexion Apple ou Google, SMTP à nous, nom de domaine, profil public et pseudo (phase 7), sauvegarde des découvertes.
+
 ## Phase 6 : Cartes et achats
 - [ ] Ville offerte : la ville de l'utilisateur au premier lancement, enregistrée dans `owned_maps`
 - [ ] Règle anti-abus : la ville offerte ne change pas (ou changement limité, à décider)

@@ -48,6 +48,28 @@ export const fr = {
   'profile.backgroundTracking': 'Enregistrer mes balades en arrière-plan',
   'profile.backgroundTrackingHint':
     'La carte se dévoile même écran éteint. Il faut autoriser la position « Toujours ».',
+  'account.title': 'Compte',
+  'account.why':
+    'Facultatif. Il servira à acheter des cartes et à partager avec tes amis. Tes découvertes restent sur ton téléphone.',
+  'account.emailLabel': 'Ton e-mail',
+  'account.emailPlaceholder': 'toi@exemple.fr',
+  'account.sendCode': 'Recevoir un code',
+  'account.codeSent': 'Code envoyé à {email}. Regarde aussi dans les spams.',
+  'account.codeLabel': 'Code à 6 chiffres',
+  'account.verify': 'Me connecter',
+  'account.changeEmail': "Changer d'e-mail",
+  'account.signedInAs': 'Connecté avec {email}',
+  'account.signOut': 'Me déconnecter',
+  'account.delete': 'Supprimer mon compte',
+  'account.deleteWarning':
+    'Ton compte sera supprimé pour de bon. Tes découvertes et tes photos restent sur ce téléphone.',
+  'account.deleteConfirm': 'Oui, supprimer mon compte',
+  'account.cancel': 'Annuler',
+  'account.deleted': 'Ton compte a été supprimé.',
+  'account.error.badEmail': 'Cet e-mail ne semble pas valide.',
+  'account.error.badCode': 'Code incorrect ou expiré. Demande un nouveau code.',
+  'account.error.tooMany': 'Trop de demandes. Réessaie dans quelques minutes.',
+  'account.error.network': 'Impossible de joindre Détour. Vérifie ta connexion et réessaie.',
   'onboarding.title': 'Bienvenue sur Détour',
   'onboarding.concept':
     'Ta carte est dans le brouillard. Elle se dévoile là où tu marches et autour des lieux que tu prends en photo.',

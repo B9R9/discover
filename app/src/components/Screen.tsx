@@ -1,9 +1,22 @@
 import type { ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
-export function Screen({ children }: { children: ReactNode }) {
-  return <SafeAreaView style={styles.container}>{children}</SafeAreaView>;
+const ALL_EDGES: readonly Edge[] = ['top', 'right', 'bottom', 'left'];
+
+// Inside the tabs, pass edges without 'bottom': the tab bar already keeps clear of the system bar.
+export function Screen({
+  children,
+  edges = ALL_EDGES,
+}: {
+  children: ReactNode;
+  edges?: readonly Edge[];
+}) {
+  return (
+    <SafeAreaView style={styles.container} edges={edges}>
+      {children}
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
