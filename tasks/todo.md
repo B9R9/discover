@@ -314,6 +314,7 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 - [ ] Test : une photo partagée ne contient aucune donnée EXIF de position
 
 ## Phase 8 : Finition et publication
+- [ ] Fiche d'un lieu : appui sur un lieu (carte ou liste des lieux proches) ouvre une fiche de description avec ses détails (nom, type, description, horaires si connus, photo si découvert). Réutiliser la fiche de la galerie (phase 4d). Lieu non découvert : direction seulement, jamais d'itinéraire ni de position exacte
 - [ ] Gestion d'erreurs (GPS refusé, caméra refusée, hors ligne, serveur indisponible)
 - [ ] Mode hors ligne : jouer avec `places_cache`, synchroniser au retour du réseau
 - [ ] Accessibilité de base (libellés, taille de texte, contraste)
