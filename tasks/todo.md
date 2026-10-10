@@ -27,7 +27,7 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 - [ ] Test : insérer et relire une découverte, migration sur base vide et sur base existante
 
 ## Phase 2 : Carte et brouillard
-- [ ] Choisir et brancher la source de tuiles (voir Questions ouvertes)
+- [ ] Brancher les tuiles OpenFreeMap
 - [ ] Intégrer `@maplibre/maplibre-react-native` + style de carte
 - [ ] Écran d'accueil : explication du concept et des permissions avant de les demander
 - [ ] Position utilisateur (`expo-location`, texte de permission en français)
@@ -39,10 +39,10 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 
 ## Phase 3 : Lieux et navigation (données de test)
 - [ ] Type `Place` dans `/shared`
-- [ ] Jeu de lieux de test en dur pour la ville de développement
+- [ ] Jeu de lieux de test en dur à Biscarrosse
 - [ ] Liste ou marqueurs des lieux proches (non découverts : pas de position exacte affichée sur la carte cachée)
 - [ ] Lieu non découvert : flèche orientée par la boussole (`expo-location` heading) + distance à vol d'oiseau, jamais d'itinéraire
-- [ ] Lieu découvert : itinéraire à pied (service de calcul d'itinéraire, voir Questions ouvertes)
+- [ ] Lieu découvert : itinéraire à pied via OpenRouteService, appel direct depuis l'app (notre serveur ne voit jamais la position). Clé dédiée à l'app, quota surveillé
 - [ ] Test : un lieu non découvert n'expose aucune route, ni dans l'UI ni dans les données
 
 ## Phase 4 : Photo et validation d'un lieu
@@ -64,7 +64,7 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 - [ ] Row Level Security sur toutes les tables
 - [ ] API Node : lieux d'une ville par identifiant de ville, pas par position exacte (le serveur ne voit pas où est l'utilisateur)
 - [ ] Détection de la ville côté appareil (limites des villes téléchargées, test local)
-- [ ] Jobs de collecte : première source (API), puis scraping (respect des conditions d'usage et du `robots.txt`)
+- [ ] Jobs de collecte : OpenStreetMap via Overpass d'abord, puis autres sources ou scraping (respect des conditions d'usage et du `robots.txt`)
 - [ ] Déduplication des lieux (même nom + distance < seuil)
 - [ ] Jobs planifiés pour rafraîchir les lieux
 - [ ] L'app remplace les lieux de test par l'API et remplit `places_cache`
@@ -97,13 +97,17 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 - [ ] Build EAS iOS/Android
 - [ ] Bêta TestFlight + test interne Play Store
 
+## Décisions prises
+- Ville de développement : Biscarrosse
+- Tuiles de carte : OpenFreeMap (OpenStreetMap, sans clé API)
+- Itinéraire à pied : OpenRouteService (clé API, quota quotidien). Repli : Valhalla auto-hébergé
+- Première source de lieux : OpenStreetMap via l'API Overpass
+
 ## Questions ouvertes
-- Ville de développement et ville offerte au lancement (phase 3)
-- Source des tuiles de carte : OpenFreeMap, MapTiler, Stadia, autre (phase 2)
-- Service d'itinéraire à pied : OpenRouteService, Valhalla, OSRM, autre (phase 3)
+- Ville offerte au lancement (phase 6)
 - Chemin parcouru en arrière-plan ou seulement app ouverte (phase 2, impact batterie et permissions)
 - Sauvegarde des découvertes si perte du téléphone : aucune, export manuel, ou sauvegarde chiffrée volontaire (phase 5)
-- Première source de lieux et catégories (phase 5)
+- Catégories de lieux (phase 5)
 - Ville offerte modifiable ou non (phase 6)
 - Prix par ville (phase 6)
 - Outil de remontée des crashs (phase 8)
