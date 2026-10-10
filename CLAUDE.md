@@ -147,7 +147,7 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 
 À mettre à jour au fil du projet : ce qui est fait, ce qui est en cours, ce qui est prévu.
 
-- [ ] Squelette Expo et navigation
+- [x] Squelette Expo et navigation
 - [ ] Carte avec brouillard
 - [ ] Prise de photo et validation d'un lieu
 - [ ] Stockage local des découvertes

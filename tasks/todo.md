@@ -15,8 +15,8 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 - [x] Navigation (écran Carte, écran Photo, écran Profil)
 - [x] Fichier de traduction français + helper `t()` (aucun texte en dur)
 - [x] Development build Android (`npm run android` dans `/app`), Expo Go ne marche pas avec MapLibre
-- [ ] CI GitHub Actions : typecheck + lint + tests sur chaque push
-- [ ] Test : l'app démarre sur development build, la CI passe
+- [x] CI GitHub Actions : typecheck + lint + tests sur chaque push
+- [x] Test : l'app démarre sur development build, la CI passe
 
 ## Phase 1 : Stockage local (SQLite)
 - [ ] Schéma `discovered_places`, `photos`, `owned_maps` dans `app/src/db/`
