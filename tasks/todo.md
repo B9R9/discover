@@ -178,18 +178,60 @@ Décision du 2026-10-10 : à la suppression, le brouillard revient (sinon on dé
 Fait sur le téléphone le 2026-10-10 : fiche d'un spot, modification (Point de vue vers Nature), suppression avec confirmation, brouillard revenu autour, fichier photo effacé, galerie à jour. Formulaire avec clavier ouvert : le défilement seul ne suffisait pas (Android plein écran, le clavier ne réduit pas l'écran), corrigé avec `KeyboardAvoidingView` sur l'écran Photo et la fiche, vérifié. Reste connu : une photo en attente est perdue dans le cache si l'app est tuée avant « Créer » ou « Annuler » (le système vide le cache).
 
 ## Phase 5 : Backend, comptes et collecte des lieux
-- [ ] Projet Supabase, Postgres + PostGIS
+- [x] Postgres + PostGIS en Supabase local (5a) ; projet en ligne en 5b
 - [ ] Comptes : Supabase Auth (nécessaire pour achats, partage, commentaires). Le jeu local marche sans compte
 - [ ] Suppression de compte depuis l'app (obligatoire App Store)
-- [ ] Tables : lieux (nom, position, catégorie, source), villes, cartes partageables, commentaires, achats
-- [ ] Row Level Security sur toutes les tables
-- [ ] API Node : lieux d'une ville par identifiant de ville, pas par position exacte (le serveur ne voit pas où est l'utilisateur)
-- [ ] Détection de la ville côté appareil (limites des villes téléchargées, test local)
-- [ ] Jobs de collecte : OpenStreetMap via Overpass d'abord, puis autres sources ou scraping (respect des conditions d'usage et du `robots.txt`)
-- [ ] Déduplication des lieux (même nom + distance < seuil)
+- [x] Tables : lieux (nom, position, catégorie, source), villes (5a). Cartes partageables, commentaires, achats : avec leurs phases
+- [ ] Row Level Security sur toutes les tables (fait pour `cities` et `places`)
+- [x] API Node : lieux d'une ville par identifiant de ville, pas par position exacte (le serveur ne voit pas où est l'utilisateur)
+- [x] Détection de la ville côté appareil (limites des villes téléchargées, test local)
+- [x] Jobs de collecte : OpenStreetMap via Overpass d'abord, puis autres sources ou scraping (respect des conditions d'usage et du `robots.txt`)
+- [x] Déduplication des lieux (même nom + distance < seuil)
 - [ ] Jobs planifiés pour rafraîchir les lieux
-- [ ] L'app remplace les lieux de test par l'API et remplit `places_cache`
-- [ ] Test : relire les requêtes réseau, le serveur ne reçoit ni position ni historique des déplacements
+- [x] L'app remplace les lieux de test par l'API et remplit `places_cache`
+- [x] Test : relire les requêtes réseau, le serveur ne reçoit ni position ni historique des déplacements
+
+### Plan détaillé phase 5a : lieux du serveur (validé le 2026-10-10)
+
+Décisions du 2026-10-10 : phase 5 coupée en deux. 5a = lieux (base, collecte, API, app). 5b = comptes, suppression de compte, jobs planifiés, hébergement. Base en Supabase local (CLI + Docker) pour le développement. L'app passe par l'API Node, jamais directement par Supabase. Catégories : une liste fixe courte.
+
+1. [x] **Catégories** dans `/shared` : `PLACE_CATEGORIES` = `culture`, `heritage`, `nature`, `viewpoint`, `beach`, `leisure`, `food`, `shop` (`sport` retiré : le genre `leisure` couvre déjà « Sport, loisir »). Ce sont les mêmes clés que les genres de spot (`streetart` reste propre aux spots). Les textes existent déjà en partie (`category.<clé>`), on ajoute ceux qui manquent. Types `City` et `CityBoundary` (GeoJSON) dans `/shared`.
+2. [x] **Supabase local** dans `server/supabase/` (`supabase init`). Une migration SQL avec `postgis`, puis deux tables :
+   - `cities` : id texte (`biscarrosse`), nom, relation OSM, `boundary geography(MultiPolygon)`
+   - `places` : id texte (`osm:node/123`, même format que les lieux de test, donc les découvertes déjà faites restent liées), `city_id`, nom, `location geography(Point)`, catégorie (`CHECK` sur la liste), source, date de mise à jour. Index GiST sur `location`.
+   - RLS activée sur les deux tables, sans aucune politique : `anon` ne lit rien. Seul le serveur (connexion Postgres directe) lit et écrit.
+3. [x] **Client Postgres** côté serveur : dépendance `postgres` (porsager). Raison : petite, sans dépendance, requêtes paramétrées par gabarit, types TypeScript. `DATABASE_URL` dans `server/.env`.
+4. [x] **Job de collecte** `npm run collect -- biscarrosse` (lancé à la main en 5a, planifié en 5b) :
+   - limites de la commune : relation OSM via Overpass
+   - lieux nommés dans la commune via Overpass (`out center`) : tags `tourism`, `historic`, `leisure`, `natural=beach`, `amenity` culture, choisis par une table tag → catégorie (fonction pure, testée)
+   - déduplication : même nom normalisé et distance < 50 m, on garde le premier (fonction pure, testée)
+   - une transaction : upsert de la ville et des lieux, suppression des lieux OSM de la ville absents de la nouvelle collecte
+   - User-Agent identifiable, une requête à la fois (règles d'usage d'Overpass), attribution ODbL notée dans la doc
+5. [x] **API Node** (`node:http`, sans framework) :
+   - `GET /cities` : id, nom, limites simplifiées (`ST_Simplify`) en GeoJSON
+   - `GET /cities/:id/places` : `Place[]`, 404 si la ville est inconnue
+   - aucun paramètre de position accepté ; les journaux ne contiennent que la méthode, le chemin et le statut
+   - tests des routes avec une base fictive derrière une petite interface (comme `Db` côté app)
+6. [x] **Détection de la ville sur l'appareil** :
+   - migration SQLite : table `cities_cache` (id, nom, limites en JSON)
+   - fonction pure `findCity(point, cities)` (point dans polygone, testée)
+   - la position ne quitte jamais l'appareil, seul l'id de ville part
+7. [x] **L'app passe à l'API** :
+   - `EXPO_PUBLIC_API_URL` ; en dev, `adb reverse tcp:3000 tcp:3000`
+   - au démarrage et au retour sur l'onglet Carte : `GET /cities`, puis la ville courante, puis `GET /cities/:id/places`, puis `replaceCachedPlaces`
+   - hors ligne ou serveur en panne : on garde le cache, sans erreur bloquante
+   - suppression de `testPlaces.ts` et de son seed
+8. [x] **Vérification** :
+   - typecheck, lint, format, tests
+   - collecte réelle de Biscarrosse sur Supabase local (nombre de lieux, catégories)
+   - sur le téléphone : lieux de l'API sur la carte, la découverte « Piscine » toujours liée
+   - journal du serveur relu : aucune position ni coordonnée reçue
+9. [x] **Doc** : `docs/README.md` (architecture serveur, catégories, flux des lieux), `docs/runbook.md` (lancer Supabase local, `.env`, collecte, `adb reverse`, réinitialiser la base), `CLAUDE.md` « État actuel », bilan.
+
+Écarts : `findCity` écrit à la main (point dans polygone, 25 lignes) plutôt qu'une dépendance. La synchro tourne une fois par lancement, au premier relevé GPS ; un changement de ville en cours de session attend le lancement suivant. Délai de 10 s sur chaque appel, ajouté après le test sur le téléphone.
+Fait sur le téléphone le 2026-10-10 : 106 lieux reçus, nouvelles catégories affichées, la Piscine toujours « Découvert ». Hors ligne (serveur arrêté, cache HTTP vidé) : villes lues dans `cities_cache`, lieux gardés, aucune erreur à l'écran. Journal du serveur : seulement `GET /cities` et `GET /cities/biscarrosse/places`.
+
+Hors 5a : comptes, jobs planifiés, hébergement de l'API et projet Supabase en ligne (5b). Autres sources que OSM. Lieux de plusieurs villes en même temps. Sauvegarde des découvertes (question encore ouverte).
 
 ## Phase 6 : Cartes et achats
 - [ ] Ville offerte : la ville de l'utilisateur au premier lancement, enregistrée dans `owned_maps`
@@ -206,6 +248,10 @@ Fait sur le téléphone le 2026-10-10 : fiche d'un spot, modification (Point de 
 - [ ] Partage d'un lieu créé : à la communauté seulement les spots et lieux publics (`visibility = 'public'` : établissements recevant du public, points de vue, nature), après modération. Un lieu `private` (domicile) jamais public, partageable à des amis choisis
 - [ ] Modération (obligatoire App Store pour contenu utilisateur) : signaler, bloquer un utilisateur, filtrer
 - [ ] Rien ne part vers le serveur sans action explicite de l'utilisateur
+- [ ] Amis : inviter, accepter, retirer (comptes de la phase 5b)
+- [ ] Voir la carte d'un ami : seulement ce qu'il a choisi de partager (lieux découverts ou image de sa carte), jamais ses chemins parcourus. Pas de synchronisation automatique
+- [ ] Partager un lieu ou un spot à des amis choisis
+- [ ] Événements : à préciser (voir questions ouvertes)
 - [ ] Test : une photo partagée ne contient aucune donnée EXIF de position
 
 ## Phase 8 : Finition et publication
@@ -230,10 +276,11 @@ Fait sur le téléphone le 2026-10-10 : fiche d'un spot, modification (Point de 
 ## Questions ouvertes
 - Ville offerte au lancement (phase 6)
 - Sauvegarde des découvertes si perte du téléphone : aucune, export manuel, ou sauvegarde chiffrée volontaire (phase 5)
-- Catégories de lieux (phase 5)
 - Ville offerte modifiable ou non (phase 6)
 - Prix par ville (phase 6)
 - Outil de remontée des crashs (phase 8)
+- Événements (phase 7) : créés par les utilisateurs ou collectés par le serveur ? Date de fin et disparition ? Validés par une photo comme un lieu ?
+- Carte d'un ami (phase 7) : partage de la liste des lieux découverts, d'une image, ou des deux ?
 
 ## Bilan
 
@@ -286,3 +333,12 @@ Fait sur le téléphone le 2026-10-10 : fiche d'un spot, modification (Point de 
 - Fiche d'un lieu depuis la galerie du Profil : modifier (nom, type, genre) ou supprimer un lieu créé ; lieux du serveur en lecture seule.
 - Suppression : transaction puis fichier ; `useFog` détecte qu'une découverte a disparu et recalcule tout, le brouillard revient.
 - Vérifié : 47 tests, typecheck, lint, format ; sur le téléphone : modification, suppression, brouillard, clavier.
+
+### Phase 5a
+- Supabase local (CLI + Docker, ports 544xx) dans `server/supabase/`, une migration : PostGIS, tables `cities` et `places`, RLS sans politique (l'API REST de Supabase ne lit rien).
+- 1 dépendance serveur : `postgres` (porsager). `@types/geojson` déclaré dans `/shared` (déjà présent pour l'app).
+- Collecte `npm run collect -- biscarrosse` : Overpass (limites + lieux), table tag OSM → catégorie, dédoublonnage nom + 50 m, une transaction, collecte vide refusée, nouvel essai sur 429/504. Biscarrosse : 106 lieux.
+- API `node:http` : `/health`, `/cities`, `/cities/:id/places`. Query string ignorée, journal sans position.
+- App : `cities_cache` (migration 5), `findCity` sur l'appareil, `syncPlaces` au premier relevé GPS, repli sur le cache, délai de 10 s. `testPlaces.ts` supprimé, anciens textes de catégories retirés.
+- Vérifié : 15 tests serveur, 53 tests app, typecheck, lint, format ; sur le téléphone : lieux de l'API, découverte gardée, hors ligne.
+- Reste (5b) : comptes, suppression de compte, collecte planifiée, hébergement API + projet Supabase en ligne.

@@ -9,10 +9,12 @@
   "scripts": {
     "dev": "node --watch --env-file-if-exists=.env src/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --test \"src/**/*.test.ts\""
+    "test": "node --test \"src/**/*.test.ts\"",
+    "collect": "node --env-file-if-exists=.env src/collect/index.ts"
   },
   "dependencies": {
-    "@discover/shared": "*"
+    "@discover/shared": "*",
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

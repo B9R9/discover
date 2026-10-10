@@ -19,7 +19,10 @@ Installer les dépendances depuis la racine (monorepo npm workspaces) :
 ```
 npm install
 cp server/.env.example server/.env
+cp app/.env.example app/.env
 ```
+
+Serveur : Docker Desktop et Supabase CLI (`brew install supabase/tap/supabase`).
 
 Ajouter une dépendance à l'app : `cd app && npx expo install <paquet>` (versions compatibles avec le SDK Expo).
 
@@ -39,6 +42,39 @@ cd app && npm run android   # build + installation sur le téléphone, à refair
 cd app && npm start         # Metro, pour les sessions suivantes
 cd server && npm run dev    # Node exécute le TypeScript directement
 ```
+
+## Lancer la base et l'API des lieux
+
+Supabase local, ports 544xx (un autre projet Supabase du poste peut occuper les ports 543xx par défaut) :
+
+```
+cd server && supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
+cd server && npm run collect -- biscarrosse   # environ 1 min, plus si Overpass est chargé (504 : 30 s d'attente puis nouvel essai)
+cd server && npm run dev
+curl -s localhost:3000/cities/biscarrosse/places | head -c 300
+```
+
+`supabase start` applique les migrations de `server/supabase/migrations/` au premier lancement. Studio (lecture des tables) : http://127.0.0.1:54423. SQL en ligne de commande, sans `psql` installé :
+
+```
+echo "select category, count(*) from places group by 1" | docker exec -i supabase_db_detour psql -U postgres
+```
+
+Téléphone branché en USB : il joint l'API du Mac par `localhost` grâce à `adb reverse` (à refaire après chaque débranchement). `EXPO_PUBLIC_API_URL=http://localhost:3000` dans `app/.env`, puis relancer Metro (variable lue au démarrage du bundler) :
+
+```
+adb reverse tcp:3000 tcp:3000
+```
+
+Vérifier : le journal de `npm run dev` montre `GET /cities 200` puis `GET /cities/biscarrosse/places 200` au lancement de l'app. Chaque ligne du journal contient seulement la méthode, le chemin et le statut : aucune position.
+
+Ajouter une ville : une ligne dans `server/src/collect/cities.ts` (id, nom, relation OSM de la commune, `admin_level=8`), puis `npm run collect -- <id>`. Trouver la relation :
+
+```
+curl -s -A "Detour/0.1 (+https://github.com/B9R9/discover)" https://overpass-api.de/api/interpreter --data-urlencode 'data=[out:json];rel["boundary"="administrative"]["admin_level"="8"]["name"="Biscarrosse"];out ids;'
+```
+
+Repartir d'une base serveur vide (efface lieux et villes, rejoue les migrations) : `cd server && supabase db reset`, puis relancer la collecte. Arrêter : `cd server && supabase stop`.
 
 ## Vérifier
 
@@ -110,7 +146,7 @@ node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/
 
 ## Tester la photo sans se déplacer (téléphone de développement)
 
-Pose un faux lieu à la dernière position enregistrée, puis prends une photo depuis l'onglet Photo. Le lieu `dev` n'est pas effacé par les lieux de test au démarrage. App arrêtée, base copiée et renvoyée :
+Pose un faux lieu à la dernière position enregistrée, puis prends une photo depuis l'onglet Photo. Le lieu `dev` (ville `dev`) n'est pas effacé par la mise à jour des lieux, qui ne remplace que la ville du téléphone. App arrêtée, base copiée et renvoyée :
 
 ```
 adb shell am force-stop com.b9r9.discover
@@ -157,6 +193,10 @@ _Une entrée par panne rencontrée : symptôme, cause, correctif._
 - **Permission « Toujours » accordée et réglage actif, mais pas de notification ni de service** (`dumpsys activity services` vide). Cause : la tâche reste enregistrée après la mort de son service (crash, mise à jour), et `hasStartedLocationUpdatesAsync` renvoie `true`. Correctif : `syncBackgroundTracking` appelle toujours `startLocationUpdatesAsync` quand le suivi est voulu (`app/src/features/location/tracking.ts`).
 - **Gradle : `SDK location not found`**. Cause : `ANDROID_HOME` absent du shell (par exemple un shell qui ne lit pas `~/.zshrc`). Correctif : `export ANDROID_HOME=$HOME/Library/Android/sdk` avant `npm run android`.
 - **Logcat : `MapLibre Native [WARN] ... Invalid geometry in line layer`**. Sans gravité : vient des tuiles OpenFreeMap (le warning reste quand nos couches de lignes sont retirées).
+- **`supabase start` : `Bind for 0.0.0.0:54322 failed: port is already allocated`**. Cause : un autre projet Supabase local tourne avec les ports par défaut. Correctif : nos ports sont déjà en 544xx dans `server/supabase/config.toml` ; si le conflit revient, `docker ps` montre qui tient le port.
+- **Collecte : `Overpass answered 504`** après 3 essais. Cause : Overpass surchargé. Correctif : relancer plus tard ; la base garde les lieux précédents (une collecte en échec n'écrit rien).
+- **L'app ne rappelle pas l'API au lancement (rien dans le journal du serveur), sans erreur**. Normal pendant une heure : le cache HTTP d'Android sert `/cities` et `/cities/:id/places` (`Cache-Control: max-age=3600`). Pour forcer un appel : `adb shell run-as com.b9r9.discover rm -rf cache/http-cache`, app arrêtée.
+- **L'app garde les anciens lieux**. Cause : API injoignable (serveur arrêté, `adb reverse` perdu, `EXPO_PUBLIC_API_URL` absent ou Metro pas relancé). Metro affiche `Cities not refreshed, using the cache`. Correctif : relancer `npm run dev`, `adb reverse tcp:3000 tcp:3000`, Metro.
 - **Gradle échoue avec une erreur de version Java**. Cause : JDK 25 par défaut. Correctif : `JAVA_HOME` sur le JDK d'Android Studio (voir Installer).
 
 ## Inspecter la base locale

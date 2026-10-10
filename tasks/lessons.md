@@ -34,3 +34,6 @@ Format :
 
 - **Erreur** : formulaire rendu défilant pour le clavier, mais rien ne défilait : Android plein écran (edge-to-edge) ne réduit pas l'écran quand le clavier s'ouvre.
 - **Règle** : tout écran avec un champ texte est dans un `KeyboardAvoidingView` (`behavior="padding"`), vérifié sur le téléphone clavier ouvert.
+
+- **Erreur** : test hors ligne sur le téléphone (serveur arrêté) jugé d'abord comme un `fetch` bloqué. En fait, le cache HTTP d'Android répondait à la place du serveur (`Cache-Control: max-age=3600`) : ni requête, ni erreur, et le repli sur SQLite n'était pas testé du tout.
+- **Règle** : pour tester un repli hors ligne ou un appel réseau sur l'appareil, vider d'abord le cache HTTP de l'app (`run-as ... rm -rf cache/http-cache`) et prouver par un log quel chemin a été pris, au lieu de déduire à partir d'un silence.

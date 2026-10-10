@@ -140,6 +140,8 @@ npm run format           # Prettier
 cd app && npm run android   # development build sur le téléphone Android
 cd app && npm start         # serveur Metro pour le development build
 cd server && npm run dev    # Node 24 exécute le TypeScript directement
+cd server && supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit   # base locale
+cd server && npm run collect -- biscarrosse   # collecte des lieux
 ```
 
 Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
@@ -154,6 +156,6 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 - [x] Prise de photo et validation d'un lieu (phase 4, animation à voir à l'œil)
 - [x] Lieux créés par l'utilisateur, spots et chez quelqu'un, en local : genre, modifier, supprimer (phases 4b à 4d)
 - [x] Stockage local des découvertes (SQLite, migrations, requêtes)
-- [ ] Backend et collecte des lieux
+- [ ] Backend et collecte des lieux (phase 5a faite : Supabase local, collecte OSM, API des lieux, app branchée ; reste 5b : comptes, jobs planifiés, hébergement)
 - [ ] Partage et commentaires
 - [ ] Achat de cartes

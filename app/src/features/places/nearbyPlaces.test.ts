@@ -19,7 +19,7 @@ function placeAt(
     name: `Name ${id}`,
     latitude: HOME.latitude + northMeters / METERS_PER_DEGREE,
     longitude: HOME.longitude + eastMeters / (METERS_PER_DEGREE * cos),
-    category: 'museum',
+    category: 'culture',
     discovered,
   };
 }

@@ -11,7 +11,7 @@ test('formats a walk duration in minutes', () => {
 });
 
 test('falls back to a generic label for an unknown category', () => {
-  expect(categoryLabel('museum')).toBe('Musée');
+  expect(categoryLabel('culture')).toBe('Culture');
   expect(categoryLabel('volcano')).toBe('Lieu');
   expect(categoryLabel(null)).toBe('Lieu');
 });

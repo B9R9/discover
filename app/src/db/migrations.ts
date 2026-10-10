@@ -77,6 +77,15 @@ export const MIGRATIONS: readonly string[] = [
       CASE visibility WHEN 'public' THEN COALESCE(genre, 'spot') ELSE 'personal' END
     FROM personal_places;
   `,
+  // City boundaries from the server, so the phone finds its city without sending its position.
+  `
+  CREATE TABLE cities_cache (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    boundary TEXT NOT NULL,
+    updated_at INTEGER NOT NULL
+  );
+  `,
 ];
 
 export async function migrate(db: Db, migrations: readonly string[] = MIGRATIONS): Promise<void> {

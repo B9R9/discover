@@ -15,6 +15,7 @@ test('migrates an empty database to the latest version', async () => {
     [],
   );
   expect(tables.map((table) => table.name)).toEqual([
+    'cities_cache',
     'discovered_places',
     'owned_maps',
     'personal_places',

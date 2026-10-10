@@ -54,7 +54,7 @@ test('a server place can be neither edited nor deleted', async () => {
   await replaceCachedPlaces(
     db,
     'biscarrosse',
-    [{ id: 'osm:1', cityId: 'biscarrosse', name: 'Musée', ...position, category: 'museum' }],
+    [{ id: 'osm:1', cityId: 'biscarrosse', name: 'Musée', ...position, category: 'culture' }],
     1,
   );
   const photoId = await addPhoto(db, {
