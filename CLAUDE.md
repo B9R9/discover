@@ -34,11 +34,12 @@ CLAUDE.md   ce fichier
 Dans `/app/src` :
 
 ```
+app/         routes Expo Router, une ligne qui ré-exporte l'écran de screens/
 screens/     un fichier par écran
 components/  composants réutilisables
 features/    logique par fonctionnalité (discovery, map, photo, social)
 db/          schéma SQLite et requêtes
-lib/         petits utilitaires
+lib/         petits utilitaires (dont i18n/ : textes français et t())
 ```
 
 ## Règles de code
@@ -128,11 +129,19 @@ Les lieux viennent de web scraping et d'APIs. Ces jobs tournent côté serveur e
 
 ## Commandes
 
+Monorepo npm workspaces (`app`, `server`, `shared`). Installer depuis la racine : `npm install`. Dans `/app`, ajouter une dépendance avec `npx expo install <paquet>`.
+
 ```
-cd app && npx expo start --dev-client
-cd app && npx tsc --noEmit
-cd server && npm run dev
+npm run typecheck        # tous les workspaces
+npm run lint
+npm test
+npm run format           # Prettier
+cd app && npm run android   # development build sur le téléphone Android
+cd app && npm start         # serveur Metro pour le development build
+cd server && npm run dev    # Node 24 exécute le TypeScript directement
 ```
+
+Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 
 ## État actuel
 

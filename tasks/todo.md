@@ -5,16 +5,16 @@ Ordre pensé pour avoir une boucle jouable le plus tôt possible : carte, photo,
 Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tests, puis un test manuel sur development build. Après chaque phase, mettre à jour « État actuel » dans `CLAUDE.md` et le bilan en bas de ce fichier.
 
 ## Phase 0 : Fondations
-- [ ] Créer `/app` avec Expo (TypeScript strict, `"strict": true`)
-- [ ] Créer `/shared` (types partagés) et `/server` (squelette Node + TypeScript strict)
-- [ ] Brancher `/shared` dans `/app` et `/server` (npm workspaces ou alias de chemin TypeScript)
-- [ ] Arborescence `/app/src` : `screens/`, `components/`, `features/`, `db/`, `lib/`
-- [ ] ESLint (règle `no-explicit-any`) + Prettier
-- [ ] Runner de tests (`jest-expo` dans `/app`, Jest ou Vitest dans `/server`)
-- [ ] Variables d'environnement : `.env.example`, aucune clé dans le code
-- [ ] Navigation (écran Carte, écran Photo, écran Profil)
-- [ ] Fichier de traduction français + helper `t()` (aucun texte en dur)
-- [ ] Development build iOS/Android (`npx expo run:ios`), Expo Go ne marche pas avec MapLibre
+- [x] Créer `/app` avec Expo (TypeScript strict, `"strict": true`)
+- [x] Créer `/shared` (types partagés) et `/server` (squelette Node + TypeScript strict)
+- [x] Brancher `/shared` dans `/app` et `/server` (npm workspaces)
+- [x] Arborescence `/app/src` : `screens/`, `components/`, `features/`, `db/`, `lib/`
+- [x] ESLint (règle `no-explicit-any`) + Prettier
+- [x] Runner de tests (`jest-expo` dans `/app`, `node --test` dans `/server`)
+- [x] Variables d'environnement : `.env.example`, aucune clé dans le code
+- [x] Navigation (écran Carte, écran Photo, écran Profil)
+- [x] Fichier de traduction français + helper `t()` (aucun texte en dur)
+- [x] Development build Android (`npm run android` dans `/app`), Expo Go ne marche pas avec MapLibre
 - [ ] CI GitHub Actions : typecheck + lint + tests sur chaque push
 - [ ] Test : l'app démarre sur development build, la CI passe
 
@@ -115,3 +115,10 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 ## Bilan
 
 À remplir à la fin de chaque phase.
+
+### Phase 0
+- Monorepo npm workspaces (`app`, `server`, `shared`), Expo SDK 57, TypeScript 6 strict, Node 24 côté serveur (TypeScript exécuté sans build).
+- 3 onglets Expo Router, textes via `t()` typé, testé sur Nothing Phone (development build).
+- Vérifié : format, typecheck, lint, tests (2 app, 3 serveur), `expo-doctor` 21/21, `assembleDebug` OK.
+- Pièges rencontrés (détaillés dans `docs/runbook.md`) : doublon `react` (corrigé par `overrides`), JDK 25 refusé par Gradle, Metro sans surveillance des fichiers avec `CI=1`, icônes d'onglet `MissingIcon`.
+- Reste : icônes d'onglet, thème sombre.
