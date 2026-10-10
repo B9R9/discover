@@ -1,14 +1,39 @@
 import type { Area } from '@discover/shared';
 
-import { addOwnedMap, listOwnedMaps, type OwnedMap } from '@/db/ownedMaps';
+import { addOwnedMap, listOwnedMaps, type MapSource, type OwnedMap } from '@/db/ownedMaps';
 import type { Db } from '@/db/types';
 
+export type MapStatus = MapSource | 'locked';
+
 // A bought department unlocks its big cities too; the free one does not.
+export function mapStatus(area: Area, owned: readonly OwnedMap[]): MapStatus {
+  const own = owned.find((map) => map.areaId === area.id);
+  if (own) return own.source;
+  const department = owned.find((map) => map.areaId === area.departmentId);
+  return department?.source === 'purchased' ? 'purchased' : 'locked';
+}
+
 export function isUnlocked(area: Area, owned: readonly OwnedMap[]): boolean {
-  return owned.some(
-    (map) =>
-      map.areaId === area.id || (map.areaId === area.departmentId && map.source === 'purchased'),
-  );
+  return mapStatus(area, owned) !== 'locked';
+}
+
+export interface MapEntry {
+  area: Area;
+  status: MapStatus;
+}
+
+// Departments with something unlocked first, then the others; each one followed by its big cities.
+export function listMaps(areas: readonly Area[], owned: readonly OwnedMap[]): MapEntry[] {
+  const groups = areas
+    .filter((area) => area.departmentId === null)
+    .map((department) =>
+      [department, ...areas.filter((area) => area.departmentId === department.id)].map((area) => ({
+        area,
+        status: mapStatus(area, owned),
+      })),
+    );
+  const hasUnlocked = (group: MapEntry[]) => group.some((entry) => entry.status !== 'locked');
+  return [...groups.filter(hasUnlocked), ...groups.filter((group) => !hasUnlocked(group))].flat();
 }
 
 // The first area the phone is found in gives its department for free, once: moving never changes it.

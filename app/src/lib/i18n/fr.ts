@@ -48,6 +48,11 @@ export const fr = {
   'profile.backgroundTracking': 'Enregistrer mes balades en arrière-plan',
   'profile.backgroundTrackingHint':
     'La carte se dévoile même écran éteint. Il faut autoriser la position « Toujours ».',
+  'maps.title': 'Mes cartes',
+  'maps.free': 'Offerte',
+  'maps.purchased': 'Débloquée',
+  'maps.locked': 'À débloquer',
+  'maps.empty': 'Les cartes apparaîtront dès que Détour saura où tu es.',
   'account.title': 'Compte',
   'account.why':
     'Facultatif. Il servira à acheter des cartes et à partager avec tes amis. Tes découvertes restent sur ton téléphone.',

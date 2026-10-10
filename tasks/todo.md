@@ -290,13 +290,14 @@ Décision du 2026-10-10 : une carte = un **département** (OSM `admin_level=6`).
 3. [x] **App** : `cities_cache` devient `areas_cache` (migration), `findCity` devient `findArea`. La grande ville passe avant le département (les limites ne se chevauchent plus, donc un seul résultat).
 4. [x] **Carte offerte** : au premier `findArea` réussi, le département est écrit dans `owned_maps` en `free`. Ne change plus jamais (pas de réinstallation : à voir avec RevenueCat ou le compte, point 7).
 5. [x] **Zone non débloquée** : pas de lieux téléchargés, message « Carte à débloquer » dans le panneau. Le chemin parcouru s'enregistre et se dévoile comme ailleurs (seuls les lieux restent cachés).
-6. [ ] **Écran des cartes** : cartes possédées, carte offerte, autres départements et grandes villes avec prix.
+6. [x] **Écran des cartes** : section « Mes cartes » du Profil (choix du 2026-10-10), départements et grandes villes avec leur état. Prix et bouton d'achat à l'étape 7 (prix localisés venus des stores).
    - règle « possédée » (fonction pure, testée) : une zone est débloquée si elle est dans `owned_maps`, ou si c'est une grande ville dont le département est **acheté** (`purchased`). Le département offert (`free`) ne débloque pas ses grandes villes.
 7. [ ] **RevenueCat** : un produit par carte (App Store et Play Store), restauration des achats, compte de la phase 5b comme identifiant. Nouvelle dépendance `react-native-purchases` (RevenueCat, prévu dans la stack).
 8. [ ] **Tests** : `findArea` (grande ville avant département), collecte (Bordeaux hors Gironde), achat sandbox iOS et Android, restauration sur un autre appareil.
 9. [ ] **Doc** : `docs/README.md`, `docs/runbook.md` (ajouter un département), `CLAUDE.md`, bilan.
 
 Fait le 2026-10-10 (étapes 1 à 5, en local) : collecte Gironde (5355 lieux, Bordeaux 1644, 50 km² retirés) et Landes (3493 lieux, Biscarrosse dedans), 61 tests app et tests serveur verts. En ligne le 2026-10-10 : migration appliquée, Landes, Gironde et Bordeaux collectés, API Render servant `/areas` (3 zones). Fait sur le téléphone le 2026-10-10 : migration 6 passée, Landes en `free`, 3 493 lieux en cache, Piscine toujours « Découvert », 4 min sans erreur. Corrigé en passant : la tâche de fond fermait la connexion SQLite partagée avec l'app (voir `tasks/lessons.md`). Pas vu : une zone bloquée sur le téléphone (il faudrait être en Gironde), couverte par les tests.
+Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `features/maps/ownership.ts`, `isUnlocked` passe par `mapStatus`. Vu sur le téléphone : Landes « Offerte », Gironde et Bordeaux « À débloquer », 62 tests verts.
 Écarts : `kind` remplacé par `department_id` (nul = département). Chemins dévoilés aussi en zone bloquée. Ids de grande ville préfixés (`gironde-bordeaux`) car Saint-Denis existe deux fois. Réponse Gironde de 750 Ko sans compression : gzip à ajouter si ça gêne. Reste ouvert : Paris, département et commune à la fois (département vide après découpage) ; un lieu perso créé en zone bloquée y dévoile 150 m.
 
 ## Phase 7 : Social

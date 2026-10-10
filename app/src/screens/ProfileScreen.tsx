@@ -5,11 +5,13 @@ import { KeyboardAvoidingView, ScrollView, StyleSheet, Switch, Text, View } from
 
 import { AccountSection } from '@/components/AccountSection';
 import { DiscoveryGallery } from '@/components/DiscoveryGallery';
+import { MapsSection } from '@/components/MapsSection';
 import { PlaceDetailModal } from '@/components/PlaceDetailModal';
 import { Screen } from '@/components/Screen';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { getSetting } from '@/db/settings';
 import { setBackgroundTracking } from '@/features/location/backgroundSetting';
+import { useMaps } from '@/features/maps/useMaps';
 import { useDiscoveryGallery } from '@/features/photo/useDiscoveryGallery';
 import { t } from '@/lib/i18n/t';
 import { palette, spacing } from '@/theme/tokens';
@@ -19,6 +21,7 @@ export function ProfileScreen() {
   const [background, setBackground] = useState(false);
   const [discoveries, reloadDiscoveries] = useDiscoveryGallery(db);
   const [openId, setOpenId] = useState<PlaceId | null>(null);
+  const maps = useMaps(db);
   const opened = discoveries.find((discovery) => discovery.placeId === openId) ?? null;
 
   useEffect(() => {
@@ -52,6 +55,10 @@ export function ProfileScreen() {
             {t('profile.discoveries')}
           </Text>
           <DiscoveryGallery discoveries={discoveries} onOpen={setOpenId} />
+          <Text style={styles.section} accessibilityRole="header">
+            {t('maps.title')}
+          </Text>
+          <MapsSection maps={maps} />
           <AccountSection />
         </ScrollView>
       </KeyboardAvoidingView>
