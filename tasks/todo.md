@@ -204,6 +204,8 @@ Fait sur le téléphone le 2026-10-10 : fiche d'un spot, modification (Point de 
 - [ ] Retirer les métadonnées EXIF (position) des photos avant envoi
 - [ ] Carte partageable
 - [ ] Partage d'un lieu créé : à la communauté seulement les spots et lieux publics (`visibility = 'public'` : établissements recevant du public, points de vue, nature), après modération. Un lieu `private` (domicile) jamais public, partageable à des amis choisis
+- [ ] Partage de position en direct entre amis (exception volontaire à « la position reste sur l'appareil », à valider) : désactivé par défaut, amis choisis un par un, durée limitée (1 h, 8 h ou jusqu'à l'arrêt), arrêt en un geste, bandeau visible tant que le partage tourne. Seule la dernière position part, écrasée à chaque envoi, effacée à l'arrêt ou à l'expiration : jamais d'historique côté serveur. Lecture réservée aux amis choisis (RLS Supabase). Point de l'ami sur la carte, sans dévoiler le brouillard ni donner d'itinéraire vers lui
+- [ ] Test : après l'arrêt ou l'expiration, le serveur ne garde aucune position ; un utilisateur non choisi ne lit rien
 - [ ] Modération (obligatoire App Store pour contenu utilisateur) : signaler, bloquer un utilisateur, filtrer
 - [ ] Rien ne part vers le serveur sans action explicite de l'utilisateur
 - [ ] Test : une photo partagée ne contient aucune donnée EXIF de position
