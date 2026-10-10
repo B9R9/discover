@@ -15,7 +15,7 @@ test('migrates an empty database to the latest version', async () => {
     [],
   );
   expect(tables.map((table) => table.name)).toEqual([
-    'cities_cache',
+    'areas_cache',
     'discovered_places',
     'owned_maps',
     'personal_places',
@@ -36,8 +36,8 @@ test('upgrades an existing database without losing data', async () => {
   await migrate(db, next);
 
   expect(await version(db)).toBe(next.length);
-  expect(await db.getAllAsync('SELECT city_id, note FROM owned_maps', [])).toEqual([
-    { city_id: 'biscarrosse', note: null },
+  expect(await db.getAllAsync('SELECT area_id, note FROM owned_maps', [])).toEqual([
+    { area_id: 'biscarrosse', note: null },
   ]);
 });
 
@@ -65,5 +65,20 @@ test('migration 4 keeps the spots created before genres existed', async () => {
 
   expect(await db.getAllAsync('SELECT id, category FROM all_places', [])).toEqual([
     { id: 'personal:1', category: 'spot' },
+  ]);
+});
+
+test('migration 6 keeps cached places, now under area_id, in all_places', async () => {
+  const db = openTestDb();
+  await migrate(db, MIGRATIONS.slice(0, 5));
+  await db.runAsync(
+    "INSERT INTO places_cache VALUES ('osm:node/1', 'biscarrosse', 'Musée', 44.39, -1.16, 'culture', 1)",
+    [],
+  );
+
+  await migrate(db);
+
+  expect(await db.getAllAsync('SELECT id, area_id FROM all_places', [])).toEqual([
+    { id: 'osm:node/1', area_id: 'biscarrosse' },
   ]);
 });

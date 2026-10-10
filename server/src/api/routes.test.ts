@@ -9,7 +9,7 @@ import { route, type Services } from './routes.ts';
 
 const museum: Place = {
   id: 'osm:node/1',
-  cityId: 'biscarrosse',
+  areaId: 'landes',
   name: 'Musée',
   latitude: 44.4,
   longitude: -1.2,
@@ -17,15 +17,16 @@ const museum: Place = {
 };
 
 const store: PlacesStore = {
-  listCities: () =>
+  listAreas: () =>
     Promise.resolve([
       {
-        id: 'biscarrosse',
-        name: 'Biscarrosse',
+        id: 'landes',
+        name: 'Landes',
+        departmentId: null,
         boundary: { type: 'MultiPolygon', coordinates: [] },
       },
     ]),
-  listPlaces: (cityId) => Promise.resolve(cityId === 'biscarrosse' ? [museum] : null),
+  listPlaces: (areaId) => Promise.resolve(areaId === 'landes' ? [museum] : null),
 };
 
 function fakeAuth() {
@@ -42,19 +43,19 @@ function fakeAuth() {
 const services: Services = { store, auth: null };
 const get = (pathname: string) => route({ method: 'GET', pathname }, services);
 
-test('route lists cities and the places of a city', async () => {
-  assert.equal((await get('/cities')).status, 200);
-  assert.deepEqual(await get('/cities/biscarrosse/places'), { status: 200, body: [museum] });
+test('route lists areas and the places of an area', async () => {
+  assert.equal((await get('/areas')).status, 200);
+  assert.deepEqual(await get('/areas/landes/places'), { status: 200, body: [museum] });
 });
 
-test('route answers 404 for an unknown city or path', async () => {
-  assert.equal((await get('/cities/paris/places')).status, 404);
+test('route answers 404 for an unknown area or path', async () => {
+  assert.equal((await get('/areas/paris/places')).status, 404);
   assert.equal((await get('/places')).status, 404);
-  assert.equal((await get('/cities/../places')).status, 404);
+  assert.equal((await get('/areas/../places')).status, 404);
 });
 
 test('route only accepts GET on places routes', async () => {
-  assert.equal((await route({ method: 'POST', pathname: '/cities' }, services)).status, 405);
+  assert.equal((await route({ method: 'POST', pathname: '/areas' }, services)).status, 405);
 });
 
 test('DELETE /me deletes the user behind a valid session token', async () => {

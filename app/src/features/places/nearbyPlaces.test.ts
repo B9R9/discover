@@ -15,7 +15,7 @@ function placeAt(
   const cos = Math.cos((HOME.latitude * Math.PI) / 180);
   return {
     id,
-    cityId: 'biscarrosse',
+    areaId: 'biscarrosse',
     name: `Name ${id}`,
     latitude: HOME.latitude + northMeters / METERS_PER_DEGREE,
     longitude: HOME.longitude + eastMeters / (METERS_PER_DEGREE * cos),

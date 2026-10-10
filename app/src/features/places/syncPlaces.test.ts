@@ -1,6 +1,7 @@
-import type { City, Place } from '@discover/shared';
+import type { Area, Place } from '@discover/shared';
 
 import { migrate } from '@/db/migrations';
+import { addOwnedMap } from '@/db/ownedMaps';
 import { listCachedPlaces } from '@/db/placesCache';
 import { openTestDb } from '@/db/testDb';
 
@@ -9,9 +10,10 @@ import { syncPlaces } from './syncPlaces';
 const API = 'http://api.test';
 const INSIDE = { latitude: 44.39, longitude: -1.16 };
 
-const city: City = {
-  id: 'biscarrosse',
-  name: 'Biscarrosse',
+const landes: Area = {
+  id: 'landes',
+  name: 'Landes',
+  departmentId: null,
   boundary: {
     type: 'MultiPolygon',
     coordinates: [
@@ -29,7 +31,7 @@ const city: City = {
 };
 const museum: Place = {
   id: 'osm:node/1',
-  cityId: 'biscarrosse',
+  areaId: 'landes',
   name: 'Musée',
   latitude: 44.389,
   longitude: -1.182,
@@ -42,7 +44,7 @@ function fakeApi(online: boolean) {
     const url = String(input);
     urls.push(url);
     if (!online) throw new TypeError('Network request failed');
-    const body = url.endsWith('/cities') ? [city] : [museum];
+    const body = url.endsWith('/areas') ? [landes] : [museum];
     return new Response(JSON.stringify(body), { status: 200 });
   }) as typeof fetch;
   return { fetchFn, urls };
@@ -54,26 +56,26 @@ async function freshDb() {
   return db;
 }
 
-test('syncPlaces fills the cache for the city of the phone, sending no position', async () => {
+test('syncPlaces fills the cache for the area of the phone, sending no position', async () => {
   const db = await freshDb();
   const { fetchFn, urls } = fakeApi(true);
 
-  expect(await syncPlaces(db, INSIDE, API, fetchFn)).toBe('biscarrosse');
-  expect(await listCachedPlaces(db, 'biscarrosse')).toEqual([museum]);
-  expect(urls).toEqual([`${API}/cities`, `${API}/cities/biscarrosse/places`]);
+  expect(await syncPlaces(db, INSIDE, API, fetchFn)).toEqual({ kind: 'synced', areaId: 'landes' });
+  expect(await listCachedPlaces(db, 'landes')).toEqual([museum]);
+  expect(urls).toEqual([`${API}/areas`, `${API}/areas/landes/places`]);
   for (const url of urls) {
     expect(url).not.toMatch(/44\.|-1\./);
   }
 });
 
-test('syncPlaces keeps the cache offline, finding the city from cached boundaries', async () => {
+test('syncPlaces keeps the cache offline, finding the area from cached boundaries', async () => {
   const db = await freshDb();
   await syncPlaces(db, INSIDE, API, fakeApi(true).fetchFn);
   const offline = fakeApi(false);
 
   expect(await syncPlaces(db, INSIDE, API, offline.fetchFn)).toBeNull();
-  expect(offline.urls).toEqual([`${API}/cities`, `${API}/cities/biscarrosse/places`]);
-  expect(await listCachedPlaces(db, 'biscarrosse')).toEqual([museum]);
+  expect(offline.urls).toEqual([`${API}/areas`, `${API}/areas/landes/places`]);
+  expect(await listCachedPlaces(db, 'landes')).toEqual([museum]);
 });
 
 test('syncPlaces gives up on a server that never answers', async () => {
@@ -92,11 +94,21 @@ test('syncPlaces gives up on a server that never answers', async () => {
   }
 });
 
-test('syncPlaces does nothing outside every known city or without an API URL', async () => {
+test('syncPlaces does nothing outside every known area or without an API URL', async () => {
   const db = await freshDb();
   const { fetchFn, urls } = fakeApi(true);
 
   expect(await syncPlaces(db, { latitude: 48.85, longitude: 2.35 }, API, fetchFn)).toBeNull();
-  expect(urls).toEqual([`${API}/cities`]);
+  expect(urls).toEqual([`${API}/areas`]);
   expect(await syncPlaces(db, INSIDE, '', fetchFn)).toBeNull();
+});
+
+test('syncPlaces downloads nothing for an area whose map is not owned', async () => {
+  const db = await freshDb();
+  await addOwnedMap(db, { areaId: 'gironde', source: 'free', unlockedAt: 1 });
+  const { fetchFn, urls } = fakeApi(true);
+
+  expect(await syncPlaces(db, INSIDE, API, fetchFn)).toEqual({ kind: 'locked', area: landes });
+  expect(urls).toEqual([`${API}/areas`]);
+  expect(await listCachedPlaces(db, 'landes')).toEqual([]);
 });

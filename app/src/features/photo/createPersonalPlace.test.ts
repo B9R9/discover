@@ -33,7 +33,7 @@ test('a personal place is listed as discovered, reveals the fog and shows in the
   expect(await listPlacesWithDiscovery(db)).toEqual([
     {
       id: `personal:${NOW}`,
-      cityId: 'personal',
+      areaId: 'personal',
       name: 'Chez Paul',
       ...position,
       category: 'personal',

@@ -49,9 +49,10 @@ Supabase local, ports 544xx (un autre projet Supabase du poste peut occuper les 
 
 ```
 cd server && supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor
-cd server && npm run collect -- biscarrosse   # environ 1 min, plus si Overpass est chargé (504 : 30 s d'attente puis nouvel essai)
+cd server && npm run collect -- landes    # environ 1 min, plus si Overpass est chargé (504 : 30 s d'attente puis nouvel essai)
+cd server && npm run collect -- gironde   # environ 4 min : département, Bordeaux à part
 cd server && npm run dev
-curl -s localhost:3000/cities/biscarrosse/places | head -c 300
+curl -s localhost:3000/areas/landes/places | head -c 300
 ```
 
 `supabase start` applique les migrations de `server/supabase/migrations/` au premier lancement. Studio (lecture des tables) : http://127.0.0.1:54423. E-mails de connexion envoyés en local (codes) : Mailpit, http://127.0.0.1:54424. SQL en ligne de commande, sans `psql` installé :
@@ -66,15 +67,21 @@ Téléphone branché en USB : il joint l'API du Mac par `localhost` grâce à `a
 adb reverse tcp:3000 tcp:3000
 ```
 
-Vérifier : le journal de `npm run dev` montre `GET /cities 200` puis `GET /cities/biscarrosse/places 200` au lancement de l'app. Chaque ligne du journal contient seulement la méthode, le chemin et le statut : aucune position.
+Vérifier : le journal de `npm run dev` montre `GET /areas 200` puis `GET /areas/landes/places 200` au lancement de l'app. Chaque ligne du journal contient seulement la méthode, le chemin et le statut : aucune position.
 
-Ajouter une ville : une ligne dans `server/src/collect/cities.ts` (id, nom, relation OSM de la commune, `admin_level=8`), puis `npm run collect -- <id>`. Trouver la relation :
+Ajouter un département : une ligne dans `server/src/collect/departments.ts` (id, nom, relation OSM du département, `admin_level=6`), puis `npm run collect -- <id>`, puis une étape dans `.github/workflows/collect.yml`. Ses grandes villes (plus de 100 000 habitants) sont trouvées par la collecte. Trouver la relation :
 
 ```
-curl -s -A "Detour/0.1 (+https://github.com/B9R9/discover)" https://overpass-api.de/api/interpreter --data-urlencode 'data=[out:json];rel["boundary"="administrative"]["admin_level"="8"]["name"="Biscarrosse"];out ids;'
+curl -s -A "Detour/0.1 (+https://github.com/B9R9/discover)" https://overpass-api.de/api/interpreter --data-urlencode 'data=[out:json];rel["boundary"="administrative"]["admin_level"="6"]["name"="Landes"];out ids;'
 ```
 
-Repartir d'une base serveur vide (efface lieux et villes, rejoue les migrations) : `cd server && supabase db reset`, puis relancer la collecte. Arrêter : `cd server && supabase stop`.
+Vérifier le découpage (la grande ville a un `department_id`, le département ne contient plus son centre) :
+
+```
+echo "select id, department_id, round(ST_Area(boundary)/1e6) km2, ST_Covers(boundary, ST_MakePoint(-0.5792,44.8378)::geography) centre_bordeaux from areas" | docker exec -i supabase_db_detour psql -U postgres
+```
+
+Repartir d'une base serveur vide (efface lieux et zones, rejoue les migrations) : `cd server && supabase db reset`, puis relancer la collecte. Arrêter : `cd server && supabase stop`.
 
 ## Vérifier
 
@@ -146,13 +153,13 @@ node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/
 
 ## Tester la photo sans se déplacer (téléphone de développement)
 
-Pose un faux lieu à la dernière position enregistrée, puis prends une photo depuis l'onglet Photo. Le lieu `dev` (ville `dev`) n'est pas effacé par la mise à jour des lieux, qui ne remplace que la ville du téléphone. App arrêtée, base copiée et renvoyée :
+Pose un faux lieu à la dernière position enregistrée, puis prends une photo depuis l'onglet Photo. Le lieu `dev` (zone `dev`) n'est pas effacé par la mise à jour des lieux, qui ne remplace que la zone du téléphone. App arrêtée, base copiée et renvoyée :
 
 ```
 adb shell am force-stop com.b9r9.discover
 adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db' > /tmp/discover.db
 adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db-wal' > /tmp/discover.db-wal
-node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');const p=d.prepare('SELECT latitude, longitude FROM walked_paths ORDER BY recorded_at DESC LIMIT 1').get();d.prepare('INSERT OR REPLACE INTO places_cache (id, city_id, name, latitude, longitude, category, updated_at) VALUES (?,?,?,?,?,?,?)').run('dev:'+Date.now(),'dev','Lieu de test photo',p.latitude,p.longitude,null,Date.now());d.exec('PRAGMA wal_checkpoint(TRUNCATE)')"
+node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');const p=d.prepare('SELECT latitude, longitude FROM walked_paths ORDER BY recorded_at DESC LIMIT 1').get();d.prepare('INSERT OR REPLACE INTO places_cache (id, area_id, name, latitude, longitude, category, updated_at) VALUES (?,?,?,?,?,?,?)').run('dev:'+Date.now(),'dev','Lieu de test photo',p.latitude,p.longitude,null,Date.now());d.exec('PRAGMA wal_checkpoint(TRUNCATE)')"
 adb push /tmp/discover.db /data/local/tmp/discover.db
 adb shell "run-as com.b9r9.discover sh -c 'cp /data/local/tmp/discover.db files/SQLite/discover.db && rm -f files/SQLite/discover.db-wal files/SQLite/discover.db-shm'"
 ```
@@ -168,7 +175,7 @@ node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/
 Pour tout retirer (faux lieux, leurs découvertes et toutes les photos), même procédure avec à la place du `node -e`, puis supprimer les fichiers :
 
 ```
-node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');d.exec(\"CREATE TEMP TABLE gone AS SELECT photo_id FROM discovered_places WHERE place_id LIKE 'dev:%'; DELETE FROM discovered_places WHERE place_id LIKE 'dev:%'; DELETE FROM photos WHERE id IN (SELECT photo_id FROM gone); DELETE FROM places_cache WHERE city_id='dev'; PRAGMA wal_checkpoint(TRUNCATE)\")"
+node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');d.exec(\"CREATE TEMP TABLE gone AS SELECT photo_id FROM discovered_places WHERE place_id LIKE 'dev:%'; DELETE FROM discovered_places WHERE place_id LIKE 'dev:%'; DELETE FROM photos WHERE id IN (SELECT photo_id FROM gone); DELETE FROM places_cache WHERE area_id='dev'; PRAGMA wal_checkpoint(TRUNCATE)\")"
 adb shell "run-as com.b9r9.discover rm -rf files/photos"
 ```
 
@@ -192,7 +199,7 @@ Base en ligne (CLI déjà lié au projet `oqlyowhfpfueslepdlzi`, voir `server/su
 cd server && supabase link --project-ref oqlyowhfpfueslepdlzi   # une fois par poste
 cd server && source .env.production && supabase db push -p "$SUPABASE_DB_PASSWORD"
 cd server && set -a && source .env.production && set +a && supabase config push   # Auth, modèles d'e-mail, SMTP Resend
-cd server && node --env-file=.env.production src/collect/index.ts biscarrosse   # collecte à la main sur la base en ligne
+cd server && node --env-file=.env.production src/collect/index.ts landes   # collecte à la main sur la base en ligne (puis gironde)
 ```
 
 `supabase config push` affiche le diff et demande confirmation : relire avant de dire oui. Le SMTP Resend n'est défini que pour le projet en ligne (`[remotes.production]` dans `config.toml`) : sans `RESEND_API_KEY` dans l'environnement, le push échoue.
@@ -240,8 +247,8 @@ _Une entrée par panne rencontrée : symptôme, cause, correctif._
 - **Connexion : « Trop de demandes. Réessaie dans quelques minutes. »**. Cause : une demande de code par minute et par adresse (`max_frequency`). Correctif : attendre 60 s.
 - **Le code n'arrive pas (en ligne)**. Cause probable : l'expéditeur `onboarding@resend.dev` ne livre qu'au titulaire du compte Resend. Vérifier dans Resend (Emails) l'état de l'envoi. Correctif durable : domaine Détour vérifié dans Resend, puis `admin_email` dans `[remotes.production.auth.email.smtp]`.
 - **`supabase config push` : `Email template modification is not available for free tier projects using the default email provider`**. Cause : SMTP Resend absent du push (`RESEND_API_KEY` non exporté). Correctif : `set -a && source .env.production && set +a` avant le push.
-- **L'app ne rappelle pas l'API au lancement (rien dans le journal du serveur), sans erreur**. Normal pendant une heure : le cache HTTP d'Android sert `/cities` et `/cities/:id/places` (`Cache-Control: max-age=3600`). Pour forcer un appel : `adb shell run-as com.b9r9.discover rm -rf cache/http-cache`, app arrêtée.
-- **L'app garde les anciens lieux**. Cause : API injoignable (serveur arrêté, `adb reverse` perdu, `EXPO_PUBLIC_API_URL` absent ou Metro pas relancé). Metro affiche `Cities not refreshed, using the cache`. Correctif : relancer `npm run dev`, `adb reverse tcp:3000 tcp:3000`, Metro.
+- **L'app ne rappelle pas l'API au lancement (rien dans le journal du serveur), sans erreur**. Normal pendant une heure : le cache HTTP d'Android sert `/areas` et `/areas/:id/places` (`Cache-Control: max-age=3600`). Pour forcer un appel : `adb shell run-as com.b9r9.discover rm -rf cache/http-cache`, app arrêtée.
+- **L'app garde les anciens lieux**. Cause : API injoignable (serveur arrêté, `adb reverse` perdu, `EXPO_PUBLIC_API_URL` absent ou Metro pas relancé). Metro affiche `Areas not refreshed, using the cache`. Correctif : relancer `npm run dev`, `adb reverse tcp:3000 tcp:3000`, Metro.
 - **Gradle échoue avec une erreur de version Java**. Cause : JDK 25 par défaut. Correctif : `JAVA_HOME` sur le JDK d'Android Studio (voir Installer).
 
 ## Inspecter la base locale
@@ -258,4 +265,4 @@ Repartir d'une base vide : `adb shell pm clear com.b9r9.discover` (efface toutes
 
 ## Restaurer
 
-Offre gratuite Supabase : aucune sauvegarde. Si la base en ligne est perdue, recréer le projet, puis `supabase db push`, `supabase config push` et la collecte (voir Déployer le serveur). Lieux et villes reviennent par la collecte ; les comptes sont perdus (les utilisateurs se reconnectent avec leur e-mail, rien d'autre n'est lié au compte). Les découvertes ne sont jamais sur le serveur. Restauration des achats (RevenueCat) : phase 6.
+Offre gratuite Supabase : aucune sauvegarde. Si la base en ligne est perdue, recréer le projet, puis `supabase db push`, `supabase config push` et la collecte (voir Déployer le serveur). Lieux et zones reviennent par la collecte ; les comptes sont perdus (les utilisateurs se reconnectent avec leur e-mail, rien d'autre n'est lié au compte). Les découvertes ne sont jamais sur le serveur. Restauration des achats (RevenueCat) : phase 6.

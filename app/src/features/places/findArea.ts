@@ -1,4 +1,4 @@
-import type { City } from '@discover/shared';
+import type { Area } from '@discover/shared';
 import type { Position } from 'geojson';
 
 import type { GeoPoint } from '@/db/types';
@@ -18,14 +18,14 @@ function insideRing(point: GeoPoint, ring: Position[]): boolean {
 }
 
 // A polygon is an outer ring followed by its holes.
-function insideCity(point: GeoPoint, city: City): boolean {
-  return city.boundary.coordinates.some(
+function insideArea(point: GeoPoint, area: Area): boolean {
+  return area.boundary.coordinates.some(
     ([outer = [], ...holes]) =>
       insideRing(point, outer) && !holes.some((hole) => insideRing(point, hole)),
   );
 }
 
-// Runs on the phone: the position never leaves it, only the city id does.
-export function findCity(point: GeoPoint, cities: readonly City[]): City | null {
-  return cities.find((city) => insideCity(point, city)) ?? null;
+// Runs on the phone: the position never leaves it, only the area id does.
+export function findArea(point: GeoPoint, areas: readonly Area[]): Area | null {
+  return areas.find((area) => insideArea(point, area)) ?? null;
 }

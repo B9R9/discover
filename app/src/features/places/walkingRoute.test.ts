@@ -9,7 +9,7 @@ import { fetchWalkingRoute } from './walkingRoute';
 const HOME = { latitude: 44.3908, longitude: -1.1495 };
 const place = (id: string) => ({
   id,
-  cityId: 'biscarrosse',
+  areaId: 'biscarrosse',
   name: id,
   latitude: 44.3941,
   longitude: -1.1676,

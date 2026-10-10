@@ -86,6 +86,22 @@ export const MIGRATIONS: readonly string[] = [
     updated_at INTEGER NOT NULL
   );
   `,
+  // Maps are now departments and big cities. Cached places keep their ids and positions
+  // (the fog needs them offline); the next sync moves them to their new area.
+  `
+  DROP TABLE cities_cache;
+  CREATE TABLE areas_cache (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    department_id TEXT,
+    boundary TEXT NOT NULL,
+    updated_at INTEGER NOT NULL
+  );
+  ALTER TABLE places_cache RENAME COLUMN city_id TO area_id;
+  DROP INDEX places_cache_city_id;
+  CREATE INDEX places_cache_area_id ON places_cache(area_id);
+  ALTER TABLE owned_maps RENAME COLUMN city_id TO area_id;
+  `,
 ];
 
 export async function migrate(db: Db, migrations: readonly string[] = MIGRATIONS): Promise<void> {

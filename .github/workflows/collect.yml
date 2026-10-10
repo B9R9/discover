@@ -16,7 +16,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci -w server
-      # One city after the other: Overpass asks for one request at a time.
-      - run: node server/src/collect/index.ts biscarrosse
+      # One department after the other: Overpass asks for one request at a time.
+      - run: node server/src/collect/index.ts gironde
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - run: node server/src/collect/index.ts landes
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

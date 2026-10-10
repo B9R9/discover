@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { parsePlace, placesQuery } from './overpass.ts';
+import { parseBigCity, parsePlace, placesQuery } from './overpass.ts';
 
 test('parsePlace reads a node and a way center', () => {
   assert.deepEqual(
@@ -35,8 +35,26 @@ test('parsePlace skips unnamed, uncategorized or malformed elements', () => {
   assert.equal(parsePlace('nope'), null);
 });
 
-test('placesQuery targets the city area and every collected key', () => {
+test('placesQuery targets the area and every collected key', () => {
   const query = placesQuery(76227);
   assert.match(query, /area\(3600076227\)/);
   assert.match(query, /nwr\["natural"~"\^\(beach\|peak\)\$"\]\["name"\]/);
+});
+
+test('parseBigCity keeps communes above the population threshold', () => {
+  const commune = (population: string) => ({
+    type: 'relation',
+    id: 105270,
+    tags: { name: 'Bordeaux', population },
+  });
+  assert.deepEqual(parseBigCity(commune('252 040'), 100_000), {
+    name: 'Bordeaux',
+    osmRelation: 105270,
+  });
+  assert.equal(parseBigCity(commune('99999'), 100_000), null);
+  assert.equal(parseBigCity(commune('environ 3000'), 100_000), null);
+  assert.equal(
+    parseBigCity({ type: 'node', id: 1, tags: { name: 'X', population: '1e6' } }, 1),
+    null,
+  );
 });

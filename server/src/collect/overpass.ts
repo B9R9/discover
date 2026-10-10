@@ -9,11 +9,22 @@ const AREA_OFFSET = 3_600_000_000;
 
 type LatLon = [latitude: number, longitude: number];
 
+export interface BigCity {
+  name: string;
+  osmRelation: number;
+}
+
 export function placesQuery(osmRelation: number): string {
   const filters = Object.entries(COLLECTED_TAGS).map(
-    ([key, values]) => `nwr["${key}"~"^(${Object.keys(values).join('|')})$"]["name"](area.city);`,
+    ([key, values]) => `nwr["${key}"~"^(${Object.keys(values).join('|')})$"]["name"](area.zone);`,
   );
-  return `[out:json][timeout:90];area(${AREA_OFFSET + osmRelation})->.city;(${filters.join('')});out center tags;`;
+  return `[out:json][timeout:300];area(${AREA_OFFSET + osmRelation})->.zone;(${filters.join('')});out center tags;`;
+}
+
+// Communes (admin_level 8) with a population tag. May include neighbours across the border:
+// the save keeps only the cities inside the department.
+export function communesQuery(osmRelation: number): string {
+  return `[out:json][timeout:90];area(${AREA_OFFSET + osmRelation})->.zone;relation["boundary"="administrative"]["admin_level"="8"]["population"](area.zone);out tags;`;
 }
 
 export function boundaryQuery(osmRelation: number): string {
@@ -82,6 +93,27 @@ export function parsePlace(element: unknown): CollectedPlace | null {
     longitude: point[1],
     category,
   };
+}
+
+// OSM writes populations as free text, sometimes with spaces ("252 040").
+export function parseBigCity(element: unknown, minPopulation: number): BigCity | null {
+  if (!isRecord(element) || element.type !== 'relation' || typeof element.id !== 'number') {
+    return null;
+  }
+  const tags = readTags(element.tags);
+  const population = Number((tags.population ?? '').replace(/\s/g, ''));
+  if (!tags.name || !(population >= minPopulation)) return null;
+  return { name: tags.name, osmRelation: element.id };
+}
+
+export async function fetchBigCities(
+  osmRelation: number,
+  minPopulation: number,
+): Promise<BigCity[]> {
+  const elements = await runQuery(communesQuery(osmRelation));
+  return elements
+    .map((element) => parseBigCity(element, minPopulation))
+    .filter((city) => city !== null);
 }
 
 export async function fetchPlaces(osmRelation: number): Promise<CollectedPlace[]> {

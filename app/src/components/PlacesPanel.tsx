@@ -13,6 +13,8 @@ import { PlaceRow } from './PlaceRow';
 interface PlacesPanelProps {
   places: NearbyPlace[];
   hasPosition: boolean;
+  // Set when the phone is in an area whose map is not unlocked.
+  lockedAreaName: string | null;
   selected: NearbyPlace | null;
   onSelect: (id: PlaceId) => void;
   heading: number | null;
@@ -39,6 +41,7 @@ function routeText(route: RouteState): string | null {
 export function PlacesPanel({
   places,
   hasPosition,
+  lockedAreaName,
   selected,
   onSelect,
   heading,
@@ -68,7 +71,12 @@ export function PlacesPanel({
         <Text style={[styles.detail, styles.route]}>{routeText(route)}</Text>
       )}
       {!hasPosition && <Text style={styles.hint}>{t('places.waitingPosition')}</Text>}
-      {hasPosition && places.length === 0 && <Text style={styles.hint}>{t('places.empty')}</Text>}
+      {lockedAreaName && (
+        <Text style={styles.hint}>{t('places.locked', { area: lockedAreaName })}</Text>
+      )}
+      {hasPosition && !lockedAreaName && places.length === 0 && (
+        <Text style={styles.hint}>{t('places.empty')}</Text>
+      )}
       <ScrollView style={styles.list}>
         {places.map((place) => (
           <PlaceRow

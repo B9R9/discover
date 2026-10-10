@@ -90,6 +90,7 @@ export const fr = {
   'places.title': 'Autour de toi',
   'places.unknown': 'Quelque chose par là',
   'places.empty': "Rien à découvrir par ici pour l'instant.",
+  'places.locked': 'Carte {area} à débloquer : ses lieux restent cachés pour l’instant.',
   'places.waitingPosition': 'On cherche ta position…',
   'places.discovered': 'Découvert',
   'places.hint': "Suis la flèche. L'itinéraire arrive quand tu l'auras découvert.",

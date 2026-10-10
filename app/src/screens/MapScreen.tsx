@@ -21,7 +21,7 @@ export function MapScreen() {
   const [fog, refreshFog] = useFog(db);
   const location = useLocationTracking(db);
   const position = location?.coords ?? null;
-  const places = useNearbyPlaces(db, position);
+  const { places, lockedArea } = useNearbyPlaces(db, position);
   const [selectedId, setSelectedId] = useState<PlaceId | null>(null);
   const [panelHeight, setPanelHeight] = useState(0);
   const selected = places.find((place) => place.id === selectedId) ?? null;
@@ -63,6 +63,7 @@ export function MapScreen() {
       <PlacesPanel
         places={places}
         hasPosition={hasFix}
+        lockedAreaName={lockedArea?.name ?? null}
         selected={selected}
         onSelect={(id) => setSelectedId((current) => (current === id ? null : id))}
         heading={heading}

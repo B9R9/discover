@@ -30,9 +30,12 @@ Public cible : À DÉCIDER
 
 ## Cartes et prix
 
-- La carte de la ville de l'utilisateur est offerte.
-- Les autres villes sont payantes, en **achat unique par ville** (RevenueCat).
-- Prix par ville : À DÉCIDER
+- Une carte couvre un **département**. Les grandes villes (plus de 100 000 habitants, d'après OpenStreetMap) ont leur propre carte, retirée de celle du département : la carte Gironde ne couvre pas Bordeaux.
+- La carte du département où se trouve l'utilisateur au premier lancement est offerte, sans ses grandes villes : elles restent payantes, même pour un habitant de la grande ville.
+- Les autres cartes sont payantes, en **achat unique** (RevenueCat) :
+  - une grande ville seule, prix selon son attrait ;
+  - un département entier, grandes villes comprises, toujours plus cher que chacune de ses grandes villes.
+- Prix par carte : À DÉCIDER
 
 ## Social
 
@@ -57,6 +60,6 @@ Catégories de lieux : À DÉCIDER
 ## Questions ouvertes
 
 - Public cible
-- Prix par ville
+- Prix par carte (département, grande ville)
 - Catégories de lieux
 - Hors périmètre v1

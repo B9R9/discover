@@ -282,12 +282,22 @@ Fait sur le téléphone le 2026-10-10, d'abord avec l'API du Mac branchée sur S
 Hors 5b : connexion Apple ou Google, SMTP à nous, nom de domaine, profil public et pseudo (phase 7), sauvegarde des découvertes.
 
 ## Phase 6 : Cartes et achats
-- [ ] Ville offerte : la ville de l'utilisateur au premier lancement, enregistrée dans `owned_maps`
-- [ ] Règle anti-abus : la ville offerte ne change pas (ou changement limité, à décider)
-- [ ] RevenueCat : achat unique par ville (produits App Store et Play Store)
-- [ ] Écran de choix des villes
-- [ ] Restauration des achats
-- [ ] Test : achat en sandbox iOS et Android, restauration sur un autre appareil
+
+Décision du 2026-10-10 : une carte = un **département** (OSM `admin_level=6`). Les communes de plus de 100 000 habitants (tag OSM `population`) ont leur propre carte, retirée de celle du département. Offerte : le département où est l'utilisateur au premier lancement, sans ses grandes villes (un habitant de Bordeaux reçoit la Gironde, pas Bordeaux). Le reste se paie, achat unique : une grande ville seule (prix selon son attrait), ou un département entier, grandes villes comprises, toujours plus cher qu'une de ses villes (précision du 2026-10-10). Le découpage serveur ne change pas : un département acheté débloque sa zone et celles de ses grandes villes.
+
+1. [x] **Zones à la place des villes** (serveur) : la table `cities` devient `areas` avec `department_id` (nul pour un département), `CityId` devient `AreaId` dans `/shared`. Limite d'un département = département moins ses grandes villes (`ST_Difference`). Routes `GET /areas` et `GET /areas/:id/places`.
+2. [x] **Collecte par département** : `npm run collect -- landes` collecte la limite du département, trouve ses communes de plus de 100 000 habitants, crée une zone par grande ville, puis range chaque lieu dans la zone qui le contient (`ST_Covers`). Départements de départ : Landes (Biscarrosse dedans, ids `osm:` inchangés donc découvertes gardées) et Gironde (pour tester l'exclusion de Bordeaux). Workflow hebdo mis à jour. Vérifier la taille de la réponse (Landes : quelques milliers de lieux).
+3. [x] **App** : `cities_cache` devient `areas_cache` (migration), `findCity` devient `findArea`. La grande ville passe avant le département (les limites ne se chevauchent plus, donc un seul résultat).
+4. [x] **Carte offerte** : au premier `findArea` réussi, le département est écrit dans `owned_maps` en `free`. Ne change plus jamais (pas de réinstallation : à voir avec RevenueCat ou le compte, point 7).
+5. [x] **Zone non débloquée** : pas de lieux téléchargés, message « Carte à débloquer » dans le panneau. Le chemin parcouru s'enregistre et se dévoile comme ailleurs (seuls les lieux restent cachés).
+6. [ ] **Écran des cartes** : cartes possédées, carte offerte, autres départements et grandes villes avec prix.
+   - règle « possédée » (fonction pure, testée) : une zone est débloquée si elle est dans `owned_maps`, ou si c'est une grande ville dont le département est **acheté** (`purchased`). Le département offert (`free`) ne débloque pas ses grandes villes.
+7. [ ] **RevenueCat** : un produit par carte (App Store et Play Store), restauration des achats, compte de la phase 5b comme identifiant. Nouvelle dépendance `react-native-purchases` (RevenueCat, prévu dans la stack).
+8. [ ] **Tests** : `findArea` (grande ville avant département), collecte (Bordeaux hors Gironde), achat sandbox iOS et Android, restauration sur un autre appareil.
+9. [ ] **Doc** : `docs/README.md`, `docs/runbook.md` (ajouter un département), `CLAUDE.md`, bilan.
+
+Fait le 2026-10-10 (étapes 1 à 5, en local) : collecte Gironde (5355 lieux, Bordeaux 1644, 50 km² retirés) et Landes (3493 lieux, Biscarrosse dedans), 61 tests app et tests serveur verts. Pas encore fait : migration et collecte sur la base en ligne, déploiement Render, test sur le téléphone (Landes offerte, lieux de Biscarrosse et Piscine toujours « Découvert » ; zone Gironde bloquée à simuler).
+Écarts : `kind` remplacé par `department_id` (nul = département). Chemins dévoilés aussi en zone bloquée. Ids de grande ville préfixés (`gironde-bordeaux`) car Saint-Denis existe deux fois. Réponse Gironde de 750 Ko sans compression : gzip à ajouter si ça gêne. Reste ouvert : Paris, département et commune à la fois (département vide après découpage) ; un lieu perso créé en zone bloquée y dévoile 150 m.
 
 ## Phase 7 : Social
 - [ ] Partage volontaire d'une photo et d'un commentaire (envoi seulement après confirmation)
@@ -320,12 +330,12 @@ Hors 5b : connexion Apple ou Google, SMTP à nous, nom de domaine, profil public
 - Itinéraire à pied : OpenRouteService (clé API, quota quotidien). Repli : Valhalla auto-hébergé
 - Première source de lieux : OpenStreetMap via l'API Overpass
 - Chemin parcouru : enregistré aussi en arrière-plan (les points restent sur l'appareil)
+- Cartes : une par département, les communes de plus de 100 000 habitants à part. Département de l'utilisateur offert, sans ses grandes villes. Achat d'une grande ville seule ou d'un département entier, grandes villes comprises (2026-10-10)
 
 ## Questions ouvertes
-- Ville offerte au lancement (phase 6)
 - Sauvegarde des découvertes si perte du téléphone : aucune, export manuel, ou sauvegarde chiffrée volontaire (phase 5)
-- Ville offerte modifiable ou non (phase 6)
-- Prix par ville (phase 6)
+- Carte offerte après réinstallation ou changement de téléphone : la lier au compte ? (phase 6)
+- Prix par carte : département, grande ville selon son attrait (phase 6)
 - Outil de remontée des crashs (phase 8)
 - Événements (phase 7) : créés par les utilisateurs ou collectés par le serveur ? Date de fin et disparition ? Validés par une photo comme un lieu ?
 - Carte d'un ami (phase 7) : partage de la liste des lieux découverts, d'une image, ou des deux ?

@@ -1,4 +1,4 @@
-import type { City, CityId, Place } from '@discover/shared';
+import type { Area, AreaId, Place } from '@discover/shared';
 
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
 
@@ -8,11 +8,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function isCity(value: unknown): value is City {
+function isArea(value: unknown): value is Area {
   return (
     isRecord(value) &&
     typeof value.id === 'string' &&
     typeof value.name === 'string' &&
+    (typeof value.departmentId === 'string' || value.departmentId === null) &&
     isRecord(value.boundary) &&
     value.boundary.type === 'MultiPolygon' &&
     Array.isArray(value.boundary.coordinates)
@@ -23,7 +24,7 @@ function isPlace(value: unknown): value is Place {
   return (
     isRecord(value) &&
     typeof value.id === 'string' &&
-    typeof value.cityId === 'string' &&
+    typeof value.areaId === 'string' &&
     typeof value.name === 'string' &&
     typeof value.latitude === 'number' &&
     typeof value.longitude === 'number' &&
@@ -44,15 +45,15 @@ async function getList<T>(
   return body;
 }
 
-// No position is ever sent: only the city id, in the path.
-export function fetchCities(baseUrl: string, fetchFn: Fetch = fetch): Promise<City[]> {
-  return getList(baseUrl, '/cities', isCity, fetchFn);
+// No position is ever sent: only the area id, in the path.
+export function fetchAreas(baseUrl: string, fetchFn: Fetch = fetch): Promise<Area[]> {
+  return getList(baseUrl, '/areas', isArea, fetchFn);
 }
 
-export function fetchCityPlaces(
+export function fetchAreaPlaces(
   baseUrl: string,
-  cityId: CityId,
+  areaId: AreaId,
   fetchFn: Fetch = fetch,
 ): Promise<Place[]> {
-  return getList(baseUrl, `/cities/${encodeURIComponent(cityId)}/places`, isPlace, fetchFn);
+  return getList(baseUrl, `/areas/${encodeURIComponent(areaId)}/places`, isPlace, fetchFn);
 }

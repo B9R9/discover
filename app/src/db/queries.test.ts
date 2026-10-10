@@ -50,10 +50,10 @@ test('refuses a discovery without an existing photo', async () => {
 
 test('keeps the first unlock of a city', async () => {
   const db = await freshDb();
-  await addOwnedMap(db, { cityId: 'biscarrosse', source: 'free', unlockedAt: 1 });
-  await addOwnedMap(db, { cityId: 'biscarrosse', source: 'purchased', unlockedAt: 2 });
+  await addOwnedMap(db, { areaId: 'biscarrosse', source: 'free', unlockedAt: 1 });
+  await addOwnedMap(db, { areaId: 'biscarrosse', source: 'purchased', unlockedAt: 2 });
   expect(await listOwnedMaps(db)).toEqual([
-    { cityId: 'biscarrosse', source: 'free', unlockedAt: 1 },
+    { areaId: 'biscarrosse', source: 'free', unlockedAt: 1 },
   ]);
 });
 
@@ -74,11 +74,20 @@ test('reads default settings, then the saved value', async () => {
   expect(await getSetting(db, 'onboardingDone')).toBe(false);
 });
 
-test('replaces the cached places of one city only', async () => {
+test('moves a cached place to its new area instead of failing on its id', async () => {
   const db = await freshDb();
-  const place = (id: string, cityId: string) => ({
+  const museum = { id: 'osm:1', name: 'Musée', latitude: 0, longitude: 0, category: null };
+  await replaceCachedPlaces(db, 'biscarrosse', [{ ...museum, areaId: 'biscarrosse' }], 1);
+  await replaceCachedPlaces(db, 'landes', [{ ...museum, areaId: 'landes' }], 2);
+  expect(await listCachedPlaces(db, 'landes')).toEqual([{ ...museum, areaId: 'landes' }]);
+  expect(await listCachedPlaces(db, 'biscarrosse')).toEqual([]);
+});
+
+test('replaces the cached places of one area only', async () => {
+  const db = await freshDb();
+  const place = (id: string, areaId: string) => ({
     id,
-    cityId,
+    areaId,
     name: id,
     latitude: 0,
     longitude: 0,

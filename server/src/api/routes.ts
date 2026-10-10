@@ -20,7 +20,7 @@ export interface Services {
   auth: AuthAdmin | null;
 }
 
-const CITY_PLACES = /^\/cities\/([a-z0-9-]+)\/places$/;
+const AREA_PLACES = /^\/areas\/([a-z0-9-]+)\/places$/;
 const BEARER = /^Bearer (\S+)$/;
 
 async function deleteMe(authorization: string | undefined, auth: AuthAdmin | null): Promise<Reply> {
@@ -34,14 +34,14 @@ async function deleteMe(authorization: string | undefined, auth: AuthAdmin | nul
 
 async function getRoute(pathname: string, store: PlacesStore): Promise<Reply> {
   if (pathname === '/health') return { status: 200, body: { status: 'ok' } };
-  if (pathname === '/cities') return { status: 200, body: await store.listCities() };
+  if (pathname === '/areas') return { status: 200, body: await store.listAreas() };
 
-  const cityId = CITY_PLACES.exec(pathname)?.[1];
-  if (cityId) {
-    const places = await store.listPlaces(cityId);
+  const areaId = AREA_PLACES.exec(pathname)?.[1];
+  if (areaId) {
+    const places = await store.listPlaces(areaId);
     return places
       ? { status: 200, body: places }
-      : { status: 404, body: { error: 'unknown_city' } };
+      : { status: 404, body: { error: 'unknown_area' } };
   }
   return { status: 404, body: { error: 'not_found' } };
 }

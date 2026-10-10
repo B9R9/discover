@@ -8,7 +8,7 @@ const NOW = 1_000_000;
 
 function placeAt(id: string, metersNorth: number, discovered = false): CachedPlace {
   const [longitude, latitude] = fromMeters(ORIGIN, 0, metersNorth);
-  return { id, cityId: 'biscarrosse', name: id, latitude, longitude, category: null, discovered };
+  return { id, areaId: 'biscarrosse', name: id, latitude, longitude, category: null, discovered };
 }
 
 function fix(overrides: Partial<PhotoFix> = {}): PhotoFix {
