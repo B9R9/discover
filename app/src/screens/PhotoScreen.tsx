@@ -7,8 +7,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
+import { PersonalPlaceForm } from '@/components/PersonalPlaceForm';
 import { ScreenTitle } from '@/components/ScreenTitle';
-import { captureDiscovery } from '@/features/photo/captureDiscovery';
+import type { Visibility } from '@/db/personalPlaces';
+import {
+  captureDiscovery,
+  discardShot,
+  savePersonalPlace,
+  type Shot,
+} from '@/features/photo/captureDiscovery';
+import { canCreatePersonalPlace } from '@/features/photo/createPersonalPlace';
 import { usePlaceInRange } from '@/features/photo/usePlaceInRange';
 import { t, type TranslationKey } from '@/lib/i18n/t';
 import { palette, radius, spacing } from '@/theme/tokens';
@@ -24,6 +32,8 @@ export function PhotoScreen() {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<TranslationKey | null>(null);
+  // A photo taken away from any place, waiting for the user to make it a personal place.
+  const [pending, setPending] = useState<Shot | null>(null);
 
   if (!permission) return null;
   if (!permission.granted) {
@@ -42,24 +52,51 @@ export function PhotoScreen() {
     );
   }
 
-  async function capture() {
-    if (!camera.current || busy) return;
+  async function run(task: () => Promise<void>) {
+    if (busy) return;
     setBusy(true);
-    setMessage('photo.checking');
     try {
-      const result = await captureDiscovery(db, camera.current);
-      if (result.ok) {
-        setMessage(null);
-        router.navigate('/');
-      } else {
-        setMessage(`photo.refused.${result.reason}`);
-      }
+      await task();
     } catch (error) {
-      console.warn('Photo capture failed', error);
+      console.warn('Photo failed', error);
       setMessage('photo.failed');
     } finally {
       setBusy(false);
     }
+  }
+
+  const capture = () =>
+    run(async () => {
+      if (!camera.current) return;
+      setMessage('photo.checking');
+      const { result, shot } = await captureDiscovery(db, camera.current);
+      if (result.ok) return done();
+      if (shot && (await canCreatePersonalPlace(db, Date.now()))) {
+        setMessage(null);
+        setPending(shot);
+        return;
+      }
+      if (shot) discardShot(shot);
+      setMessage(shot ? 'personal.limit' : `photo.refused.${result.reason}`);
+    });
+
+  const createPlace = (shot: Shot, name: string, visibility: Visibility) =>
+    run(async () => {
+      const refusal = await savePersonalPlace(db, shot, name, visibility);
+      if (refusal) setMessage(`personal.refused.${refusal}`);
+      else done();
+    });
+
+  function done() {
+    setPending(null);
+    setMessage(null);
+    router.navigate('/');
+  }
+
+  function cancel() {
+    if (pending) discardShot(pending);
+    setPending(null);
+    setMessage(null);
   }
 
   const hint = message ?? (range && `photo.${range}`);
@@ -74,27 +111,41 @@ export function PhotoScreen() {
         />
       )}
       <SafeAreaView style={styles.overlay} edges={['top']}>
-        {hint && (
-          <View style={styles.message}>
-            <Text style={styles.messageText} accessibilityLiveRegion="polite">
-              {t(hint)}
-            </Text>
-          </View>
+        {pending ? (
+          <PersonalPlaceForm
+            error={message}
+            busy={busy}
+            onCreate={(name, visibility) => {
+              createPlace(pending, name, visibility).catch(console.warn);
+            }}
+            onCancel={cancel}
+            onEdit={() => setMessage(null)}
+          />
+        ) : (
+          hint && (
+            <View style={styles.message}>
+              <Text style={styles.messageText} accessibilityLiveRegion="polite">
+                {t(hint)}
+              </Text>
+            </View>
+          )
         )}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('photo.capture')}
-          accessibilityState={{ disabled: !ready || busy }}
-          disabled={!ready || busy}
-          onPress={() => {
-            capture().catch(console.warn);
-          }}
-          style={({ pressed }) => [
-            styles.shutter,
-            (pressed || busy) && styles.shutterPressed,
-            !ready && styles.shutterDisabled,
-          ]}
-        />
+        {!pending && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('photo.capture')}
+            accessibilityState={{ disabled: !ready || busy }}
+            disabled={!ready || busy}
+            onPress={() => {
+              capture().catch(console.warn);
+            }}
+            style={({ pressed }) => [
+              styles.shutter,
+              (pressed || busy) && styles.shutterPressed,
+              !ready && styles.shutterDisabled,
+            ]}
+          />
+        )}
       </SafeAreaView>
     </View>
   );

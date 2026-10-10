@@ -18,6 +18,19 @@ export const fr = {
   'photo.refused.stale': 'Ta position a mis trop de temps à arriver. Réessaie.',
   'photo.refused.alreadyDiscovered': 'Tu as déjà découvert ce lieu.',
   'photo.refused.tooFar': 'Aucun lieu à moins de 50 m. Rapproche-toi et réessaie.',
+  'personal.title': 'Aucun lieu ici. En faire un lieu à toi ?',
+  'personal.nameLabel': 'Nom du lieu',
+  'personal.namePlaceholder': 'Chez Paul, le belvédère du lac…',
+  'personal.kindPrivate': "Chez quelqu'un",
+  'personal.kindPrivateHint': 'Reste privé. Tu pourras le partager à tes amis seulement.',
+  'personal.kindPublic': 'Spot ou lieu public',
+  'personal.kindPublicHint':
+    'Point de vue, coin de nature, commerce… Tu pourras le proposer à la communauté.',
+  'personal.create': 'Créer ce lieu',
+  'personal.cancel': 'Annuler',
+  'personal.limit': 'Tu as déjà créé 3 lieux aujourd’hui. Reviens demain pour en ajouter.',
+  'personal.refused.emptyName': 'Donne un nom à ce lieu.',
+  'personal.refused.limit': 'Tu as déjà créé 3 lieux aujourd’hui. Reviens demain pour en ajouter.',
   'profile.title': 'Profil',
   'profile.discoveries': 'Mes découvertes',
   'profile.noDiscoveries':
@@ -69,4 +82,6 @@ export const fr = {
   'category.beach': 'Plage',
   'category.hamlet': 'Hameau',
   'category.other': 'Lieu',
+  'category.personal': 'Lieu à toi',
+  'category.spot': 'Spot',
 } as const;

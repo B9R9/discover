@@ -152,6 +152,7 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 - [ ] Carte avec brouillard (code fait et vérifié sur le téléphone, reste une vraie balade)
 - [x] Lieux de test, direction et itinéraire (phase 3, flèche à vérifier dehors)
 - [x] Prise de photo et validation d'un lieu (phase 4, animation à voir à l'œil)
+- [x] Lieux créés par l'utilisateur, spots et chez quelqu'un, en local (phase 4b)
 - [x] Stockage local des découvertes (SQLite, migrations, requêtes)
 - [ ] Backend et collecte des lieux
 - [ ] Partage et commentaires

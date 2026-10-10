@@ -52,7 +52,7 @@ export function listDiscoveredPositions(db: Db, since = 0): Promise<DiscoveredPo
        d.discovered_at AS discoveredAt
      FROM discovered_places d
      JOIN photos p ON p.id = d.photo_id
-     LEFT JOIN places_cache c ON c.id = d.place_id
+     LEFT JOIN all_places c ON c.id = d.place_id
      WHERE d.discovered_at >= ?
      ORDER BY d.discovered_at`,
     [since],
@@ -80,7 +80,7 @@ export function listDiscoveriesWithPhotos(db: Db): Promise<DiscoveryWithPhoto[]>
     `SELECT d.place_id AS placeId, c.name, d.discovered_at AS discoveredAt, p.uri AS photoUri
      FROM discovered_places d
      JOIN photos p ON p.id = d.photo_id
-     LEFT JOIN places_cache c ON c.id = d.place_id
+     LEFT JOIN all_places c ON c.id = d.place_id
      ORDER BY d.discovered_at DESC`,
     [],
   );

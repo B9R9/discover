@@ -123,6 +123,12 @@ adb shell "run-as com.b9r9.discover sh -c 'cp /data/local/tmp/discover.db files/
 
 Attendu : « Tu y es presque » sur la caméra, puis retour sur la Carte avec la zone qui se dissipe. Une deuxième photo au même endroit : « Tu as déjà découvert ce lieu. ». Photos gardées : `adb shell run-as com.b9r9.discover ls files/photos`.
 
+Créer un lieu à toi : prendre une photo à plus de 50 m de tout lieu (sans faux lieu, la plupart des endroits conviennent). Attendu : formulaire « Aucun lieu ici. En faire un lieu à toi ? », puis retour Carte avec la zone dévoilée. Le 4e en 24 h : « Tu as déjà créé 3 lieux aujourd'hui ». Les retirer :
+
+```
+node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');d.exec(\"CREATE TEMP TABLE gone AS SELECT photo_id FROM personal_places; DELETE FROM discovered_places WHERE place_id LIKE 'personal:%'; DELETE FROM personal_places; DELETE FROM photos WHERE id IN (SELECT photo_id FROM gone); PRAGMA wal_checkpoint(TRUNCATE)\")"
+```
+
 Pour tout retirer (faux lieux, leurs découvertes et toutes les photos), même procédure avec à la place du `node -e`, puis supprimer les fichiers :
 
 ```

@@ -129,6 +129,27 @@ Fait sur le téléphone le 2026-10-10 : permission caméra (texte, pas de micro 
 
 Hors phase 4 : marqueur avec miniature de la photo sur la carte (charte), partage (phase 7), suppression d'une découverte.
 
+## Phase 4b : Lieux à toi, spots et chez quelqu'un (plan validé le 2026-10-10)
+
+L'utilisateur crée un lieu à lui (ex. chez un ami) en le prenant en photo. Décisions du 2026-10-10 : le lieu reste privé sur l'appareil ; il dévoile le brouillard comme une découverte, avec au plus 3 lieux perso par 24 h (sinon on dévoile la ville en créant des lieux partout) ; partage plus tard (phase 7).
+
+Aucune nouvelle dépendance.
+
+- [x] 1. Migration 3 : table `personal_places` (id, nom, position, `created_at`, `photo_id`) + vue `all_places` (`places_cache` UNION `personal_places`, catégorie `personal`). Table à part : `places_cache` est un cache que le serveur remplace, un lieu perso ne doit jamais y être effacé. Id local `personal:<horodatage>`.
+- [x] 2. Requêtes : `listPlacesWithDiscovery`, `listDiscoveredPositions` et la galerie lisent `all_places`. Rien d'autre ne change : direction, itinéraire, brouillard et galerie marchent tels quels.
+- [x] 3. `features/photo/createPersonalPlace.ts` : une transaction `photos` + `personal_places` + `discovered_places` (chemin comme pour une découverte). Refus si 3 lieux perso créés dans les dernières 24 h, ou nom vide (espaces retirés, 40 caractères max).
+- [x] 4. Parcours : on reprend la photo qui vient d'être refusée « aucun lieu à 50 m » (les vérifications GPS sont déjà passées, la photo est gardée en attente au lieu d'être effacée). L'écran Photo propose « En faire un lieu perso ? » : champ nom, bouton accent « Créer ce lieu », bouton secondaire « Annuler » (photo effacée). Succès : retour Carte avec la dissipation. Pas de création possible si un lieu (découvert ou non) est déjà à 50 m.
+- [x] 5. Affichage : catégorie « Lieu perso » dans la liste et la galerie, même marqueur Sentier que les lieux découverts.
+- [x] 6. Tests : migration 3 sur base existante, la vue renvoie les deux sources, 4e lieu perso en 24 h refusé, nom vide refusé, transaction annulée sans trace, un lieu perso apparaît découvert dans `listPlacesWithDiscovery` et dans le brouillard.
+- [x] 7. Téléphone (photo refusée loin de tout lieu, puis création), doc, runbook, bilan.
+
+Écarts avec le plan, une fois le code écrit (demandes du 2026-10-10) :
+- Type choisi à la création : « Chez quelqu'un » (privé, par défaut) ou « Spot ou lieu public » (point de vue, nature, commerce), colonne `visibility`. Catégorie affichée « Lieu à toi » ou « Spot ».
+- Si la limite de 3 est atteinte, le formulaire n'apparaît pas : message, photo effacée.
+- Fait sur le téléphone le 2026-10-10 : photo loin de tout lieu, formulaire, refus du nom vide, spot créé (`visibility = public` en base, migration 3 appliquée), zone dévoilée, « Spot · Découvert » dans la liste. Corrigé : le message d'erreur restait affiché pendant la saisie. Spot de test retiré (procédure du runbook). Pas vu sur le téléphone : la limite de 3 (testée en Jest).
+
+Hors phase 4b : modifier ou supprimer un lieu perso, catégorie choisie par l'utilisateur, partage.
+
 ## Phase 5 : Backend, comptes et collecte des lieux
 - [ ] Projet Supabase, Postgres + PostGIS
 - [ ] Comptes : Supabase Auth (nécessaire pour achats, partage, commentaires). Le jeu local marche sans compte
@@ -155,6 +176,7 @@ Hors phase 4 : marqueur avec miniature de la photo sur la carte (charte), partag
 - [ ] Partage volontaire d'une photo et d'un commentaire (envoi seulement après confirmation)
 - [ ] Retirer les métadonnées EXIF (position) des photos avant envoi
 - [ ] Carte partageable
+- [ ] Partage d'un lieu créé : à la communauté seulement les spots et lieux publics (`visibility = 'public'` : établissements recevant du public, points de vue, nature), après modération. Un lieu `private` (domicile) jamais public, partageable à des amis choisis
 - [ ] Modération (obligatoire App Store pour contenu utilisateur) : signaler, bloquer un utilisateur, filtrer
 - [ ] Rien ne part vers le serveur sans action explicite de l'utilisateur
 - [ ] Test : une photo partagée ne contient aucune donnée EXIF de position
@@ -226,3 +248,9 @@ Hors phase 4 : marqueur avec miniature de la photo sur la carte (charte), partag
 - Galerie « Mes découvertes » dans Profil (onglet Photo gardé, choix du 2026-10-10).
 - Vérifié : 38 tests, typecheck, lint, format ; sur le téléphone : photo acceptée, carte dévoilée, galerie, refus « déjà découvert ».
 - Reste : voir l'animation à l'œil, refus « trop loin » et « position simulée » dehors.
+
+### Phase 4b
+- Lieux créés par l'utilisateur : « Chez quelqu'un » (privé par défaut) ou « Spot ou lieu public ». Table `personal_places` + vue `all_places`, aucune dépendance.
+- Comptent comme découverts (150 m dévoilés), au plus 3 par 24 h.
+- Partage prévu en phase 7 : communauté pour les spots et lieux publics seulement, après modération ; domicile entre amis seulement.
+- Vérifié : 43 tests, typecheck, lint, format ; sur le téléphone : création d'un spot et dévoilement.

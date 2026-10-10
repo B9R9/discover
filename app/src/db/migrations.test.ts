@@ -17,6 +17,7 @@ test('migrates an empty database to the latest version', async () => {
   expect(tables.map((table) => table.name)).toEqual([
     'discovered_places',
     'owned_maps',
+    'personal_places',
     'photos',
     'places_cache',
     'settings',
