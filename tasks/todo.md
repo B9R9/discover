@@ -182,12 +182,12 @@ Fait sur le téléphone le 2026-10-10 : fiche d'un spot, modification (Point de 
 - [x] Comptes : Supabase Auth (nécessaire pour achats, partage, commentaires). Le jeu local marche sans compte
 - [x] Suppression de compte depuis l'app (obligatoire App Store)
 - [x] Tables : lieux (nom, position, catégorie, source), villes (5a). Cartes partageables, commentaires, achats : avec leurs phases
-- [ ] Row Level Security sur toutes les tables (fait pour `cities` et `places`)
+- [x] Row Level Security sur toutes les tables (`cities`, `places` ; les tables à venir l'activent dans leur migration)
 - [x] API Node : lieux d'une ville par identifiant de ville, pas par position exacte (le serveur ne voit pas où est l'utilisateur)
 - [x] Détection de la ville côté appareil (limites des villes téléchargées, test local)
 - [x] Jobs de collecte : OpenStreetMap via Overpass d'abord, puis autres sources ou scraping (respect des conditions d'usage et du `robots.txt`)
 - [x] Déduplication des lieux (même nom + distance < seuil)
-- [ ] Jobs planifiés pour rafraîchir les lieux
+- [x] Jobs planifiés pour rafraîchir les lieux
 - [x] L'app remplace les lieux de test par l'API et remplit `places_cache`
 - [x] Test : relire les requêtes réseau, le serveur ne reçoit ni position ni historique des déplacements
 
@@ -260,24 +260,24 @@ Décisions du 2026-10-10 :
    - le serveur vérifie le jeton auprès de Supabase Auth (`GET /auth/v1/user`), puis supprime l'utilisateur (`DELETE /auth/v1/admin/users/:id`, clé secrète côté serveur seulement). Juste `fetch`, aucune dépendance.
    - confirmation dans l'app avant ; les découvertes locales restent sur le téléphone (elles n'ont jamais été liées au compte)
    - routes testées avec un faux client Auth
-5. [ ] **Render** (blueprint `render.yaml` dans le dépôt) :
+5. [x] **Render** (blueprint `render.yaml` dans le dépôt) :
    - service web `detour-api` (offre gratuite, s'endort après 15 min) : `npm ci`, puis `node server/src/index.ts`
    - cron `detour-collect` : `npm run collect -- biscarrosse` une fois par semaine. Le cron est payant chez Render : facturé à la seconde, minimum 1 $ par mois. Remplacé par GitHub Actions (Render exige une carte, décision du 2026-10-10)
    - variables : `DATABASE_URL` (pooler Supabase, car Render n'a pas d'IPv6), `SUPABASE_URL`, `SUPABASE_SECRET_KEY`
    - Render doit avoir accès au dépôt GitHub `B9R9/discover`
-6. [ ] **App vers l'API en ligne** : `EXPO_PUBLIC_API_URL` pointe sur l'URL Render (ajout de `EXPO_PUBLIC_SUPABASE_URL` et de la clé publique) ; `localhost` reste possible en dev
-7. [ ] **Vérification** :
+6. [x] **App vers l'API en ligne** : `EXPO_PUBLIC_API_URL` pointe sur l'URL Render (ajout de `EXPO_PUBLIC_SUPABASE_URL` et de la clé publique) ; `localhost` reste possible en dev
+7. [x] **Vérification** :
    - typecheck, lint, format, tests
    - sur le téléphone : connexion avec un vrai code, déconnexion, suppression du compte (le compte disparaît dans Supabase), lieux servis par Render
    - journal Render relu : aucune position
-8. [ ] **Doc** :
+8. [x] **Doc** :
    - `docs/README.md` : comptes, exception Auth, hébergement
    - `docs/runbook.md` : déployer, variables, relancer la collecte, restaurer (offre gratuite sans sauvegarde : migrations puis collecte ; comptes perdus)
    - `CLAUDE.md` : exception Auth, « État actuel »
    - bilan
 
 Écarts : SMTP Resend dès maintenant (offre gratuite : pas de modèle d'e-mail modifiable sans SMTP à nous), expéditeur `onboarding@resend.dev` ; SMTP déclaré seulement pour le projet en ligne (`[remotes.production]`), Mailpit en local. Services Render créés par l'outil MCP plutôt qu'un `render.yaml` (config décrite dans le runbook). Correction en passant : `Screen` comptait deux fois la zone sûre du bas dans Profil.
-Fait sur le téléphone le 2026-10-10 (API du Mac branchée sur Supabase en ligne) : code reçu par e-mail (Resend : livré), connexion, session gardée après redémarrage de l'app, suppression du compte (`DELETE /me 204`, plus aucun utilisateur dans Supabase), découvertes toujours là.
+Fait sur le téléphone le 2026-10-10, d'abord avec l'API du Mac branchée sur Supabase en ligne, puis à travers Render : code reçu par e-mail (Resend : livré), connexion, session gardée après redémarrage de l'app, suppression du compte (`DELETE /me 204`, plus aucun utilisateur dans Supabase), découvertes toujours là.
 
 Hors 5b : connexion Apple ou Google, SMTP à nous, nom de domaine, profil public et pseudo (phase 7), sauvegarde des découvertes.
 
@@ -390,3 +390,12 @@ Hors 5b : connexion Apple ou Google, SMTP à nous, nom de domaine, profil public
 - App : `cities_cache` (migration 5), `findCity` sur l'appareil, `syncPlaces` au premier relevé GPS, repli sur le cache, délai de 10 s. `testPlaces.ts` supprimé, anciens textes de catégories retirés.
 - Vérifié : 15 tests serveur, 53 tests app, typecheck, lint, format ; sur le téléphone : lieux de l'API, découverte gardée, hors ligne.
 - Reste (5b) : comptes, suppression de compte, collecte planifiée, hébergement API + projet Supabase en ligne.
+
+### Phase 5b
+- Projet Supabase `detour` en ligne (Paris, offre gratuite) : migration de la 5a, collecte, RLS vérifiée (la clé publique ne lit rien).
+- Connexion par code e-mail à 6 chiffres (10 min, une demande par minute), modèle français, envoi par Resend depuis `onboarding@resend.dev` (seul le titulaire du compte Resend reçoit les codes). Config dans `server/supabase/config.toml`, poussée par `supabase config push` ; SMTP seulement pour le projet en ligne, Mailpit en local.
+- App : section Compte dans Profil, session `supabase-js` dans le `localStorage` d'`expo-sqlite`. 1 dépendance : `@supabase/supabase-js`. Exception Auth notée dans `CLAUDE.md`.
+- API : `DELETE /me` (jeton vérifié par Supabase Auth, suppression avec la clé secrète, `fetch` seul). Délai de 10 s partagé (`fetchWithTimeout`) pour les appels de l'app.
+- En ligne : API Render `detour-api` (https://detour-api-30ul.onrender.com, gratuite) ; collecte chaque lundi par GitHub Actions (Render exige une carte pour un cron).
+- Vérifié : 56 tests app, 18 serveur, typecheck, lint, format ; workflow de collecte lancé (106 lieux) ; sur le téléphone à travers Render : lieux, connexion, session gardée, suppression du compte. Journaux Render : méthode, chemin, statut seulement.
+- Reste : domaine Détour + expéditeur Resend avant la bêta (phase 8). L'API gratuite s'endort (premier appel environ 30 s).

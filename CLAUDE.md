@@ -156,6 +156,6 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 - [x] Prise de photo et validation d'un lieu (phase 4, animation à voir à l'œil)
 - [x] Lieux créés par l'utilisateur, spots et chez quelqu'un, en local : genre, modifier, supprimer (phases 4b à 4d)
 - [x] Stockage local des découvertes (SQLite, migrations, requêtes)
-- [ ] Backend et collecte des lieux (phase 5a faite : Supabase local, collecte OSM, API des lieux, app branchée ; reste 5b : comptes, jobs planifiés, hébergement)
+- [x] Backend et collecte des lieux (phase 5 : Supabase en ligne, collecte OSM chaque semaine, API sur Render, comptes par code e-mail et suppression de compte ; reste un domaine pour les e-mails avant la bêta)
 - [ ] Partage et commentaires
 - [ ] Achat de cartes
