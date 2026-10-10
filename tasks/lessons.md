@@ -28,3 +28,9 @@ Format :
 
 - **Erreur** : `npx prettier --write src ../docs` lancé depuis `app/` a reformaté `docs/design.md` en entier : le `.prettierignore` de la racine (qui exclut `*.md`) n'est pas lu quand Prettier tourne depuis un sous-dossier.
 - **Règle** : formater avec `npm run format` depuis la racine, jamais Prettier à la main sur des chemins hors du dossier courant.
+
+- **Erreur** : pendant un test sur le téléphone, mes appuis `adb` sont partis dans une autre app : une notification en haut de l'écran les a interceptés.
+- **Règle** : avant chaque appui `adb`, vérifier que l'app a le focus (`dumpsys window | grep mCurrentFocus`) et éviter le haut de l'écran ; s'arrêter et demander dès qu'une autre app apparaît.
+
+- **Erreur** : formulaire rendu défilant pour le clavier, mais rien ne défilait : Android plein écran (edge-to-edge) ne réduit pas l'écran quand le clavier s'ouvre.
+- **Règle** : tout écran avec un champ texte est dans un `KeyboardAvoidingView` (`behavior="padding"`), vérifié sur le téléphone clavier ouvert.

@@ -9,6 +9,10 @@ import { palette, radius, spacing } from '@/theme/tokens';
 import { Button } from './Button';
 
 interface PersonalPlaceFormProps {
+  title: TranslationKey;
+  submitLabel: TranslationKey;
+  // Values to start from when editing; a new place starts empty and private.
+  initial?: PlaceDetails;
   error: TranslationKey | null;
   busy: boolean;
   onCreate: (details: PlaceDetails) => void;
@@ -23,15 +27,18 @@ const KINDS: { value: Visibility; label: TranslationKey; hint: TranslationKey }[
 
 // Private by default: a home must never become public by mistake.
 export function PersonalPlaceForm({
+  title,
+  submitLabel,
+  initial,
   error,
   busy,
   onCreate,
   onCancel,
   onEdit,
 }: PersonalPlaceFormProps) {
-  const [name, setName] = useState('');
-  const [visibility, setVisibility] = useState<Visibility>('private');
-  const [genre, setGenre] = useState<SpotGenre | null>(null);
+  const [name, setName] = useState(initial?.name ?? '');
+  const [visibility, setVisibility] = useState<Visibility>(initial?.visibility ?? 'private');
+  const [genre, setGenre] = useState<SpotGenre | null>(initial?.genre ?? null);
 
   // Scrolls so the buttons stay reachable while the keyboard covers the bottom of the screen.
   return (
@@ -40,7 +47,7 @@ export function PersonalPlaceForm({
       contentContainerStyle={styles.card}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.title}>{t('personal.title')}</Text>
+      <Text style={styles.title}>{t(title)}</Text>
       <TextInput
         style={styles.input}
         value={name}
@@ -52,7 +59,7 @@ export function PersonalPlaceForm({
         placeholderTextColor={palette.light.textMuted}
         accessibilityLabel={t('personal.nameLabel')}
         maxLength={MAX_NAME_LENGTH}
-        autoFocus
+        autoFocus={!initial}
         returnKeyType="done"
       />
       <View accessibilityRole="radiogroup" style={styles.kinds}>
@@ -99,7 +106,7 @@ export function PersonalPlaceForm({
       )}
       <View style={styles.actions}>
         <Button
-          label={t('personal.create')}
+          label={t(submitLabel)}
           onPress={() => {
             if (!busy) onCreate({ name, visibility, genre });
           }}
@@ -111,7 +118,7 @@ export function PersonalPlaceForm({
 }
 
 const styles = StyleSheet.create({
-  scroll: { alignSelf: 'stretch', flexGrow: 0 },
+  scroll: { alignSelf: 'stretch', flexGrow: 0, flexShrink: 1 },
   card: {
     backgroundColor: palette.light.surface,
     borderRadius: radius.md,

@@ -32,6 +32,14 @@ export const fr = {
   'personal.limit': 'Tu as déjà créé 3 lieux aujourd’hui. Reviens demain pour en ajouter.',
   'personal.refused.emptyName': 'Donne un nom à ce lieu.',
   'personal.refused.limit': 'Tu as déjà créé 3 lieux aujourd’hui. Reviens demain pour en ajouter.',
+  'personal.editTitle': 'Modifier ce lieu',
+  'personal.save': 'Enregistrer',
+  'place.edit': 'Modifier',
+  'place.delete': 'Supprimer ce lieu',
+  'place.deleteWarning':
+    'La photo sera effacée et le brouillard reviendra autour, sauf sur les rues où tu as marché.',
+  'place.deleteConfirm': 'Oui, supprimer',
+  'place.close': 'Fermer',
   'profile.title': 'Profil',
   'profile.discoveries': 'Mes découvertes',
   'profile.noDiscoveries':

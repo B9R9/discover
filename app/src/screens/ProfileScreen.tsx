@@ -1,8 +1,10 @@
+import type { PlaceId } from '@discover/shared';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { DiscoveryGallery } from '@/components/DiscoveryGallery';
+import { PlaceDetailModal } from '@/components/PlaceDetailModal';
 import { Screen } from '@/components/Screen';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { getSetting } from '@/db/settings';
@@ -14,7 +16,9 @@ import { palette, spacing } from '@/theme/tokens';
 export function ProfileScreen() {
   const db = useSQLiteContext();
   const [background, setBackground] = useState(false);
-  const discoveries = useDiscoveryGallery(db);
+  const [discoveries, reloadDiscoveries] = useDiscoveryGallery(db);
+  const [openId, setOpenId] = useState<PlaceId | null>(null);
+  const opened = discoveries.find((discovery) => discovery.placeId === openId) ?? null;
 
   useEffect(() => {
     getSetting(db, 'backgroundTracking').then(setBackground);
@@ -44,8 +48,14 @@ export function ProfileScreen() {
         <Text style={styles.section} accessibilityRole="header">
           {t('profile.discoveries')}
         </Text>
-        <DiscoveryGallery discoveries={discoveries} />
+        <DiscoveryGallery discoveries={discoveries} onOpen={setOpenId} />
       </ScrollView>
+      <PlaceDetailModal
+        key={openId ?? 'closed'}
+        discovery={opened}
+        onClose={() => setOpenId(null)}
+        onChanged={reloadDiscoveries}
+      />
     </Screen>
   );
 }

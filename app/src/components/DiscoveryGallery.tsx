@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import type { PlaceId } from '@discover/shared';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { DiscoveryWithPhoto } from '@/db/discoveries';
 import { formatDay } from '@/lib/format';
@@ -6,7 +7,12 @@ import { t } from '@/lib/i18n/t';
 import { palette, radius, spacing } from '@/theme/tokens';
 
 // ponytail: plain wrapped views, fine for a few hundred photos; switch to a FlatList grid beyond that.
-export function DiscoveryGallery({ discoveries }: { discoveries: DiscoveryWithPhoto[] }) {
+interface DiscoveryGalleryProps {
+  discoveries: DiscoveryWithPhoto[];
+  onOpen: (placeId: PlaceId) => void;
+}
+
+export function DiscoveryGallery({ discoveries, onOpen }: DiscoveryGalleryProps) {
   if (discoveries.length === 0) {
     return <Text style={styles.empty}>{t('profile.noDiscoveries')}</Text>;
   }
@@ -15,18 +21,18 @@ export function DiscoveryGallery({ discoveries }: { discoveries: DiscoveryWithPh
       {discoveries.map((discovery) => {
         const name = discovery.name ?? t('profile.unknownPlace');
         return (
-          <View key={discovery.placeId} style={styles.item}>
-            <Image
-              source={{ uri: discovery.photoUri }}
-              style={styles.photo}
-              resizeMode="cover"
-              accessibilityLabel={name}
-            />
+          <Pressable
+            key={discovery.placeId}
+            style={styles.item}
+            accessibilityRole="button"
+            onPress={() => onOpen(discovery.placeId)}
+          >
+            <Image source={{ uri: discovery.photoUri }} style={styles.photo} resizeMode="cover" />
             <Text style={styles.name} numberOfLines={1}>
               {name}
             </Text>
             <Text style={styles.date}>{formatDay(discovery.discoveredAt)}</Text>
-          </View>
+          </Pressable>
         );
       })}
     </View>

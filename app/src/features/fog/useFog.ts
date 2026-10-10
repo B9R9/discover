@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { listDiscoveredPositions } from '@/db/discoveries';
+import { countDiscoveries, listDiscoveredPositions } from '@/db/discoveries';
 import type { Db, GeoPoint } from '@/db/types';
 import { listPathPoints, type PathPoint } from '@/db/walkedPaths';
 
@@ -32,10 +32,11 @@ export function useFog(db: Db): [FogData, () => void] {
   const wake = useRef(() => {});
 
   useEffect(() => {
-    const grid = new FogGrid();
-    const lines: Position[][] = [];
+    let grid = new FogGrid();
+    let lines: Position[][] = [];
     let lastPoint: PathPoint | undefined;
     let nextDiscoveryAt = 0;
+    let drawnDiscoveries = 0;
     let loaded = false;
     let running = false;
     let wokenWhileRunning = false;
@@ -44,9 +45,20 @@ export function useFog(db: Db): [FogData, () => void] {
 
     // ponytail: the first refresh rebuilds everything from SQLite; cache the tiles in SQLite if startup gets slow.
     async function refresh() {
-      const places = await listDiscoveredPositions(db, nextDiscoveryAt);
+      const total = await countDiscoveries(db);
+      let places = await listDiscoveredPositions(db, nextDiscoveryAt);
+      // Fewer rows than drawn plus new: a discovery was deleted. The grid only grows, so start over.
+      const rebuild = total < drawnDiscoveries + places.length;
+      if (rebuild) {
+        grid = new FogGrid();
+        lines = [];
+        lastPoint = undefined;
+        places = await listDiscoveredPositions(db, 0);
+        drawnDiscoveries = 0;
+      }
       const points = await listPathPoints(db, lastPoint ? lastPoint.recordedAt + 1 : 0);
-      if (stopped || (places.length === 0 && points.length === 0)) return;
+      if (stopped || (!rebuild && places.length === 0 && points.length === 0)) return;
+      drawnDiscoveries += places.length;
       // Starting from the last known point links the new rows to the walk already drawn.
       const walk = lastPoint && points.length > 0 ? [lastPoint, ...points] : points;
       grid.add([...placeShapes(places), ...walkShapes(walk)]);
@@ -58,7 +70,7 @@ export function useFog(db: Db): [FogData, () => void] {
         fog: grid.fog(),
         edges: grid.edges(),
         walked: { type: 'MultiLineString', coordinates: [...lines] },
-        fresh: loaded && places.length > 0 ? places : previous.fresh,
+        fresh: rebuild ? [] : loaded && places.length > 0 ? places : previous.fresh,
       }));
     }
 

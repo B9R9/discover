@@ -1,4 +1,10 @@
-import { countPersonalPlacesSince, type PersonalPlace } from '@/db/personalPlaces';
+import type { PlaceId } from '@discover/shared';
+
+import {
+  countPersonalPlacesSince,
+  updatePersonalPlace,
+  type PersonalPlace,
+} from '@/db/personalPlaces';
 import type { Db } from '@/db/types';
 
 import { recordDiscovery, type NewDiscovery } from './recordDiscovery';
@@ -25,21 +31,36 @@ export async function personalPlaceRefusal(
   return (await canCreatePersonalPlace(db, now)) ? null : 'limit';
 }
 
+// Trims the name and drops the genre of a home: a home is not a spot.
+function normalized({ name, visibility, genre }: PlaceDetails): PlaceDetails {
+  return {
+    name: name.trim().slice(0, MAX_NAME_LENGTH),
+    visibility,
+    genre: visibility === 'public' ? genre : null,
+  };
+}
+
+// Returns 'emptyName' on refusal, null when saved (or when the id is not a personal place).
+export async function editPersonalPlace(
+  db: Db,
+  id: PlaceId,
+  details: PlaceDetails,
+): Promise<'emptyName' | null> {
+  if (details.name.trim() === '') return 'emptyName';
+  await updatePersonalPlace(db, id, normalized(details));
+  return null;
+}
+
 // Call after personalPlaceRefusal returned null.
 export function recordPersonalPlace(
   db: Db,
   photo: Omit<NewDiscovery, 'placeId' | 'personal'>,
-  { name, visibility, genre }: PlaceDetails,
+  details: PlaceDetails,
 ): Promise<void> {
   return recordDiscovery(db, {
     ...photo,
     // Local id: the server will give its own if the place is ever shared.
     placeId: `personal:${photo.takenAt}`,
-    personal: {
-      name: name.trim().slice(0, MAX_NAME_LENGTH),
-      visibility,
-      // A home is not a spot: it never carries a genre.
-      genre: visibility === 'public' ? genre : null,
-    },
+    personal: normalized(details),
   });
 }

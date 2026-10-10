@@ -49,3 +49,43 @@ export async function countPersonalPlacesSince(db: Db, since: number): Promise<n
   );
   return row?.count ?? 0;
 }
+
+const SELECT =
+  'SELECT id, name, latitude, longitude, visibility, genre, created_at AS createdAt, photo_id AS photoId FROM personal_places';
+
+// Null for a server place: only places the user created can be edited or deleted.
+export function getPersonalPlace(db: Db, id: PlaceId): Promise<PersonalPlace | null> {
+  return db.getFirstAsync<PersonalPlace>(`${SELECT} WHERE id = ?`, [id]);
+}
+
+export async function updatePersonalPlace(
+  db: Db,
+  id: PlaceId,
+  { name, visibility, genre }: Pick<PersonalPlace, 'name' | 'visibility' | 'genre'>,
+): Promise<boolean> {
+  const result = await db.runAsync(
+    'UPDATE personal_places SET name = ?, visibility = ?, genre = ? WHERE id = ?',
+    [name, visibility, genre, id],
+  );
+  return result.changes > 0;
+}
+
+// Removes the place, its discovery and its photo row. Returns the photo file to delete, or null if not a personal place.
+export async function deletePersonalPlace(db: Db, id: PlaceId): Promise<string | null> {
+  const row = await db.getFirstAsync<{ photoId: number; uri: string }>(
+    `SELECT p.id AS photoId, p.uri FROM personal_places pp JOIN photos p ON p.id = pp.photo_id WHERE pp.id = ?`,
+    [id],
+  );
+  if (!row) return null;
+  await db.execAsync('BEGIN');
+  try {
+    await db.runAsync('DELETE FROM discovered_places WHERE place_id = ?', [id]);
+    await db.runAsync('DELETE FROM personal_places WHERE id = ?', [id]);
+    await db.runAsync('DELETE FROM photos WHERE id = ?', [row.photoId]);
+    await db.execAsync('COMMIT');
+  } catch (error) {
+    await db.execAsync('ROLLBACK');
+    throw error;
+  }
+  return row.uri;
+}

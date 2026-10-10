@@ -70,6 +70,7 @@ export async function getLastDiscoveredAt(db: Db): Promise<number | null> {
 export interface DiscoveryWithPhoto {
   placeId: PlaceId;
   name: string | null;
+  category: string | null;
   discoveredAt: number;
   photoUri: string;
 }
@@ -77,11 +78,19 @@ export interface DiscoveryWithPhoto {
 // Newest first. The name is null when the place left the cache (removed on the server).
 export function listDiscoveriesWithPhotos(db: Db): Promise<DiscoveryWithPhoto[]> {
   return db.getAllAsync<DiscoveryWithPhoto>(
-    `SELECT d.place_id AS placeId, c.name, d.discovered_at AS discoveredAt, p.uri AS photoUri
+    `SELECT d.place_id AS placeId, c.name, c.category, d.discovered_at AS discoveredAt, p.uri AS photoUri
      FROM discovered_places d
      JOIN photos p ON p.id = d.photo_id
      LEFT JOIN all_places c ON c.id = d.place_id
      ORDER BY d.discovered_at DESC`,
     [],
   );
+}
+
+export async function countDiscoveries(db: Db): Promise<number> {
+  const row = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) AS count FROM discovered_places',
+    [],
+  );
+  return row?.count ?? 0;
 }

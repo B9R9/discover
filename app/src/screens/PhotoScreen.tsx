@@ -2,7 +2,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useIsFocused, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useRef, useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -109,43 +109,48 @@ export function PhotoScreen() {
           onCameraReady={() => setReady(true)}
         />
       )}
-      <SafeAreaView style={styles.overlay} edges={['top']}>
-        {pending ? (
-          <PersonalPlaceForm
-            error={message}
-            busy={busy}
-            onCreate={(details) => {
-              createPlace(pending, details).catch(console.warn);
-            }}
-            onCancel={cancel}
-            onEdit={() => setMessage(null)}
-          />
-        ) : (
-          hint && (
-            <View style={styles.message}>
-              <Text style={styles.messageText} accessibilityLiveRegion="polite">
-                {t(hint)}
-              </Text>
-            </View>
-          )
-        )}
-        {!pending && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('photo.capture')}
-            accessibilityState={{ disabled: !ready || busy }}
-            disabled={!ready || busy}
-            onPress={() => {
-              capture().catch(console.warn);
-            }}
-            style={({ pressed }) => [
-              styles.shutter,
-              (pressed || busy) && styles.shutterPressed,
-              !ready && styles.shutterDisabled,
-            ]}
-          />
-        )}
-      </SafeAreaView>
+      {/* Android draws edge to edge: the keyboard covers the screen without resizing it. */}
+      <KeyboardAvoidingView style={styles.keyboard} behavior="padding">
+        <SafeAreaView style={styles.overlay} edges={['top']}>
+          {pending ? (
+            <PersonalPlaceForm
+              title="personal.title"
+              submitLabel="personal.create"
+              error={message}
+              busy={busy}
+              onCreate={(details) => {
+                createPlace(pending, details).catch(console.warn);
+              }}
+              onCancel={cancel}
+              onEdit={() => setMessage(null)}
+            />
+          ) : (
+            hint && (
+              <View style={styles.message}>
+                <Text style={styles.messageText} accessibilityLiveRegion="polite">
+                  {t(hint)}
+                </Text>
+              </View>
+            )
+          )}
+          {!pending && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('photo.capture')}
+              accessibilityState={{ disabled: !ready || busy }}
+              disabled={!ready || busy}
+              onPress={() => {
+                capture().catch(console.warn);
+              }}
+              style={({ pressed }) => [
+                styles.shutter,
+                (pressed || busy) && styles.shutterPressed,
+                !ready && styles.shutterDisabled,
+              ]}
+            />
+          )}
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -153,6 +158,7 @@ export function PhotoScreen() {
 const SHUTTER_SIZE = 76;
 
 const styles = StyleSheet.create({
+  keyboard: { flex: 1 },
   screen: { flex: 1, backgroundColor: palette.light.text },
   body: { fontSize: 16, lineHeight: 24, color: palette.light.text, marginTop: spacing.lg },
   actions: { marginTop: 'auto' },

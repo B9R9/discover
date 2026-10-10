@@ -160,7 +160,22 @@ Genres : point de vue, nature, commerce, café/resto, plage, street art, patrimo
 - [x] 4. Libellés `category.*` : liste et galerie les affichent sans autre changement.
 - [ ] 5. Tests (migration sur base existante, catégorie selon le genre, domicile sans genre), téléphone, doc, bilan.
 
-Fait sur le téléphone le 2026-10-10 : pastilles visibles seulement pour un spot, spot « Point de vue » créé, catégorie affichée dans la liste. Vu sur le téléphone : avec le clavier ouvert, le bouton « Créer ce lieu » était caché. Formulaire rendu défilant, correctif pas encore vu sur le téléphone. Spot de test « Belvedere test » encore sur le téléphone.
+Fait sur le téléphone le 2026-10-10 : pastilles visibles seulement pour un spot, spot « Point de vue » créé, catégorie affichée dans la liste. Vu sur le téléphone : avec le clavier ouvert, le bouton « Créer ce lieu » était caché. Formulaire rendu défilant puis `KeyboardAvoidingView` (phase 4d), vérifié. Spot de test supprimé depuis l'app en phase 4d.
+
+## Phase 4d : Modifier ou supprimer un lieu créé (plan validé le 2026-10-10)
+
+Seulement les lieux créés par l'utilisateur (`personal_places`), jamais les lieux du serveur.
+
+- [x] 1. Profil, galerie : appui sur un lieu créé, feuille de détail (photo, nom, type, genre). Les lieux du serveur s'ouvrent aussi, en lecture seule.
+- [x] 2. Modifier : nom, type (chez quelqu'un / spot), genre. Même formulaire que la création (`PersonalPlaceForm` réutilisé, valeurs de départ). Position non modifiable : la photo prouve où le lieu est.
+- [x] 3. Supprimer : confirmation dans l'écran (deuxième appui « Oui, supprimer »), pas de boîte système. Une transaction retire `discovered_places`, `personal_places`, `photos`, puis le fichier photo est effacé.
+- [x] 4. Brouillard : `useFog` ne sait qu'ajouter. Après une suppression, il reconstruit tout depuis SQLite (même coût qu'au lancement, environ 1 s au pire mesuré).
+- [x] 5. Tests : modification (nom vide refusé, domicile perd son genre), suppression sans trace (et la zone n'est plus dévoilée), un lieu du serveur ne peut être ni modifié ni supprimé.
+- [x] 6. Téléphone, doc, runbook, bilan.
+
+Décision du 2026-10-10 : à la suppression, le brouillard revient (sinon on dévoilerait sans limite en créant puis supprimant).
+Écarts : fenêtre de détail en `Modal` React Native, remise à zéro par `key` à chaque lieu ouvert. Suppression détectée par `useFog` en comptant les découvertes, sans lien entre les écrans. Le recalcul du brouillard n'a pas de test automatique (logique dans le hook) : à vérifier sur le téléphone.
+Fait sur le téléphone le 2026-10-10 : fiche d'un spot, modification (Point de vue vers Nature), suppression avec confirmation, brouillard revenu autour, fichier photo effacé, galerie à jour. Formulaire avec clavier ouvert : le défilement seul ne suffisait pas (Android plein écran, le clavier ne réduit pas l'écran), corrigé avec `KeyboardAvoidingView` sur l'écran Photo et la fiche, vérifié. Reste connu : une photo en attente est perdue dans le cache si l'app est tuée avant « Créer » ou « Annuler » (le système vide le cache).
 
 ## Phase 5 : Backend, comptes et collecte des lieux
 - [ ] Projet Supabase, Postgres + PostGIS
@@ -266,3 +281,8 @@ Fait sur le téléphone le 2026-10-10 : pastilles visibles seulement pour un spo
 - Comptent comme découverts (150 m dévoilés), au plus 3 par 24 h.
 - Partage prévu en phase 7 : communauté pour les spots et lieux publics seulement, après modération ; domicile entre amis seulement.
 - Vérifié : 43 tests, typecheck, lint, format ; sur le téléphone : création d'un spot et dévoilement.
+
+### Phase 4d
+- Fiche d'un lieu depuis la galerie du Profil : modifier (nom, type, genre) ou supprimer un lieu créé ; lieux du serveur en lecture seule.
+- Suppression : transaction puis fichier ; `useFog` détecte qu'une découverte a disparu et recalcule tout, le brouillard revient.
+- Vérifié : 47 tests, typecheck, lint, format ; sur le téléphone : modification, suppression, brouillard, clavier.
