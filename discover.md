@@ -1,4 +1,4 @@
-# Discover : concept
+# Détour : concept
 
 Source de vérité produit. Stack, structure et règles de code sont dans `CLAUDE.md`.
 

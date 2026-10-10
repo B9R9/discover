@@ -1,4 +1,4 @@
-# Plan : construire Discover
+# Plan : construire Détour
 
 Ordre pensé pour avoir une boucle jouable le plus tôt possible : carte, photo, validation, le tout en local. Le backend vient après, avec des lieux de test en dur au départ.
 

@@ -1,4 +1,4 @@
-# Documentation Discover
+# Documentation Détour
 
 Mise à jour au fil des phases de `tasks/todo.md`. Concept : `../discover.md`. Règles pour les agents : `../CLAUDE.md`. Exploitation : `runbook.md`. Charte graphique : `design.md`.
 
@@ -32,4 +32,5 @@ Monorepo npm workspaces. Expo SDK 57, React Native 0.86, TypeScript 6 strict. Le
 - Plateforme de développement : Android (Nothing Phone), iOS plus tard
 - Migrations SQLite : liste de scripts SQL dans `app/src/db/migrations.ts`, version dans `PRAGMA user_version`, une transaction par migration. On ajoute, on ne modifie jamais une migration publiée.
 - Tests de la base : les requêtes prennent une interface `Db` (sous-ensemble d'expo-sqlite). En test, elle est fournie par `node:sqlite` (intégré à Node 24), sans code natif ni dépendance.
+- Nom de l'app : Détour. Identifiants techniques inchangés (`discover` : slug, scheme, `com.b9r9.discover`, `discover.db`, workspaces `@discover/*`, dépôt) pour ne pas casser le build installé ni les données locales.
 - Interface en thème clair forcé pour l'instant (`userInterfaceStyle: light`)
