@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Détour (version simple, sans flou)</title>
+  <rect width="1024" height="1024" fill="#D5D9DD"/>
+  <circle cx="512" cy="512" r="400" fill="#F2A33A" fill-opacity="0.14"/>
+  <circle cx="512" cy="512" r="300" fill="#F2A33A" fill-opacity="0.28"/>
+  <circle cx="512" cy="512" r="190" fill="#F2A33A"/>
+</svg>

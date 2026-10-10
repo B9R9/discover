@@ -1,6 +1,7 @@
 # Discover : guide pour les agents
 
 Lis ce fichier en entier avant de toucher au code. Pour le concept complet, lis `discover.md`.
+Avant de créer ou modifier un écran ou un composant, lis `docs/design.md` (charte graphique, tokens dans `app/src/theme/tokens.ts`).
 
 ## Le projet en bref
 

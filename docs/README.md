@@ -1,6 +1,6 @@
 # Documentation Discover
 
-Mise à jour au fil des phases de `tasks/todo.md`. Concept : `../discover.md`. Règles pour les agents : `../CLAUDE.md`. Exploitation : `runbook.md`.
+Mise à jour au fil des phases de `tasks/todo.md`. Concept : `../discover.md`. Règles pour les agents : `../CLAUDE.md`. Exploitation : `runbook.md`. Charte graphique : `design.md`.
 
 ## Vue d'ensemble
 
