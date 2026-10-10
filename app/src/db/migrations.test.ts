@@ -19,6 +19,7 @@ test('migrates an empty database to the latest version', async () => {
     'owned_maps',
     'photos',
     'places_cache',
+    'settings',
     'walked_paths',
   ]);
 });

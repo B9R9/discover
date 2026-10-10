@@ -40,6 +40,12 @@ export const MIGRATIONS: readonly string[] = [
   );
   CREATE INDEX places_cache_city_id ON places_cache(city_id);
   `,
+  `
+  CREATE TABLE settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+  `,
 ];
 
 export async function migrate(db: Db, migrations: readonly string[] = MIGRATIONS): Promise<void> {

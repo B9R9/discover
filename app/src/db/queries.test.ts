@@ -3,6 +3,7 @@ import { migrate } from './migrations';
 import { addOwnedMap, listOwnedMaps } from './ownedMaps';
 import { addPhoto, getPhoto } from './photos';
 import { listCachedPlaces, replaceCachedPlaces } from './placesCache';
+import { getSetting, setSetting } from './settings';
 import { openTestDb } from './testDb';
 import { addPathPoint, listPathPoints } from './walkedPaths';
 
@@ -62,6 +63,15 @@ test('lists walked points since a date, in order', async () => {
   await addPathPoint(db, { latitude: 2, longitude: 2, recordedAt: 10 });
   await addPathPoint(db, { latitude: 3, longitude: 3, recordedAt: 20 });
   expect((await listPathPoints(db, 15)).map((point) => point.recordedAt)).toEqual([20, 30]);
+});
+
+test('reads default settings, then the saved value', async () => {
+  const db = await freshDb();
+  expect(await getSetting(db, 'backgroundTracking')).toBe(true);
+  await setSetting(db, 'backgroundTracking', false);
+  await setSetting(db, 'backgroundTracking', false);
+  expect(await getSetting(db, 'backgroundTracking')).toBe(false);
+  expect(await getSetting(db, 'onboardingDone')).toBe(false);
 });
 
 test('replaces the cached places of one city only', async () => {

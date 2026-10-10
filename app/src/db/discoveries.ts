@@ -40,3 +40,21 @@ function fromRow(row: DiscoveryRow): Discovery {
   // We wrote this JSON ourselves in addDiscovery, so its shape is trusted.
   return { ...row, path: JSON.parse(row.path) as GeoPoint[] };
 }
+
+export interface DiscoveredPosition extends GeoPoint {
+  discoveredAt: number;
+}
+
+// The place's own position when cached, else where its photo was taken (always within 50 m).
+export function listDiscoveredPositions(db: Db, since = 0): Promise<DiscoveredPosition[]> {
+  return db.getAllAsync<DiscoveredPosition>(
+    `SELECT COALESCE(c.latitude, p.latitude) AS latitude, COALESCE(c.longitude, p.longitude) AS longitude,
+       d.discovered_at AS discoveredAt
+     FROM discovered_places d
+     JOIN photos p ON p.id = d.photo_id
+     LEFT JOIN places_cache c ON c.id = d.place_id
+     WHERE d.discovered_at >= ?
+     ORDER BY d.discovered_at`,
+    [since],
+  );
+}

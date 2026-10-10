@@ -17,3 +17,10 @@ export function listPathPoints(db: Db, since = 0): Promise<PathPoint[]> {
     [since],
   );
 }
+
+export function getLastPathPoint(db: Db): Promise<PathPoint | null> {
+  return db.getFirstAsync<PathPoint>(
+    'SELECT latitude, longitude, recorded_at AS recordedAt FROM walked_paths ORDER BY recorded_at DESC LIMIT 1',
+    [],
+  );
+}

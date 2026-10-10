@@ -15,7 +15,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.RECEIVE_BOOT_COMPLETED"]
     },
     "ios": {
       "bundleIdentifier": "com.b9r9.discover"
@@ -30,7 +31,18 @@
           "imageWidth": 76
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "@maplibre/maplibre-react-native",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Détour utilise ta position pour dévoiler la carte autour de toi et t'indiquer la direction des lieux. Elle reste sur ton téléphone.",
+          "locationAlwaysAndWhenInUsePermission": "Avec « Toujours », Détour dévoile les rues que tu parcours même écran éteint. Tes trajets restent sur ton téléphone.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
