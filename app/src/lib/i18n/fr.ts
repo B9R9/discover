@@ -2,8 +2,27 @@ export const fr = {
   'tabs.map': 'Carte',
   'tabs.photo': 'Photo',
   'tabs.profile': 'Profil',
-  'photo.title': 'Photo',
+  'photo.permissionTitle': 'Ton appareil photo',
+  'photo.permissionWhy':
+    'Pour découvrir un lieu, prends-le en photo sur place. Tes photos restent sur ton téléphone.',
+  'photo.permissionAllow': 'Autoriser',
+  'photo.permissionSettings': 'Ouvrir les réglages',
+  'photo.capture': 'Prendre la photo',
+  'photo.near': 'Tu y es presque, prends ta photo',
+  'photo.far': "Rapproche-toi d'un lieu pour le découvrir",
+  'photo.checking': 'On vérifie où tu es…',
+  'photo.failed': "La photo n'a pas pu être enregistrée. Réessaie.",
+  'photo.refused.mocked':
+    'Ta position semble simulée. Coupe la position fictive pour découvrir ce lieu.',
+  'photo.refused.inaccurate': 'Ton GPS est trop imprécis. Mets-toi à découvert et réessaie.',
+  'photo.refused.stale': 'Ta position a mis trop de temps à arriver. Réessaie.',
+  'photo.refused.alreadyDiscovered': 'Tu as déjà découvert ce lieu.',
+  'photo.refused.tooFar': 'Aucun lieu à moins de 50 m. Rapproche-toi et réessaie.',
   'profile.title': 'Profil',
+  'profile.discoveries': 'Mes découvertes',
+  'profile.noDiscoveries':
+    'Pas encore de découverte. Suis une flèche, il y a quelque chose par là.',
+  'profile.unknownPlace': 'Lieu disparu',
   'profile.backgroundTracking': 'Enregistrer mes balades en arrière-plan',
   'profile.backgroundTrackingHint':
     'La carte se dévoile même écran éteint. Il faut autoriser la position « Toujours ».',

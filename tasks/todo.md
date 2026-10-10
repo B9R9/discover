@@ -93,15 +93,41 @@ Aucune nouvelle dépendance : boussole via `expo-location`, appel OpenRouteServi
 Fait sur le téléphone le 2026-10-10 : liste (nom caché, catégorie, distance), flèche orientée par la boussole, lieu découvert factice (Piscine) avec badge, message sans clé ORS, carte centrée au-dessus du panneau. Itinéraire réel vérifié avec la clé ORS (Piscine : 10 min à pied, 830 m, tracé par les rues). Reste : flèche vérifiée dehors en marchant. Lieux relevés avec Nominatim (Overpass surchargé ce jour-là). Découverte factice laissée sur le téléphone (procédure de retrait dans le runbook).
 
 ## Phase 4 : Photo et validation d'un lieu
-- [ ] Écran caméra (`expo-camera`), pas d'import depuis la galerie
-- [ ] Vérification GPS au moment de la photo : lieu à moins de 50 m
-- [ ] Refus si la précision GPS est trop faible (seuil à définir, ex. 30 m)
-- [ ] Android : refus si la position est simulée (`mocked`)
-- [ ] Refus clair en français si trop loin ou GPS imprécis
-- [ ] Enregistrement : fichier dans le dossier de l'app, ligne `photos`, ligne `discovered_places` (avec chemin parcouru)
-- [ ] La carte se dévoile à la validation, avec une animation
-- [ ] Galerie des lieux découverts (écran Profil)
-- [ ] Test : photo à 49 m acceptée, à 51 m refusée, précision faible refusée
+- [x] Écran caméra (`expo-camera`), pas d'import depuis la galerie
+- [x] Vérification GPS au moment de la photo : lieu à moins de 50 m
+- [x] Refus si la précision GPS est trop faible (seuil à définir, ex. 30 m)
+- [x] Android : refus si la position est simulée (`mocked`)
+- [x] Refus clair en français si trop loin ou GPS imprécis
+- [x] Enregistrement : fichier dans le dossier de l'app, ligne `photos`, ligne `discovered_places` (avec chemin parcouru)
+- [x] La carte se dévoile à la validation, avec une animation
+- [x] Galerie des lieux découverts (écran Profil)
+- [x] Test : photo à 49 m acceptée, à 51 m refusée, précision faible refusée
+
+### Plan détaillé phase 4 (validé le 2026-10-10)
+
+Dépendances (`npx expo install`) :
+- `expo-camera` (prévue par la stack). Plugin `app.json` : texte de permission en français, micro désactivé (`recordAudioAndroid: false`, pas de permission micro).
+- `expo-file-system` (déjà présent en dépendance transitive d'`expo`, à déclarer) : déplacer la photo du cache vers le dossier documents de l'app, sinon le système peut l'effacer.
+
+Étapes :
+- [x] 1. `features/photo/validatePhoto.ts`, fonction pure : reçoit la position au moment de la photo et les lieux en cache, renvoie le lieu validé ou la raison du refus : `mocked` (Android), `inaccurate` (précision > 30 m), `stale` (position de plus de 10 s), `alreadyDiscovered` (seul un lieu déjà découvert est à 50 m ou moins), `tooFar` (aucun lieu non découvert à 50 m ou moins). Plusieurs lieux à portée : le plus proche.
+- [x] 2. `features/photo/saveDiscovery.ts` : copie le fichier dans `documents/photos/`, puis dans une transaction ligne `photos` + ligne `discovered_places`. Chemin parcouru enregistré = points de `walked_paths` depuis la découverte précédente (ou depuis 24 h pour la première). Fichier supprimé si la transaction échoue.
+- [x] 3. Écran Photo plein écran (`CameraView`) : pastille Lanterne de capture, message de portée en direct via la position déjà suivie (« Tu y es presque » à 50 m ou moins d'un lieu non découvert, sinon « Rapproche-toi »). À la capture : `takePictureAsync` et `getCurrentPositionAsync` (précision haute) en parallèle, puis validation. Refus : message clair, photo jetée. Succès : bascule sur l'onglet Carte. Pas d'import depuis la galerie. Permission caméra refusée : message + bouton vers les réglages.
+- [x] 4. Dissipation sur la carte : `useFog` repère les découvertes arrivées après le premier chargement ; `FogLayers` pose un disque Brume de 150 m par-dessus la zone neuve, dont l'opacité passe de 0,9 à 0 en 600 ms par transition MapLibre (`fill-opacity-transition`, aucun calcul JS par image). Réduire les animations activé : pas de disque. Caméra centrée sur le lieu.
+- [x] 5. `useNearbyPlaces` relit les lieux au retour sur l'écran Carte (`useFocusEffect`), pour qu'un lieu découvert passe tout de suite en « Découvert » avec itinéraire.
+- [x] 6. Galerie sur l'écran Profil : grille de miniatures (rayon 12, recadrées), nom du lieu et date. Vide : texte d'encouragement. Requête `listDiscoveriesWithPhotos` dans `db/discoveries.ts`.
+- [x] 7. Tests : 49 m acceptée, 51 m refusée, précision 31 m refusée, position simulée refusée, position périmée refusée, lieu déjà découvert, le plus proche gagne ; `saveDiscovery` écrit photo + découverte + chemin, et rien si la transaction échoue.
+- [x] 8. Téléphone : manifeste (permission caméra, pas de micro), `adb logcat` sans crash, vraie photo devant un lieu ou découverte simulée (repli : faux lieu posé à ma position, procédure dans le runbook).
+- [x] 9. Doc (`docs/README.md`, `docs/runbook.md`), « État actuel » dans `CLAUDE.md`, `tasks/lessons.md`, bilan.
+
+Écarts avec le plan, une fois le code écrit :
+- Dissipation pilotée en JS (`requestAnimationFrame`, seule l'opacité change) et non par `fill-opacity-transition` : avec une transition, rien ne garantit que MapLibre a peint l'état 0,9 avant de passer à 0.
+- `captureDiscovery.ts` (caméra, GPS, fichiers) séparé de `recordDiscovery.ts` (SQLite, testé en Node).
+- Galerie sur deux colonnes, fond Brume si le fichier manque (découverte factice de la phase 3).
+
+Fait sur le téléphone le 2026-10-10 : permission caméra (texte, pas de micro dans le manifeste), « Tu y es presque » à côté d'un faux lieu, photo acceptée, retour Carte avec zone de 150 m dévoilée et lieu « Découvert », galerie Profil, deuxième photo refusée (« déjà découvert »), photo refusée bien effacée, aucun crash dans `adb logcat`. Pas vu : l'animation elle-même (l'enregistrement d'écran démarrait après), refus « trop loin » dehors, position simulée. Faux lieux et photos retirés du téléphone.
+
+Hors phase 4 : marqueur avec miniature de la photo sur la carte (charte), partage (phase 7), suppression d'une découverte.
 
 ## Phase 5 : Backend, comptes et collecte des lieux
 - [ ] Projet Supabase, Postgres + PostGIS
@@ -192,3 +218,11 @@ Fait sur le téléphone le 2026-10-10 : liste (nom caché, catégorie, distance)
 - Règle « jamais d'itinéraire sans découverte » tenue à trois niveaux : type `NearbyPlace` sans nom ni position pour un lieu non découvert, `fetchWalkingRoute` qui revérifie en base avant tout appel réseau, `useWalkingRoute` qui ne rend jamais de route pour un lieu non découvert.
 - Vérifié : 28 tests, typecheck, lint, format ; sur le téléphone : liste, flèche, lieu découvert factice, itinéraire réel.
 - Reste : flèche testée dehors en marchant. Découverte factice (Piscine) encore sur le téléphone, retrait dans le runbook.
+
+### Phase 4
+- 2 dépendances : `expo-camera` (prévue), `expo-file-system` (déjà présente via `expo`, déclarée pour sortir les photos du cache). Micro et codes-barres désactivés.
+- `validatePhoto` en fonction pure : simulée, précision > 30 m, position > 10 s, déjà découvert, > 50 m. `recordDiscovery` : photo + découverte + chemin depuis la découverte précédente (24 h max) en une transaction.
+- Dissipation 600 ms par un disque Brume dont l'opacité baisse, coupée si « réduire les animations ». Carte et lieux relus au retour sur l'onglet.
+- Galerie « Mes découvertes » dans Profil (onglet Photo gardé, choix du 2026-10-10).
+- Vérifié : 38 tests, typecheck, lint, format ; sur le téléphone : photo acceptée, carte dévoilée, galerie, refus « déjà découvert ».
+- Reste : voir l'animation à l'œil, refus « trop loin » et « position simulée » dehors.

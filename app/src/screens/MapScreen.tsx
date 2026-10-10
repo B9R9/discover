@@ -1,5 +1,6 @@
 import { Camera, Map, type CameraRef } from '@maplibre/maplibre-react-native';
 import type { PlaceId } from '@discover/shared';
+import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -17,7 +18,7 @@ import { useWalkingRoute } from '@/features/places/useWalkingRoute';
 
 export function MapScreen() {
   const db = useSQLiteContext();
-  const fog = useFog(db);
+  const [fog, refreshFog] = useFog(db);
   const location = useLocationTracking(db);
   const position = location?.coords ?? null;
   const places = useNearbyPlaces(db, position);
@@ -28,6 +29,14 @@ export function MapScreen() {
   const route = useWalkingRoute(db, selected, position);
   const camera = useRef<CameraRef>(null);
   const hasFix = position !== null;
+  const newest = fog.fresh.at(-1);
+
+  // Back from the camera: show the new discovery now, not at the next timer tick.
+  useFocusEffect(refreshFog);
+
+  useEffect(() => {
+    if (newest) camera.current?.jumpTo({ center: [newest.longitude, newest.latitude] });
+  }, [newest]);
 
   useEffect(() => {
     if (!position) return;

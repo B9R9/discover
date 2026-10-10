@@ -15,3 +15,11 @@ export function categoryLabel(category: string | null): string {
   const key = `category.${category}`;
   return isTranslationKey(key) ? t(key) : t('category.other');
 }
+
+export function formatDay(timestamp: number): string {
+  return new Date(timestamp).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}

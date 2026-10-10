@@ -25,3 +25,6 @@ Format :
 
 - **Erreur** : le test de perf du brouillard imposait 1,5 s en temps absolu ; il passait sur le Mac (1,2 s) et a cassé la CI GitHub (2,2 s).
 - **Règle** : pas de seuil en millisecondes absolues dans un test qui tourne en CI. Comparer deux mesures sur la même machine (ici : un nouveau point coûte moins de 1/20 de la construction complète), avec au plus un plafond large contre les régressions énormes.
+
+- **Erreur** : `npx prettier --write src ../docs` lancé depuis `app/` a reformaté `docs/design.md` en entier : le `.prettierignore` de la racine (qui exclut `*.md`) n'est pas lu quand Prettier tourne depuis un sous-dossier.
+- **Règle** : formater avec `npm run format` depuis la racine, jamais Prettier à la main sur des chemins hors du dossier courant.

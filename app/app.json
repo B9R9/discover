@@ -32,6 +32,15 @@
         }
       ],
       "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Détour utilise l'appareil photo pour découvrir un lieu : prends-le en photo sur place. Tes photos restent sur ton téléphone.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": false
+        }
+      ],
       "@maplibre/maplibre-react-native",
       [
         "expo-location",
