@@ -7,12 +7,19 @@ import { useEffect, useState } from 'react';
 import { DATABASE_NAME } from '@/db/database';
 import { migrate } from '@/db/migrations';
 import { getSetting } from '@/db/settings';
+import type { Db } from '@/db/types';
+import { seedTestPlaces } from '@/features/places/testPlaces';
 import { t } from '@/lib/i18n/t';
 import { OnboardingScreen } from '@/screens/OnboardingScreen';
 
+async function initDatabase(db: Db) {
+  await migrate(db);
+  await seedTestPlaces(db);
+}
+
 export default function RootLayout() {
   return (
-    <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrate}>
+    <SQLiteProvider databaseName={DATABASE_NAME} onInit={initDatabase}>
       <App />
     </SQLiteProvider>
   );

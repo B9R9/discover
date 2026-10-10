@@ -72,23 +72,25 @@ Hors phase 2 : animation de dissipation (phase 4), marqueurs de lieux (phase 3),
 
 ## Phase 3 : Lieux et navigation (données de test)
 - [x] Type `Place` dans `/shared` (fait en phase 1, pour `places_cache`)
-- [ ] Jeu de lieux de test en dur à Biscarrosse
-- [ ] Liste ou marqueurs des lieux proches (non découverts : pas de position exacte affichée sur la carte cachée)
+- [x] Jeu de lieux de test en dur à Biscarrosse
+- [x] Liste ou marqueurs des lieux proches (non découverts : pas de position exacte affichée sur la carte cachée)
 - [ ] Lieu non découvert : flèche orientée par la boussole (`expo-location` heading) + distance à vol d'oiseau, jamais d'itinéraire
-- [ ] Lieu découvert : itinéraire à pied via OpenRouteService, appel direct depuis l'app (notre serveur ne voit jamais la position). Clé dédiée à l'app, quota surveillé
-- [ ] Test : un lieu non découvert n'expose aucune route, ni dans l'UI ni dans les données
+- [x] Lieu découvert : itinéraire à pied via OpenRouteService, appel direct depuis l'app (notre serveur ne voit jamais la position). Clé dédiée à l'app, quota surveillé
+- [x] Test : un lieu non découvert n'expose aucune route, ni dans l'UI ni dans les données
 
-### Plan détaillé phase 3 (à valider)
+### Plan détaillé phase 3 (validé le 2026-10-10)
 
 Aucune nouvelle dépendance : boussole via `expo-location`, appel OpenRouteService avec `fetch`, panneau du bas sans bibliothèque.
 
-- [ ] 1. Lieux de test : une dizaine de vrais lieux de Biscarrosse (positions relevées une fois dans OpenStreetMap), écrits dans `places_cache` au démarrage par `replaceCachedPlaces`. La phase 5 remplacera seulement la source : le reste de l'app lit déjà `places_cache`
-- [ ] 2. `features/places/nearbyPlaces.ts` : lieux triés par distance, chacun marqué découvert ou non (jointure avec `discovered_places`)
-- [ ] 3. Panneau du bas sur l'écran Carte : liste des lieux proches (carte de lieu de la charte : aplat Brume + point d'interrogation si non découvert, distance). Aucun marqueur pour un lieu non découvert ; marqueur Sentier pour un lieu découvert
-- [ ] 4. Lieu non découvert sélectionné : flèche Lanterne orientée par `watchHeadingAsync` (cap vers le lieu moins cap du téléphone) + distance à vol d'oiseau. Calcul du cap en fonction pure, testée
-- [ ] 5. Lieu découvert sélectionné : itinéraire à pied OpenRouteService (`foot-walking`), clé dans `EXPO_PUBLIC_ORS_KEY`, tracé en trait Lanterne. La fonction d'itinéraire prend un `Discovery` (pas un `Place`) : impossible de l'appeler pour un lieu non découvert, et elle revérifie en base
-- [ ] 6. Tests : cap et distance, tri des lieux, `fetchWalkingRoute` refuse un lieu non découvert sans appel réseau (`fetch` espionné), l'état de l'écran ne contient jamais de route pour un lieu non découvert
+- [x] 1. Lieux de test : une dizaine de vrais lieux de Biscarrosse (positions relevées une fois dans OpenStreetMap), écrits dans `places_cache` au démarrage par `replaceCachedPlaces`. La phase 5 remplacera seulement la source : le reste de l'app lit déjà `places_cache`
+- [x] 2. `features/places/nearbyPlaces.ts` : lieux triés par distance, chacun marqué découvert ou non (jointure avec `discovered_places`)
+- [x] 3. Panneau du bas sur l'écran Carte : liste des lieux proches (carte de lieu de la charte : aplat Brume + point d'interrogation si non découvert, distance). Aucun marqueur pour un lieu non découvert ; marqueur Sentier pour un lieu découvert
+- [x] 4. Lieu non découvert sélectionné : flèche Lanterne orientée par `watchHeadingAsync` (cap vers le lieu moins cap du téléphone) + distance à vol d'oiseau. Calcul du cap en fonction pure, testée
+- [x] 5. Lieu découvert sélectionné : itinéraire à pied OpenRouteService (`foot-walking`), clé dans `EXPO_PUBLIC_ORS_KEY`, tracé en trait Lanterne. `fetchWalkingRoute` revérifie en base que le lieu est découvert avant tout appel réseau, et un lieu non découvert ne porte ni nom ni position dans les données de l'écran (type `NearbyPlace`)
+- [x] 6. Tests : cap et distance, tri des lieux, `fetchWalkingRoute` refuse un lieu non découvert sans appel réseau (`fetch` espionné), l'état de l'écran ne contient jamais de route pour un lieu non découvert
 - [ ] 7. Test sur le téléphone, doc, runbook (clé ORS, quota), bilan
+
+Fait sur le téléphone le 2026-10-10 : liste (nom caché, catégorie, distance), flèche orientée par la boussole, lieu découvert factice (Piscine) avec badge, message sans clé ORS, carte centrée au-dessus du panneau. Itinéraire réel vérifié avec la clé ORS (Piscine : 10 min à pied, 830 m, tracé par les rues). Reste : flèche vérifiée dehors en marchant. Lieux relevés avec Nominatim (Overpass surchargé ce jour-là). Découverte factice laissée sur le téléphone (procédure de retrait dans le runbook).
 
 ## Phase 4 : Photo et validation d'un lieu
 - [ ] Écran caméra (`expo-camera`), pas d'import depuis la galerie
@@ -183,3 +185,10 @@ Aucune nouvelle dépendance : boussole via `expo-location`, appel OpenRouteServi
 - Vérifié : 18 tests, typecheck, lint, format, `expo-doctor` 21/21, sur le téléphone : carte, brouillard, position, notification de fond, réglage Profil qui coupe et relance le service.
 - 3 bugs vus seulement sur le téléphone : `RECEIVE_BOOT_COMPLETED` manquante (crash), tâche enregistrée sans service après le crash, deux enregistrements simultanés. Corrigés, détaillés dans `tasks/lessons.md` et `docs/runbook.md`.
 - Reste : une vraie balade (app ouverte puis écran éteint) et la fluidité sur téléphone avec beaucoup de données.
+
+### Phase 3
+- Aucune nouvelle dépendance : boussole `expo-location`, OpenRouteService en `fetch` direct (`openrouteservice-js` écartée, un seul appel utile), panneau du bas sans bibliothèque.
+- 12 lieux de test de Biscarrosse (OpenStreetMap, via Nominatim) écrits dans `places_cache` au démarrage.
+- Règle « jamais d'itinéraire sans découverte » tenue à trois niveaux : type `NearbyPlace` sans nom ni position pour un lieu non découvert, `fetchWalkingRoute` qui revérifie en base avant tout appel réseau, `useWalkingRoute` qui ne rend jamais de route pour un lieu non découvert.
+- Vérifié : 28 tests, typecheck, lint, format ; sur le téléphone : liste, flèche, lieu découvert factice, itinéraire réel.
+- Reste : flèche testée dehors en marchant. Découverte factice (Piscine) encore sur le téléphone, retrait dans le runbook.

@@ -31,3 +31,17 @@ export function listCachedPlaces(db: Db, cityId: CityId): Promise<Place[]> {
     [cityId],
   );
 }
+
+export interface CachedPlace extends Place {
+  discovered: boolean;
+}
+
+export async function listPlacesWithDiscovery(db: Db): Promise<CachedPlace[]> {
+  const rows = await db.getAllAsync<Place & { discovered: number }>(
+    `SELECT c.id, c.city_id AS cityId, c.name, c.latitude, c.longitude, c.category,
+       d.place_id IS NOT NULL AS discovered
+     FROM places_cache c LEFT JOIN discovered_places d ON d.place_id = c.id`,
+    [],
+  );
+  return rows.map((row) => ({ ...row, discovered: row.discovered === 1 }));
+}

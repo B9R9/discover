@@ -76,6 +76,38 @@ Vérifier la tâche de fond (permission « Toujours » + réglage actif) : la no
 adb shell dumpsys activity services com.b9r9.discover | grep -i location
 ```
 
+## Clé OpenRouteService
+
+1. Créer un compte sur https://openrouteservice.org/dev/#/signup, puis une clé dédiée à l'app.
+2. `cp app/.env.example app/.env` puis remplir `EXPO_PUBLIC_ORS_KEY=` (fichier non commité).
+3. Relancer Metro (`cd app && npm start`) : les variables `EXPO_PUBLIC_` sont lues au démarrage du bundler.
+4. Vérifier la clé :
+
+```
+curl -s -o /dev/null -w "%{http_code}\n" -X POST https://api.openrouteservice.org/v2/directions/foot-walking/geojson -H "Authorization: $EXPO_PUBLIC_ORS_KEY" -H 'Content-Type: application/json' -d '{"coordinates":[[-1.1495,44.3908],[-1.1563,44.3931]]}'
+```
+
+`200` = OK, `401`/`403` = clé absente ou invalide. Sans clé, l'app affiche « Itinéraire indisponible pour le moment. ». Quota : tableau de bord ORS.
+
+## Ajouter ou retirer une découverte factice (téléphone de développement)
+
+Pour tester un lieu découvert avant la phase 4. App arrêtée, base copiée et renvoyée :
+
+```
+adb shell am force-stop com.b9r9.discover
+adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db' > /tmp/discover.db
+adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db-wal' > /tmp/discover.db-wal
+node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');const r=d.prepare('INSERT INTO photos (uri, latitude, longitude, accuracy, taken_at) VALUES (?,?,?,?,?)').run('file:///fake-dev.jpg',44.39308,-1.15628,5,Date.now());d.prepare('INSERT INTO discovered_places VALUES (?,?,?,?)').run('osm:way/127816135',Date.now(),'[]',Number(r.lastInsertRowid));d.exec('PRAGMA wal_checkpoint(TRUNCATE)')"
+adb push /tmp/discover.db /data/local/tmp/discover.db
+adb shell "run-as com.b9r9.discover sh -c 'cp /data/local/tmp/discover.db files/SQLite/discover.db && rm -f files/SQLite/discover.db-wal files/SQLite/discover.db-shm'"
+```
+
+Pour la retirer, même procédure avec à la place du `node -e` :
+
+```
+node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');d.exec(\"DELETE FROM discovered_places WHERE photo_id IN (SELECT id FROM photos WHERE uri='file:///fake-dev.jpg'); DELETE FROM photos WHERE uri='file:///fake-dev.jpg'; PRAGMA wal_checkpoint(TRUNCATE)\")"
+```
+
 ## Builder et publier
 
 _À remplir en phase 8 : EAS Build iOS/Android, TestFlight, Play Store._

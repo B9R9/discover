@@ -23,3 +23,9 @@ export function distanceMeters(a: GeoPoint, b: GeoPoint): number {
   const { x, y } = toMeters(a, b);
   return Math.hypot(x, y);
 }
+
+// Compass bearing from `from` to `to`, in degrees clockwise from north (0 to 360).
+export function bearingDegrees(from: GeoPoint, to: GeoPoint): number {
+  const { x, y } = toMeters(from, to);
+  return ((Math.atan2(x, y) * 180) / Math.PI + 360) % 360;
+}

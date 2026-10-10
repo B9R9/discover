@@ -150,6 +150,7 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 
 - [x] Squelette Expo et navigation
 - [ ] Carte avec brouillard (code fait et vérifié sur le téléphone, reste une vraie balade)
+- [x] Lieux de test, direction et itinéraire (phase 3, flèche à vérifier dehors)
 - [ ] Prise de photo et validation d'un lieu
 - [x] Stockage local des découvertes (SQLite, migrations, requêtes)
 - [ ] Backend et collecte des lieux
