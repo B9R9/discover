@@ -92,6 +92,7 @@ export const fr = {
   'onboarding.continue': 'Continuer',
   'tracking.notificationTitle': 'Détour dévoile ta balade',
   'tracking.notificationBody': 'Ton trajet reste sur ton téléphone.',
+  'map.recenter': 'Recentrer la carte sur toi',
   'places.title': 'Autour de toi',
   'places.unknown': 'Quelque chose par là',
   'places.empty': "Rien à découvrir par ici pour l'instant.",

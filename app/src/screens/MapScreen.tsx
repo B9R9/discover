@@ -8,6 +8,7 @@ import { StyleSheet, View } from 'react-native';
 import { FogLayers } from '@/components/FogLayers';
 import { PlaceLayers } from '@/components/PlaceLayers';
 import { PlacesPanel } from '@/components/PlacesPanel';
+import { RecenterButton } from '@/components/RecenterButton';
 import { UserDot } from '@/components/UserDot';
 import { useFog } from '@/features/fog/useFog';
 import { useLocationTracking } from '@/features/location/useLocationTracking';
@@ -15,6 +16,7 @@ import { DEFAULT_CENTER, DEFAULT_ZOOM, MAP_STYLE_URL } from '@/features/map/mapS
 import { useHeading } from '@/features/places/useHeading';
 import { useNearbyPlaces } from '@/features/places/useNearbyPlaces';
 import { useWalkingRoute } from '@/features/places/useWalkingRoute';
+import { spacing } from '@/theme/tokens';
 
 export function MapScreen() {
   const db = useSQLiteContext();
@@ -70,6 +72,12 @@ export function MapScreen() {
         route={route}
         onHeightChange={setPanelHeight}
       />
+      {position && (
+        <RecenterButton
+          bottom={panelHeight + spacing.lg}
+          onPress={() => camera.current?.flyTo({ center: [position.longitude, position.latitude] })}
+        />
+      )}
     </View>
   );
 }
