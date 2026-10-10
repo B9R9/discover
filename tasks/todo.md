@@ -332,6 +332,9 @@ Fait le 2026-10-10 (étapes 1 à 5, en local) : collecte Gironde (5355 lieux, Bo
 - Chemin parcouru : enregistré aussi en arrière-plan (les points restent sur l'appareil)
 - Cartes : une par département, les communes de plus de 100 000 habitants à part. Département de l'utilisateur offert, sans ses grandes villes. Achat d'une grande ville seule ou d'un département entier, grandes villes comprises (2026-10-10)
 
+## Bugs
+- [ ] Liste « autour de soi » trop longue (2026-10-10) : `nearbyPlaces` (`app/src/features/places/nearbyPlaces.ts`) renvoie tous les lieux du cache, triés par distance, sans limite. Ajouter un rayon (distance max) pour décider combien de lieux afficher. Valeur du rayon à choisir.
+
 ## Questions ouvertes
 - Sauvegarde des découvertes si perte du téléphone : aucune, export manuel, ou sauvegarde chiffrée volontaire (phase 5)
 - Carte offerte après réinstallation ou changement de téléphone : la lier au compte ? (phase 6)
