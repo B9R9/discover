@@ -2,7 +2,6 @@ import type { CameraView } from 'expo-camera';
 import { Directory, File, Paths } from 'expo-file-system';
 import * as Location from 'expo-location';
 
-import type { Visibility } from '@/db/personalPlaces';
 import { listPlacesWithDiscovery } from '@/db/placesCache';
 import type { Db, GeoPoint } from '@/db/types';
 
@@ -10,6 +9,7 @@ import {
   personalPlaceRefusal,
   recordPersonalPlace,
   type PersonalPlaceRefusal,
+  type PlaceDetails,
 } from './createPersonalPlace';
 import { recordDiscovery } from './recordDiscovery';
 import { validatePhoto, type PhotoValidation } from './validatePhoto';
@@ -89,13 +89,10 @@ export async function captureDiscovery(db: Db, camera: CameraView): Promise<Capt
 export async function savePersonalPlace(
   db: Db,
   shot: Shot,
-  name: string,
-  visibility: Visibility,
+  details: PlaceDetails,
 ): Promise<PersonalPlaceRefusal | null> {
-  const refusal = await personalPlaceRefusal(db, name, shot.takenAt);
+  const refusal = await personalPlaceRefusal(db, details.name, shot.takenAt);
   if (refusal) return refusal;
-  await keepShot(shot, (photoUri) =>
-    recordPersonalPlace(db, { ...shot, photoUri }, name, visibility),
-  );
+  await keepShot(shot, (photoUri) => recordPersonalPlace(db, { ...shot, photoUri }, details));
   return null;
 }

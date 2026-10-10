@@ -9,14 +9,13 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { PersonalPlaceForm } from '@/components/PersonalPlaceForm';
 import { ScreenTitle } from '@/components/ScreenTitle';
-import type { Visibility } from '@/db/personalPlaces';
 import {
   captureDiscovery,
   discardShot,
   savePersonalPlace,
   type Shot,
 } from '@/features/photo/captureDiscovery';
-import { canCreatePersonalPlace } from '@/features/photo/createPersonalPlace';
+import { canCreatePersonalPlace, type PlaceDetails } from '@/features/photo/createPersonalPlace';
 import { usePlaceInRange } from '@/features/photo/usePlaceInRange';
 import { t, type TranslationKey } from '@/lib/i18n/t';
 import { palette, radius, spacing } from '@/theme/tokens';
@@ -80,9 +79,9 @@ export function PhotoScreen() {
       setMessage(shot ? 'personal.limit' : `photo.refused.${result.reason}`);
     });
 
-  const createPlace = (shot: Shot, name: string, visibility: Visibility) =>
+  const createPlace = (shot: Shot, details: PlaceDetails) =>
     run(async () => {
-      const refusal = await savePersonalPlace(db, shot, name, visibility);
+      const refusal = await savePersonalPlace(db, shot, details);
       if (refusal) setMessage(`personal.refused.${refusal}`);
       else done();
     });
@@ -115,8 +114,8 @@ export function PhotoScreen() {
           <PersonalPlaceForm
             error={message}
             busy={busy}
-            onCreate={(name, visibility) => {
-              createPlace(pending, name, visibility).catch(console.warn);
+            onCreate={(details) => {
+              createPlace(pending, details).catch(console.warn);
             }}
             onCancel={cancel}
             onEdit={() => setMessage(null)}

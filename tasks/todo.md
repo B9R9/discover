@@ -150,6 +150,18 @@ Aucune nouvelle dépendance.
 
 Hors phase 4b : modifier ou supprimer un lieu perso, catégorie choisie par l'utilisateur, partage.
 
+## Phase 4c : Genre d'un spot (validé le 2026-10-10)
+
+Genres : point de vue, nature, commerce, café/resto, plage, street art, patrimoine, sport/loisir, autre (= sans genre, affiché « Spot »). Rien pour un domicile.
+
+- [x] 1. Migration 4 : colonne `genre` (nulle) dans `personal_places`, vue `all_places` recréée : catégorie = genre, sinon `spot` ; `personal` pour un domicile. La migration 3 est publiée, on ne la touche pas.
+- [x] 2. Genre enregistré avec le lieu, forcé à nul pour un domicile.
+- [x] 3. Formulaire : pastilles de genre, visibles seulement pour « Spot ou lieu public », facultatives.
+- [x] 4. Libellés `category.*` : liste et galerie les affichent sans autre changement.
+- [ ] 5. Tests (migration sur base existante, catégorie selon le genre, domicile sans genre), téléphone, doc, bilan.
+
+Fait sur le téléphone le 2026-10-10 : pastilles visibles seulement pour un spot, spot « Point de vue » créé, catégorie affichée dans la liste. Vu sur le téléphone : avec le clavier ouvert, le bouton « Créer ce lieu » était caché. Formulaire rendu défilant, correctif pas encore vu sur le téléphone. Spot de test « Belvedere test » encore sur le téléphone.
+
 ## Phase 5 : Backend, comptes et collecte des lieux
 - [ ] Projet Supabase, Postgres + PostGIS
 - [ ] Comptes : Supabase Auth (nécessaire pour achats, partage, commentaires). Le jeu local marche sans compte

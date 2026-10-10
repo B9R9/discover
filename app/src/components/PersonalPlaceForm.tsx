@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { Visibility } from '@/db/personalPlaces';
-import { MAX_NAME_LENGTH } from '@/features/photo/createPersonalPlace';
+import { SPOT_GENRES, type SpotGenre, type Visibility } from '@/db/personalPlaces';
+import { MAX_NAME_LENGTH, type PlaceDetails } from '@/features/photo/createPersonalPlace';
 import { t, type TranslationKey } from '@/lib/i18n/t';
 import { palette, radius, spacing } from '@/theme/tokens';
 
@@ -11,7 +11,7 @@ import { Button } from './Button';
 interface PersonalPlaceFormProps {
   error: TranslationKey | null;
   busy: boolean;
-  onCreate: (name: string, visibility: Visibility) => void;
+  onCreate: (details: PlaceDetails) => void;
   onCancel: () => void;
   onEdit: () => void;
 }
@@ -31,9 +31,15 @@ export function PersonalPlaceForm({
 }: PersonalPlaceFormProps) {
   const [name, setName] = useState('');
   const [visibility, setVisibility] = useState<Visibility>('private');
+  const [genre, setGenre] = useState<SpotGenre | null>(null);
 
+  // Scrolls so the buttons stay reachable while the keyboard covers the bottom of the screen.
   return (
-    <View style={styles.card}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.card}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.title}>{t('personal.title')}</Text>
       <TextInput
         style={styles.input}
@@ -66,6 +72,26 @@ export function PersonalPlaceForm({
           );
         })}
       </View>
+      {visibility === 'public' && (
+        <View accessibilityRole="radiogroup" style={styles.genres}>
+          {[...SPOT_GENRES, null].map((value) => {
+            const selected = genre === value;
+            return (
+              <Pressable
+                key={value ?? 'other'}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: selected }}
+                onPress={() => setGenre(value)}
+                style={[styles.genre, selected && styles.kindSelected]}
+              >
+                <Text style={styles.genreLabel}>
+                  {t(value ? `category.${value}` : 'personal.genreOther')}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
       {error && (
         <Text style={styles.error} accessibilityLiveRegion="polite">
           {t(error)}
@@ -75,18 +101,18 @@ export function PersonalPlaceForm({
         <Button
           label={t('personal.create')}
           onPress={() => {
-            if (!busy) onCreate(name, visibility);
+            if (!busy) onCreate({ name, visibility, genre });
           }}
         />
         <Button label={t('personal.cancel')} onPress={onCancel} variant="secondary" />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: { alignSelf: 'stretch', flexGrow: 0 },
   card: {
-    alignSelf: 'stretch',
     backgroundColor: palette.light.surface,
     borderRadius: radius.md,
     padding: spacing.lg,
@@ -109,6 +135,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.md,
   },
+  genres: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  genre: {
+    borderWidth: 1,
+    borderColor: palette.light.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  genreLabel: { fontSize: 14, lineHeight: 20, color: palette.light.text },
   kindSelected: { borderColor: palette.light.text, borderWidth: 2 },
   label: { fontSize: 16, lineHeight: 24, color: palette.light.text },
   hint: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted },

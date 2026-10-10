@@ -1,4 +1,4 @@
-import { countPersonalPlacesSince, type Visibility } from '@/db/personalPlaces';
+import { countPersonalPlacesSince, type PersonalPlace } from '@/db/personalPlaces';
 import type { Db } from '@/db/types';
 
 import { recordDiscovery, type NewDiscovery } from './recordDiscovery';
@@ -7,6 +7,8 @@ import { recordDiscovery, type NewDiscovery } from './recordDiscovery';
 export const MAX_PERSONAL_PLACES_PER_DAY = 3;
 export const MAX_NAME_LENGTH = 40;
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+export type PlaceDetails = Pick<PersonalPlace, 'name' | 'visibility' | 'genre'>;
 
 export type PersonalPlaceRefusal = 'emptyName' | 'limit';
 
@@ -27,13 +29,17 @@ export async function personalPlaceRefusal(
 export function recordPersonalPlace(
   db: Db,
   photo: Omit<NewDiscovery, 'placeId' | 'personal'>,
-  name: string,
-  visibility: Visibility,
+  { name, visibility, genre }: PlaceDetails,
 ): Promise<void> {
   return recordDiscovery(db, {
     ...photo,
     // Local id: the server will give its own if the place is ever shared.
     placeId: `personal:${photo.takenAt}`,
-    personal: { name: name.trim().slice(0, MAX_NAME_LENGTH), visibility },
+    personal: {
+      name: name.trim().slice(0, MAX_NAME_LENGTH),
+      visibility,
+      // A home is not a spot: it never carries a genre.
+      genre: visibility === 'public' ? genre : null,
+    },
   });
 }

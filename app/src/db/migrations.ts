@@ -67,6 +67,16 @@ export const MIGRATIONS: readonly string[] = [
       CASE visibility WHEN 'public' THEN 'spot' ELSE 'personal' END
     FROM personal_places;
   `,
+  `
+  ALTER TABLE personal_places ADD COLUMN genre TEXT;
+  DROP VIEW all_places;
+  CREATE VIEW all_places AS
+    SELECT id, city_id, name, latitude, longitude, category FROM places_cache
+    UNION ALL
+    SELECT id, 'personal', name, latitude, longitude,
+      CASE visibility WHEN 'public' THEN COALESCE(genre, 'spot') ELSE 'personal' END
+    FROM personal_places;
+  `,
 ];
 
 export async function migrate(db: Db, migrations: readonly string[] = MIGRATIONS): Promise<void> {

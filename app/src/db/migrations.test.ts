@@ -50,3 +50,19 @@ test('rolls back a failing migration', async () => {
     await db.getFirstAsync("SELECT name FROM sqlite_master WHERE name = 'half'", []),
   ).toBeNull();
 });
+
+test('migration 4 keeps the spots created before genres existed', async () => {
+  const db = openTestDb();
+  await migrate(db, MIGRATIONS.slice(0, 3));
+  await db.runAsync("INSERT INTO photos VALUES (1, 'file:///p.jpg', 44.39, -1.16, 5, 1)", []);
+  await db.runAsync(
+    "INSERT INTO personal_places VALUES ('personal:1', 'Banc', 44.39, -1.16, 'public', 1, 1)",
+    [],
+  );
+
+  await migrate(db);
+
+  expect(await db.getAllAsync('SELECT id, category FROM all_places', [])).toEqual([
+    { id: 'personal:1', category: 'spot' },
+  ]);
+});

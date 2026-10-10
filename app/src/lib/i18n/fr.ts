@@ -26,6 +26,7 @@ export const fr = {
   'personal.kindPublic': 'Spot ou lieu public',
   'personal.kindPublicHint':
     'Point de vue, coin de nature, commerce… Tu pourras le proposer à la communauté.',
+  'personal.genreOther': 'Autre',
   'personal.create': 'Créer ce lieu',
   'personal.cancel': 'Annuler',
   'personal.limit': 'Tu as déjà créé 3 lieux aujourd’hui. Reviens demain pour en ajouter.',
@@ -84,4 +85,11 @@ export const fr = {
   'category.other': 'Lieu',
   'category.personal': 'Lieu à toi',
   'category.spot': 'Spot',
+  'category.viewpoint': 'Point de vue',
+  'category.nature': 'Nature',
+  'category.shop': 'Commerce',
+  'category.food': 'Café, resto',
+  'category.streetart': 'Street art',
+  'category.heritage': 'Patrimoine',
+  'category.leisure': 'Sport, loisir',
 } as const;

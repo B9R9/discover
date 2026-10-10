@@ -1,7 +1,7 @@
 import type { PlaceId } from '@discover/shared';
 
 import { addDiscovery, getLastDiscoveredAt } from '@/db/discoveries';
-import { addPersonalPlace, type Visibility } from '@/db/personalPlaces';
+import { addPersonalPlace, type PersonalPlace } from '@/db/personalPlaces';
 import { addPhoto } from '@/db/photos';
 import type { Db, GeoPoint } from '@/db/types';
 import { listPathPoints } from '@/db/walkedPaths';
@@ -16,7 +16,7 @@ export interface NewDiscovery {
   accuracy: number;
   takenAt: number;
   // Set when the user creates this place: it is stored as a personal place, at the photo's position.
-  personal?: { name: string; visibility: Visibility };
+  personal?: Pick<PersonalPlace, 'name' | 'visibility' | 'genre'>;
 }
 
 // The path walked since the previous discovery is stored with it: the walk that led to this place.
