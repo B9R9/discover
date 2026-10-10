@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node --watch --env-file-if-exists=.env src/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --test \"src/**/*.test.ts\""
+    "test": "node --test --experimental-test-coverage --test-coverage-exclude=\"src/**/*.test.ts\" --test-coverage-exclude=src/index.ts --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 \"src/**/*.test.ts\""
   },
   "dependencies": {
     "@discover/shared": "*"

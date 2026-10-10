@@ -51,6 +51,7 @@ lib/         petits utilitaires (dont i18n/ : textes français et t())
 5. Fonctions courtes, noms explicites, en anglais pour le code. Les textes affichés à l'utilisateur sont en français, rangés dans un fichier de traduction, jamais écrits en dur.
 6. Pas de nouvelle dépendance sans raison claire. Dis laquelle et pourquoi dans ta réponse.
 7. Pas de commentaire qui répète le code. Commente seulement le pourquoi.
+8. Tout nouveau code arrive avec ses tests. `npm test` échoue sous 80 % de couverture (lignes, branches, fonctions). Côté server, `node --test` ne mesure que les fichiers importés par un test : un fichier sans test est invisible, donc chaque module a son `.test.ts`.
 
 ## Règles métier à ne jamais casser
 
