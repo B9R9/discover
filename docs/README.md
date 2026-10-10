@@ -17,6 +17,7 @@ Monorepo npm workspaces. Expo SDK 57, React Native 0.86, TypeScript 6 strict. Le
 ## Fonctionnalités
 
 - **Squelette de l'app** : 3 onglets (Carte, Photo, Profil) avec Expo Router. Les routes de `app/src/app/` ré-exportent les écrans de `app/src/screens/`. Tous les textes passent par `t()` (`app/src/lib/i18n/`). Une clé inconnue est une erreur TypeScript.
+- **Stockage local (SQLite)** : `expo-sqlite`, base `discover.db` sur l'appareil, ouverte par `SQLiteProvider` dans `app/src/app/_layout.tsx`, qui lance les migrations au démarrage. Tables : `photos`, `discovered_places` (lieu, date, chemin parcouru en JSON, photo), `owned_maps` (ville, `free` ou `purchased`), `walked_paths` (points GPS horodatés), `places_cache` (lieux d'une ville pour le hors ligne). Une fonction de lecture/écriture par table dans `app/src/db/`. Ces données ne quittent jamais l'appareil, sauf `places_cache` qui vient du serveur.
 - **Serveur** : squelette HTTP qui répond `{"status":"ok"}` (`server/src/index.ts`).
 - **Qualité** : ESLint (`any` interdit), Prettier, Jest (`jest-expo`) côté app, `node --test` côté serveur, CI GitHub Actions.
 
@@ -29,4 +30,6 @@ Monorepo npm workspaces. Expo SDK 57, React Native 0.86, TypeScript 6 strict. Le
 - Navigation : Expo Router, onglets JS (`Tabs`)
 - Traductions : dictionnaire typé maison, sans dépendance
 - Plateforme de développement : Android (Nothing Phone), iOS plus tard
+- Migrations SQLite : liste de scripts SQL dans `app/src/db/migrations.ts`, version dans `PRAGMA user_version`, une transaction par migration. On ajoute, on ne modifie jamais une migration publiée.
+- Tests de la base : les requêtes prennent une interface `Db` (sous-ensemble d'expo-sqlite). En test, elle est fournie par `node:sqlite` (intégré à Node 24), sans code natif ni dépendance.
 - Interface en thème clair forcé pour l'instant (`userInterfaceStyle: light`)

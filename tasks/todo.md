@@ -19,12 +19,12 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 - [x] Test : l'app démarre sur development build, la CI passe
 
 ## Phase 1 : Stockage local (SQLite)
-- [ ] Schéma `discovered_places`, `photos`, `owned_maps` dans `app/src/db/`
-- [ ] Table `walked_paths` : points GPS du chemin parcouru (reste sur l'appareil)
-- [ ] Table `places_cache` : lieux de la ville en cache, pour le hors ligne
-- [ ] Migrations versionnées au démarrage
-- [ ] Fonctions de lecture/écriture (une responsabilité par fichier)
-- [ ] Test : insérer et relire une découverte, migration sur base vide et sur base existante
+- [x] Schéma `discovered_places`, `photos`, `owned_maps` dans `app/src/db/`
+- [x] Table `walked_paths` : points GPS du chemin parcouru (reste sur l'appareil)
+- [x] Table `places_cache` : lieux de la ville en cache, pour le hors ligne
+- [x] Migrations versionnées au démarrage
+- [x] Fonctions de lecture/écriture (une responsabilité par fichier)
+- [x] Test : insérer et relire une découverte, migration sur base vide et sur base existante
 
 ## Phase 2 : Carte et brouillard
 - [ ] Brancher les tuiles OpenFreeMap
@@ -38,7 +38,7 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 - [ ] Test : avec une découverte factice, seule la zone de 150 m est visible
 
 ## Phase 3 : Lieux et navigation (données de test)
-- [ ] Type `Place` dans `/shared`
+- [x] Type `Place` dans `/shared` (fait en phase 1, pour `places_cache`)
 - [ ] Jeu de lieux de test en dur à Biscarrosse
 - [ ] Liste ou marqueurs des lieux proches (non découverts : pas de position exacte affichée sur la carte cachée)
 - [ ] Lieu non découvert : flèche orientée par la boussole (`expo-location` heading) + distance à vol d'oiseau, jamais d'itinéraire
@@ -122,3 +122,10 @@ Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tes
 - Vérifié : format, typecheck, lint, tests (2 app, 3 serveur), `expo-doctor` 21/21, `assembleDebug` OK.
 - Pièges rencontrés (détaillés dans `docs/runbook.md`) : doublon `react` (corrigé par `overrides`), JDK 25 refusé par Gradle, Metro sans surveillance des fichiers avec `CI=1`, icônes d'onglet `MissingIcon`.
 - Reste : icônes d'onglet, thème sombre.
+
+### Phase 1
+- `expo-sqlite` (seule nouvelle dépendance, prévue par la stack). Base `discover.db` ouverte par `SQLiteProvider`, migrations au démarrage via `PRAGMA user_version`, une transaction par migration.
+- 5 tables : `photos`, `discovered_places` (chemin en JSON, clé étrangère vers `photos`), `owned_maps`, `walked_paths`, `places_cache`. Un fichier de requêtes par table dans `app/src/db/`.
+- Tests sur `node:sqlite` (Node 24) derrière une interface `Db` : 8 tests (base vide, base existante, rollback d'une migration cassée, aller-retour par table).
+- Vérifié : format, typecheck, lint, tests, development build installé sur le Nothing Phone, base de l'appareil relue (version 1, 5 tables).
+- `Place` et `CityId` ajoutés à `/shared` (avance sur la phase 3). `category` reste un texte libre en attendant la décision sur les catégories.

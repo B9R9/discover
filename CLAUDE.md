@@ -151,7 +151,7 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 - [x] Squelette Expo et navigation
 - [ ] Carte avec brouillard
 - [ ] Prise de photo et validation d'un lieu
-- [ ] Stockage local des découvertes
+- [x] Stockage local des découvertes (SQLite, migrations, requêtes)
 - [ ] Backend et collecte des lieux
 - [ ] Partage et commentaires
 - [ ] Achat de cartes
