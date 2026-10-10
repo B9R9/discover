@@ -112,6 +112,13 @@ Les lieux viennent de web scraping et d'APIs. Ces jobs tournent côté serveur e
 5. Ajoute une section de bilan dans `tasks/todo.md` à la fin.
 6. Mets à jour `tasks/lessons.md` après chaque correction.
 
+### 7. Documentation et runbook au fil de l'eau
+- Chaque changement qui touche le comportement, l'installation, la config ou l'exploitation met à jour la doc dans le même commit.
+- `docs/README.md` : ce que fait l'app et comment elle est construite (architecture, fonctionnalités, décisions).
+- `docs/runbook.md` : comment installer, lancer, builder, déployer, diagnostiquer une panne, restaurer. Chaque procédure est une suite de commandes testées.
+- Une phase de `tasks/todo.md` n'est pas finie tant que la doc et le runbook ne la couvrent pas.
+- Mets aussi `tasks/lessons.md` à jour avant de clore la tâche.
+
 ### Principes
 - **Simplicité d'abord** : chaque changement le plus simple possible, avec le moins de code touché.
 - **Pas de paresse** : cherche la cause racine, pas de correctif temporaire, standard de développeur senior.
