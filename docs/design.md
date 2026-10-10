@@ -9,6 +9,8 @@ C'est une première version. Les choix marqués "à valider" peuvent changer.
 - **Nom** : Détour (sortir du chemin le plus rapide pour découvrir ce qu'il y a autour).
 - **Logo** : un cercle plein couleur Lanterne qui émerge du brouillard, avec un halo de lumière. Le concept de l'app en un seul symbole.
 - Fichiers : `app/assets/logo-detour.svg` (version complète, avec dégradés), `app/assets/logo-detour-flat.svg` (version simplifiée en aplats), `app/assets/logo-detour-1024.png` (aperçu 1024 px, pas encore fourni).
+- **Logotype** : le mot « détour » en minuscules, entouré d'un chemin angulaire Sentier qui part d'un cercle vide (le départ) et finit sur un point Lanterne (le lieu découvert). Sert aux en-têtes, à l'écran d'accueil et aux supports, pas à l'icône de l'app.
+- Fichiers : `app/assets/logo-detour-wordmark.svg` (fond clair : Encre et Sentier), `app/assets/logo-detour-wordmark-dark.svg` (fond sombre : Craie et Sentier clair). Fond transparent, à poser sur Parchemin ou Nuit.
 - Pour l'icône de l'app, exporte le SVG en PNG 1024 x 1024 sans transparence. Garde le cercle centré, avec de la marge autour.
 - Ne modifie pas les couleurs du logo. Le fond est toujours Brume (`#D5D9DD`) ou, en sombre, Brume nuit (`#2B343C`).
 
