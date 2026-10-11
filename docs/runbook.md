@@ -129,9 +129,10 @@ L'app est payante au téléchargement (prix fixé dans la Play Console et App St
 2. Offering courante `maps` avec un package `france` (produit `map_france`). L'app n'en lit aucune, mais le SDK charge l'offering courante au démarrage et affiche une erreur si elle est vide (`why-are-offerings-empty`).
 3. Ni entitlement ni paywall. L'app lit les cartes par `getProducts` et les achats par `allPurchasedProductIdentifiers`.
 
-Créer un produit par l'API (clé secrète v2, permission Products en lecture et écriture, dans `REVENUECAT_KEY`) :
+Créer un produit par l'API. Clé secrète v2 (permissions Products et Offerings en lecture et écriture) hors du dépôt, dans `~/.config/detour/revenuecat.env` (`REVENUECAT_KEY=sk_…`, droits 600) :
 
 ```
+set -a; . ~/.config/detour/revenuecat.env; set +a
 curl -s -X POST -H "Authorization: Bearer $REVENUECAT_KEY" -H "Content-Type: application/json" \
   -d '{"store_identifier":"map_<id>","app_id":"app9bc7469901","type":"non_consumable","title":"Carte <nom>"}' \
   https://api.revenuecat.com/v2/projects/proj9d60f0f6/products
