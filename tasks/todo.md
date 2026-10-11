@@ -328,6 +328,7 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 La navigation est compliquée : s'inspirer de Google Maps.
 - [ ] Le panneau « Autour de toi » peut se refermer (et se rouvrir)
 - [ ] La carte suit le point de l'utilisateur quand il se déplace ; un geste sur la carte arrête le suivi, le bouton de recentrage le relance
+- [ ] Des icônes dans les menus
 
 ## Phase 7 : Social
 - [ ] Partage volontaire d'une photo et d'un commentaire (envoi seulement après confirmation)
