@@ -324,6 +324,11 @@ Fait le 2026-10-10 (étapes 1 à 5, en local) : collecte Gironde (5355 lieux, Bo
 Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `features/maps/ownership.ts`, `isUnlocked` passe par `mapStatus`. Vu sur le téléphone : Landes « Offerte », Gironde et Bordeaux « À débloquer », 62 tests verts.
 Écarts : `kind` remplacé par `department_id` (nul = département). Chemins dévoilés aussi en zone bloquée. Ids de grande ville préfixés (`gironde-bordeaux`) car Saint-Denis existe deux fois. Réponse Gironde de 750 Ko sans compression : gzip à ajouter si ça gêne. Reste ouvert : Paris, département et commune à la fois (département vide après découpage) ; un lieu perso créé en zone bloquée y dévoile 150 m.
 
+## Navigation sur la carte (retour du 2026-10-11)
+La navigation est compliquée : s'inspirer de Google Maps.
+- [ ] Le panneau « Autour de toi » peut se refermer (et se rouvrir)
+- [ ] La carte suit le point de l'utilisateur quand il se déplace ; un geste sur la carte arrête le suivi, le bouton de recentrage le relance
+
 ## Phase 7 : Social
 - [ ] Partage volontaire d'une photo et d'un commentaire (envoi seulement après confirmation)
 - [ ] Retirer les métadonnées EXIF (position) des photos avant envoi
