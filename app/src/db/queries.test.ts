@@ -83,6 +83,22 @@ test('moves a cached place to its new area instead of failing on its id', async 
   expect(await listCachedPlaces(db, 'biscarrosse')).toEqual([]);
 });
 
+test('caches a whole department, over several insert statements', async () => {
+  const db = await freshDb();
+  const places = Array.from({ length: 1201 }, (_, i) => ({
+    id: `osm:${i}`,
+    areaId: 'landes',
+    name: `Lieu ${String(i).padStart(4, '0')}`,
+    latitude: 44,
+    longitude: -1,
+    category: null,
+  }));
+  await replaceCachedPlaces(db, 'landes', places, 1);
+  const cached = await listCachedPlaces(db, 'landes');
+  expect(cached).toHaveLength(1201);
+  expect(cached.at(-1)).toEqual(places.at(-1));
+});
+
 test('replaces the cached places of one area only', async () => {
   const db = await freshDb();
   const place = (id: string, areaId: string) => ({

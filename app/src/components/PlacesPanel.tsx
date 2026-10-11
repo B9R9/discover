@@ -10,6 +10,10 @@ import { palette, radius, spacing } from '@/theme/tokens';
 import { DirectionArrow } from './DirectionArrow';
 import { PlaceRow } from './PlaceRow';
 
+// A department holds thousands of places: rendering them all mounted ~17,000 native views and froze the app
+// for 30 s at launch. The list is sorted by distance, so the first ones are what "around you" means.
+const LISTED_PLACES = 30;
+
 interface PlacesPanelProps {
   places: NearbyPlace[];
   hasPosition: boolean;
@@ -78,7 +82,7 @@ export function PlacesPanel({
         <Text style={styles.hint}>{t('places.empty')}</Text>
       )}
       <ScrollView style={styles.list}>
-        {places.map((place) => (
+        {places.slice(0, LISTED_PLACES).map((place) => (
           <PlaceRow
             key={place.id}
             place={place}

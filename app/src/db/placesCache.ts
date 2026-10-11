@@ -2,7 +2,11 @@ import type { AreaId, Place } from '@discover/shared';
 
 import type { Db } from './types';
 
+// 7 values per row stays far under SQLite's 32,766 parameters per statement.
+const ROWS_PER_INSERT = 500;
+
 // Replaces the whole area so places removed on the server disappear from the cache too.
+// Multi-row inserts: one awaited insert per place took 16 s on the phone for a department of 3,500 places.
 export async function replaceCachedPlaces(
   db: Db,
   areaId: AreaId,
@@ -12,10 +16,19 @@ export async function replaceCachedPlaces(
   await db.execAsync('BEGIN');
   try {
     await db.runAsync('DELETE FROM places_cache WHERE area_id = ?', [areaId]);
-    for (const place of places) {
+    for (let start = 0; start < places.length; start += ROWS_PER_INSERT) {
+      const chunk = places.slice(start, start + ROWS_PER_INSERT);
       await db.runAsync(
-        'INSERT OR REPLACE INTO places_cache (id, area_id, name, latitude, longitude, category, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [place.id, areaId, place.name, place.latitude, place.longitude, place.category, updatedAt],
+        `INSERT OR REPLACE INTO places_cache (id, area_id, name, latitude, longitude, category, updated_at) VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ')}`,
+        chunk.flatMap((place) => [
+          place.id,
+          areaId,
+          place.name,
+          place.latitude,
+          place.longitude,
+          place.category,
+          updatedAt,
+        ]),
       );
     }
     await db.execAsync('COMMIT');
