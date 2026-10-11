@@ -51,7 +51,7 @@ Format :
 - **Règle** : sur une ANR, lire la pile (`adb bugreport`, puis `FS/data/anr/` dans le zip) et refaire le même geste sur le code d'avant le changement, au même moment après le lancement, avant d'accuser le changement.
 
 - **Erreur** : le lendemain, appuis `adb` lancés sans vérifier le focus : l'app n'était plus au premier plan, les appuis sont tombés sur l'écran d'accueil et ont ouvert l'app Téléphone (aucun appel passé). La vérification du focus était faite, mais dans la même commande que les appuis, sans arrêt si elle échouait.
-- **Règle** : vérifier le focus dans une commande à part, lire le résultat, et n'envoyer les appuis que si `mCurrentFocus` est `com.b9r9.discover`. Sinon, ne rien toucher et demander.
+- **Règle** : vérifier le focus dans une commande à part, lire le résultat, et n'envoyer les appuis que si `mCurrentFocus` est `com.b9r9.dtour`. Sinon, ne rien toucher et demander.
 
 - **Erreur** : avec un département entier en cache (3 493 lieux), le lancement bloquait l'app environ 30 s. Deux causes, invisibles avec les 106 lieux de Biscarrosse : une liste qui rendait chaque lieu (17 533 vues natives), et une insertion SQLite attendue par lieu (16,5 s d'allers-retours JS et natif).
 - **Règle** : toute liste affichée est bornée (ou virtualisée) dès qu'elle vient de données serveur. Toute écriture SQLite de plus de quelques dizaines de lignes passe par des insertions groupées. Mesurer sur le téléphone avec le volume réel (`dumpsys meminfo` pour le nombre de vues, logs de durée) avant et après.

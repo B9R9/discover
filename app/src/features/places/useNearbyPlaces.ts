@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { listPlacesWithDiscovery, type CachedPlace } from '@/db/placesCache';
 import type { Db, GeoPoint } from '@/db/types';
-import { usePurchasedMaps } from '@/features/purchases/PurchasesProvider';
+import { usePurchasedMaps } from '@/features/purchases/StoreProvider';
 
 import { nearbyPlaces, type NearbyPlace } from './nearbyPlaces';
 import { syncPlaces } from './syncPlaces';

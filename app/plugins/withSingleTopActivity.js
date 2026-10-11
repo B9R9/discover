@@ -1,4 +1,4 @@
-// RevenueCat: with Expo's default singleTask, leaving the app during a purchase (bank app, 3-D Secure) cancels it.
+// Google Play Billing: with Expo's default singleTask, leaving the app during a purchase (bank app, 3-D Secure) cancels it.
 const { withAndroidManifest } = require('expo/config-plugins');
 
 module.exports = function withSingleTopActivity(config) {

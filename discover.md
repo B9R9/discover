@@ -33,7 +33,7 @@ Public cible : À DÉCIDER
 - Une carte couvre un **département**. Les grandes villes (plus de 100 000 habitants, d'après OpenStreetMap) ont leur propre carte, retirée de celle du département : la carte Gironde ne couvre pas Bordeaux.
 - L'app est **payante au téléchargement** (prix fixé dans Google Play et l'App Store, pas d'achat dans l'app pour l'ouvrir). Pas d'abonnement.
 - Avec l'app, la carte du département où se trouve l'utilisateur au premier lancement est offerte, sans ses grandes villes : elles restent payantes, même pour un habitant de la grande ville.
-- Les autres cartes sont payantes, en **achat unique** (RevenueCat) :
+- Les autres cartes sont payantes, en **achat unique** dans l'app (Google Play, App Store) :
   - une grande ville seule, prix selon son attrait ;
   - un département entier, grandes villes comprises, toujours plus cher que chacune de ses grandes villes ;
   - la France entière, toutes les cartes, plus chère qu'un département.

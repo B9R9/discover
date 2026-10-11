@@ -68,7 +68,7 @@ export const fr = {
   'purchases.error.failed': 'L’achat n’a pas abouti. Réessaie dans un moment.',
   'account.title': 'Compte',
   'account.why':
-    'Facultatif. Il servira à acheter des cartes et à partager avec tes amis. Tes découvertes restent sur ton téléphone.',
+    'Facultatif. Il servira à partager avec tes amis. Tes découvertes restent sur ton téléphone.',
   'account.emailLabel': 'Ton e-mail',
   'account.emailPlaceholder': 'toi@exemple.fr',
   'account.sendCode': 'Recevoir un code',

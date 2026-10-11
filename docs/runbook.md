@@ -105,7 +105,7 @@ cd app && npx expo run:android --no-bundler
 cd app && npm start
 ```
 
-Revoir l'écran d'accueil : désinstaller l'app (`adb uninstall com.b9r9.discover`) ou effacer ses données, puis relancer.
+Revoir l'écran d'accueil : désinstaller l'app (`adb uninstall com.b9r9.dtour`) ou effacer ses données, puis relancer.
 
 Vérifier l'enregistrement du chemin : marcher quelques minutes, puis compter les points (base copiée comme dans « Inspecter la base locale ») :
 
@@ -116,35 +116,26 @@ node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/
 Vérifier la tâche de fond (permission « Toujours » + réglage actif) : la notification « Détour dévoile ta balade » est visible, et le service tourne :
 
 ```
-adb shell dumpsys activity services com.b9r9.discover | grep -i location
+adb shell dumpsys activity services com.b9r9.dtour | grep -i location
 ```
 
-## RevenueCat (achats)
+## Achats de cartes (Play Console)
 
-Clé publique du SDK dans `app/.env` : `EXPO_PUBLIC_REVENUECAT_KEY`. En développement, la clé `test_…` du Test Store : achats simulés, sans compte Play ni App Store. Après un changement de `.env`, relancer Metro (`npm start`), la valeur est copiée dans le bundle.
+L'app parle directement à Google Play Billing (`expo-iap`), sans clé ni service tiers. L'app est payante au téléchargement ; les cartes sont des produits intégrés, en achat unique.
 
-L'app est payante au téléchargement (prix fixé dans la Play Console et App Store Connect) : RevenueCat ne vend que les cartes. Configurer le projet dans le tableau de bord RevenueCat (app.revenuecat.com), Test Store :
+Créer une carte : Play Console > l'app > Monétiser > Produits > Produits intégrés > Créer. Id `map_<id de zone>` avec `_` à la place de `-` (`map_landes`, `map_gironde`, `map_gironde_bordeaux`, `map_france`), puis un prix et « Activer ». Prix : ville < département < France. Une zone sans produit actif s'affiche « À débloquer », sans bouton.
 
-1. Product catalog > Products : une carte par zone, achat unique, `map_<id de zone>` (`map_landes`, `map_gironde`, `map_gironde-bordeaux`), et `map_france`. Prix : ville < département < France. **Chaque produit doit avoir un prix** : sans prix, le Test Store ne le renvoie pas à l'app (pas de bouton « Débloquer »). L'API v2 ne sait pas fixer ce prix, il se met dans le tableau de bord.
-2. Offering courante `maps` avec un package `france` (produit `map_france`). L'app n'en lit aucune, mais le SDK charge l'offering courante au démarrage et affiche une erreur si elle est vide (`why-are-offerings-empty`).
-3. Ni entitlement ni paywall. L'app lit les cartes par `getProducts` et les achats par `allPurchasedProductIdentifiers`.
+Ajouter un département : le collecter (voir plus haut), puis créer `map_<id>` pour lui et pour chaque grande ville.
 
-Créer un produit par l'API. Clé secrète v2 (permissions Products et Offerings en lecture et écriture) hors du dépôt, dans `~/.config/detour/revenuecat.env` (`REVENUECAT_KEY=sk_…`, droits 600) :
+Tester un achat sans payer :
+1. Play Console > Paramètres > Tests de licence : ajouter le compte Google du téléphone.
+2. L'app doit exister sur une piste de test (test interne) avec le même nom de paquet `com.b9r9.dtour`, sinon Google refuse tout achat.
+3. Sur le téléphone : Profil > Mes cartes > « Débloquer · prix ». La fenêtre Google indique « carte de test, aucun débit ». La carte passe à « Débloquée ».
+4. Restaurer : désinstaller, réinstaller, Profil > « Restaurer mes achats ».
 
-```
-set -a; . ~/.config/detour/revenuecat.env; set +a
-curl -s -X POST -H "Authorization: Bearer $REVENUECAT_KEY" -H "Content-Type: application/json" \
-  -d '{"store_identifier":"map_<id>","app_id":"app9bc7469901","type":"non_consumable","title":"Carte <nom>"}' \
-  https://api.revenuecat.com/v2/projects/proj9d60f0f6/products
-```
+Logs : `adb logcat -s ReactNativeJS:V | grep -iE "purchase|store"`.
 
-`app9bc7469901` est l'app Test Store du projet `proj9d60f0f6` (Detour). Puis mettre le prix dans le tableau de bord.
-
-Ajouter un département : le collecter (voir plus haut), puis créer ses produits `map_<id>` pour lui et chaque grande ville. Une zone sans produit s'affiche « À débloquer », sans bouton.
-
-Tester un achat sur le téléphone : Profil > Mes cartes > « Débloquer · prix », puis « Test valid purchase » dans la fenêtre du Test Store. La carte passe à « Débloquée ». Logs : `adb logcat | grep -i purchases`.
-
-Après un ajout de module natif comme `react-native-purchases`, `prebuild --clean` efface `android/local.properties` : `ANDROID_HOME` doit être exporté (voir Installer), sinon Gradle échoue avec `SDK location not found`.
+Après un ajout de module natif comme `expo-iap`, `prebuild --clean` efface `android/local.properties` : `ANDROID_HOME` doit être exporté (voir Installer), sinon Gradle échoue avec `SDK location not found`.
 
 ## Clé OpenRouteService
 
@@ -164,12 +155,12 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST https://api.openrouteservice.or
 Pour tester un lieu découvert avant la phase 4. App arrêtée, base copiée et renvoyée :
 
 ```
-adb shell am force-stop com.b9r9.discover
-adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db' > /tmp/discover.db
-adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db-wal' > /tmp/discover.db-wal
+adb shell am force-stop com.b9r9.dtour
+adb exec-out run-as com.b9r9.dtour sh -c 'cat files/SQLite/discover.db' > /tmp/discover.db
+adb exec-out run-as com.b9r9.dtour sh -c 'cat files/SQLite/discover.db-wal' > /tmp/discover.db-wal
 node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');const r=d.prepare('INSERT INTO photos (uri, latitude, longitude, accuracy, taken_at) VALUES (?,?,?,?,?)').run('file:///fake-dev.jpg',44.39308,-1.15628,5,Date.now());d.prepare('INSERT INTO discovered_places VALUES (?,?,?,?)').run('osm:way/127816135',Date.now(),'[]',Number(r.lastInsertRowid));d.exec('PRAGMA wal_checkpoint(TRUNCATE)')"
 adb push /tmp/discover.db /data/local/tmp/discover.db
-adb shell "run-as com.b9r9.discover sh -c 'cp /data/local/tmp/discover.db files/SQLite/discover.db && rm -f files/SQLite/discover.db-wal files/SQLite/discover.db-shm'"
+adb shell "run-as com.b9r9.dtour sh -c 'cp /data/local/tmp/discover.db files/SQLite/discover.db && rm -f files/SQLite/discover.db-wal files/SQLite/discover.db-shm'"
 ```
 
 Pour la retirer, même procédure avec à la place du `node -e` :
@@ -183,15 +174,15 @@ node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/
 Pose un faux lieu à la dernière position enregistrée, puis prends une photo depuis l'onglet Photo. Le lieu `dev` (zone `dev`) n'est pas effacé par la mise à jour des lieux, qui ne remplace que la zone du téléphone. App arrêtée, base copiée et renvoyée :
 
 ```
-adb shell am force-stop com.b9r9.discover
-adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db' > /tmp/discover.db
-adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db-wal' > /tmp/discover.db-wal
+adb shell am force-stop com.b9r9.dtour
+adb exec-out run-as com.b9r9.dtour sh -c 'cat files/SQLite/discover.db' > /tmp/discover.db
+adb exec-out run-as com.b9r9.dtour sh -c 'cat files/SQLite/discover.db-wal' > /tmp/discover.db-wal
 node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');const p=d.prepare('SELECT latitude, longitude FROM walked_paths ORDER BY recorded_at DESC LIMIT 1').get();d.prepare('INSERT OR REPLACE INTO places_cache (id, area_id, name, latitude, longitude, category, updated_at) VALUES (?,?,?,?,?,?,?)').run('dev:'+Date.now(),'dev','Lieu de test photo',p.latitude,p.longitude,null,Date.now());d.exec('PRAGMA wal_checkpoint(TRUNCATE)')"
 adb push /tmp/discover.db /data/local/tmp/discover.db
-adb shell "run-as com.b9r9.discover sh -c 'cp /data/local/tmp/discover.db files/SQLite/discover.db && rm -f files/SQLite/discover.db-wal files/SQLite/discover.db-shm'"
+adb shell "run-as com.b9r9.dtour sh -c 'cp /data/local/tmp/discover.db files/SQLite/discover.db && rm -f files/SQLite/discover.db-wal files/SQLite/discover.db-shm'"
 ```
 
-Attendu : « Tu y es presque » sur la caméra, puis retour sur la Carte avec la zone qui se dissipe. Une deuxième photo au même endroit : « Tu as déjà découvert ce lieu. ». Photos gardées : `adb shell run-as com.b9r9.discover ls files/photos`.
+Attendu : « Tu y es presque » sur la caméra, puis retour sur la Carte avec la zone qui se dissipe. Une deuxième photo au même endroit : « Tu as déjà découvert ce lieu. ». Photos gardées : `adb shell run-as com.b9r9.dtour ls files/photos`.
 
 Créer un lieu à toi : prendre une photo à plus de 50 m de tout lieu (sans faux lieu, la plupart des endroits conviennent). Attendu : formulaire « Aucun lieu ici. En faire un lieu à toi ? », puis retour Carte avec la zone dévoilée. Le 4e en 24 h : « Tu as déjà créé 3 lieux aujourd'hui ». Les retirer :
 
@@ -203,14 +194,37 @@ Pour tout retirer (faux lieux, leurs découvertes et toutes les photos), même p
 
 ```
 node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');d.exec(\"CREATE TEMP TABLE gone AS SELECT photo_id FROM discovered_places WHERE place_id LIKE 'dev:%'; DELETE FROM discovered_places WHERE place_id LIKE 'dev:%'; DELETE FROM photos WHERE id IN (SELECT photo_id FROM gone); DELETE FROM places_cache WHERE area_id='dev'; PRAGMA wal_checkpoint(TRUNCATE)\")"
-adb shell "run-as com.b9r9.discover rm -rf files/photos"
+adb shell "run-as com.b9r9.dtour rm -rf files/photos"
 ```
 
 Le dernier `rm` efface aussi les photos de vraies découvertes : à éviter hors du téléphone de développement.
 
 ## Builder et publier
 
-_À remplir en phase 8 : EAS Build iOS/Android, TestFlight, Play Store._
+### Publier sur Google Play (AAB signé)
+
+Clé d'envoi Google Play, hors du dépôt, dans `~/.config/detour/` (créée le 2026-10-11) :
+- `upload.keystore` : la clé (alias `detour-upload`, PKCS12) ;
+- `upload.properties` : chemin et mots de passe, lus par Gradle.
+
+Garde une copie de ce dossier dans un gestionnaire de mots de passe. Google garde la vraie clé de signature (Play App Signing) : une clé d'envoi perdue se remplace depuis la Play Console, mais il faut la demander.
+
+Le plugin `app/plugins/withReleaseSigning.js` signe les builds release avec cette clé si `upload.properties` existe (autre chemin : variable `DETOUR_UPLOAD_PROPERTIES`), sinon avec la clé de debug.
+
+Construire l'AAB (variables `JAVA_HOME` et `ANDROID_HOME` de la section Installer) :
+
+```
+cd app && npx expo prebuild -p android --clean --no-install
+cd app/android && ./gradlew app:bundleRelease -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+```
+
+Résultat : `app/android/app/build/outputs/bundle/release/app-release.aab` (environ 100 Mo). Le bundle JS prend les variables de `app/.env` : `EXPO_PUBLIC_API_URL` doit être l'API en ligne, pas `localhost`. Sans l'option mémoire, Gradle échoue avec `OutOfMemoryError: Metaspace` (le gabarit Expo limite à 512 Mo).
+
+Vérifier la signature : `keytool -printcert -jarfile app/android/app/build/outputs/bundle/release/app-release.aab` doit afficher `CN=Detour`, pas `CN=Android Debug`.
+
+Envoyer : Play Console > Tester et publier > Tests > Test interne > Créer une release > déposer l'AAB. Chaque nouvel envoi demande un `versionCode` plus grand (`android.versionCode` dans `app/app.json`).
+
+_iOS (TestFlight) : phase 8._
 
 ## Déployer le serveur
 
@@ -275,7 +289,7 @@ _Une entrée par panne rencontrée : symptôme, cause, correctif._
 - **Connexion : « Trop de demandes. Réessaie dans quelques minutes. »**. Cause : une demande de code par minute et par adresse (`max_frequency`). Correctif : attendre 60 s.
 - **Le code n'arrive pas (en ligne)**. Cause probable : l'expéditeur `onboarding@resend.dev` ne livre qu'au titulaire du compte Resend. Vérifier dans Resend (Emails) l'état de l'envoi. Correctif durable : domaine Détour vérifié dans Resend, puis `admin_email` dans `[remotes.production.auth.email.smtp]`.
 - **`supabase config push` : `Email template modification is not available for free tier projects using the default email provider`**. Cause : SMTP Resend absent du push (`RESEND_API_KEY` non exporté). Correctif : `set -a && source .env.production && set +a` avant le push.
-- **L'app ne rappelle pas l'API au lancement (rien dans le journal du serveur), sans erreur**. Normal pendant une heure : le cache HTTP d'Android sert `/areas` et `/areas/:id/places` (`Cache-Control: max-age=3600`). Pour forcer un appel : `adb shell run-as com.b9r9.discover rm -rf cache/http-cache`, app arrêtée.
+- **L'app ne rappelle pas l'API au lancement (rien dans le journal du serveur), sans erreur**. Normal pendant une heure : le cache HTTP d'Android sert `/areas` et `/areas/:id/places` (`Cache-Control: max-age=3600`). Pour forcer un appel : `adb shell run-as com.b9r9.dtour rm -rf cache/http-cache`, app arrêtée.
 - **L'app garde les anciens lieux**. Cause : API injoignable (serveur arrêté, `adb reverse` perdu, `EXPO_PUBLIC_API_URL` absent ou Metro pas relancé). Metro affiche `Areas not refreshed, using the cache`. Correctif : relancer `npm run dev`, `adb reverse tcp:3000 tcp:3000`, Metro.
 - **Gradle échoue avec une erreur de version Java**. Cause : JDK 25 par défaut. Correctif : `JAVA_HOME` sur le JDK d'Android Studio (voir Installer).
 
@@ -284,13 +298,13 @@ _Une entrée par panne rencontrée : symptôme, cause, correctif._
 La base SQLite de l'app est dans le dossier privé de l'app (build de développement uniquement, `run-as` exige une app débogable) :
 
 ```
-adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db' > /tmp/discover.db
-adb exec-out run-as com.b9r9.discover sh -c 'cat files/SQLite/discover.db-wal' > /tmp/discover.db-wal
+adb exec-out run-as com.b9r9.dtour sh -c 'cat files/SQLite/discover.db' > /tmp/discover.db
+adb exec-out run-as com.b9r9.dtour sh -c 'cat files/SQLite/discover.db-wal' > /tmp/discover.db-wal
 node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('/tmp/discover.db');console.log(d.prepare('PRAGMA user_version').get(),d.prepare(\"SELECT name FROM sqlite_master WHERE type='table'\").all())"
 ```
 
-Repartir d'une base vide : `adb shell pm clear com.b9r9.discover` (efface toutes les découvertes de l'appareil).
+Repartir d'une base vide : `adb shell pm clear com.b9r9.dtour` (efface toutes les découvertes de l'appareil).
 
 ## Restaurer
 
-Offre gratuite Supabase : aucune sauvegarde. Si la base en ligne est perdue, recréer le projet, puis `supabase db push`, `supabase config push` et la collecte (voir Déployer le serveur). Lieux et zones reviennent par la collecte ; les comptes sont perdus (les utilisateurs se reconnectent avec leur e-mail, rien d'autre n'est lié au compte). Les découvertes ne sont jamais sur le serveur. Achats : gardés par les stores et RevenueCat, jamais dans notre base ; « Restaurer mes achats » (Profil) les retrouve sur un nouveau téléphone, avec le même compte de store.
+Offre gratuite Supabase : aucune sauvegarde. Si la base en ligne est perdue, recréer le projet, puis `supabase db push`, `supabase config push` et la collecte (voir Déployer le serveur). Lieux et zones reviennent par la collecte ; les comptes sont perdus (les utilisateurs se reconnectent avec leur e-mail, rien d'autre n'est lié au compte). Les découvertes ne sont jamais sur le serveur. Achats : gardés par les stores, jamais dans notre base ; « Restaurer mes achats » (Profil) les retrouve sur un nouveau téléphone, avec le même compte de store.

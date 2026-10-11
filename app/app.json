@@ -8,7 +8,7 @@
     "scheme": "discover",
     "userInterfaceStyle": "light",
     "android": {
-      "package": "com.b9r9.discover",
+      "package": "com.b9r9.dtour",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -19,7 +19,7 @@
       "permissions": ["android.permission.RECEIVE_BOOT_COMPLETED"]
     },
     "ios": {
-      "bundleIdentifier": "com.b9r9.discover"
+      "bundleIdentifier": "com.b9r9.dtour"
     },
     "plugins": [
       "expo-router",
@@ -43,6 +43,7 @@
       ],
       "@maplibre/maplibre-react-native",
       "./plugins/withSingleTopActivity",
+      "./plugins/withReleaseSigning",
       [
         "expo-location",
         {
@@ -52,7 +53,8 @@
           "isAndroidBackgroundLocationEnabled": true,
           "isAndroidForegroundServiceEnabled": true
         }
-      ]
+      ],
+      "expo-iap"
     ],
     "experiments": {
       "typedRoutes": true,

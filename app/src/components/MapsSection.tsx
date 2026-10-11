@@ -1,13 +1,11 @@
 import { useSQLiteContext } from 'expo-sqlite';
-import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import type { PurchasesStoreProduct } from 'react-native-purchases';
 
 import { describeMap } from '@/features/maps/mapDescription';
 import type { MapStatus } from '@/features/maps/ownership';
 import { useMaps } from '@/features/maps/useMaps';
-import { buyMap, restoreMaps, type PurchaseOutcome } from '@/features/purchases/buyMap';
 import { COUNTRY_MAP, mapProductId } from '@/features/purchases/mapProducts';
+import { useStore } from '@/features/purchases/StoreProvider';
 import { t, type TranslationKey } from '@/lib/i18n/t';
 import { palette, radius, spacing } from '@/theme/tokens';
 
@@ -22,11 +20,12 @@ interface MapRowProps {
   description: string;
   status: MapStatus;
   indented?: boolean;
-  product: PurchasesStoreProduct | undefined;
-  onBuy: (product: PurchasesStoreProduct) => void;
+  // Localized store price; undefined when the store has no product for this map.
+  price: string | undefined;
+  onBuy: () => void;
 }
 
-function MapRow({ name, description, status, indented = false, product, onBuy }: MapRowProps) {
+function MapRow({ name, description, status, indented = false, price, onBuy }: MapRowProps) {
   return (
     <View style={[styles.row, indented && styles.city]}>
       <View style={styles.texts}>
@@ -36,17 +35,17 @@ function MapRow({ name, description, status, indented = false, product, onBuy }:
         <Text style={styles.description}>{description}</Text>
       </View>
       {status !== 'locked' && <Text style={styles.status}>{t(STATUS_LABEL[status])}</Text>}
-      {status !== 'purchased' && product && (
+      {status !== 'purchased' && price && (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t('maps.buyLabel', { map: name, price: product.priceString })}
-          onPress={() => onBuy(product)}
+          accessibilityLabel={t('maps.buyLabel', { map: name, price })}
+          onPress={onBuy}
           style={({ pressed }) => [styles.buy, pressed && styles.pressed]}
         >
-          <Text style={styles.buyText}>{t('maps.buy', { price: product.priceString })}</Text>
+          <Text style={styles.buyText}>{t('maps.buy', { price })}</Text>
         </Pressable>
       )}
-      {status === 'locked' && !product && (
+      {status === 'locked' && !price && (
         <Text style={[styles.status, styles.locked]}>{t('maps.locked')}</Text>
       )}
     </View>
@@ -55,19 +54,9 @@ function MapRow({ name, description, status, indented = false, product, onBuy }:
 
 // ponytail: plain list, fine for a few departments; FlatList with search once all of France is collected.
 export function MapsSection() {
-  const { maps, country, products } = useMaps(useSQLiteContext());
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<TranslationKey | null>(null);
-
-  async function run(action: () => Promise<PurchaseOutcome>) {
-    if (busy) return;
-    setBusy(true);
-    setMessage(null);
-    setMessage(await action());
-    setBusy(false);
-  }
-
-  const buy = (product: PurchasesStoreProduct) => run(() => buyMap(product));
+  const { maps, country, prices } = useMaps(useSQLiteContext());
+  const { message, buy, restore } = useStore();
+  const countryProduct = mapProductId(COUNTRY_MAP);
 
   if (maps.length === 0) return <Text style={styles.hint}>{t('maps.empty')}</Text>;
   return (
@@ -76,12 +65,13 @@ export function MapsSection() {
         name={t('maps.country')}
         description={t('maps.describe.country')}
         status={country}
-        product={products[mapProductId(COUNTRY_MAP)]}
-        onBuy={buy}
+        price={prices[countryProduct]}
+        onBuy={() => buy(countryProduct)}
       />
       {maps.map((entry) => {
         const { area, status } = entry;
         const { key, params } = describeMap(entry, maps);
+        const productId = mapProductId(area.id);
         return (
           <MapRow
             key={area.id}
@@ -89,13 +79,13 @@ export function MapsSection() {
             description={t(key, params)}
             status={status}
             indented={area.departmentId !== null}
-            product={products[mapProductId(area.id)]}
-            onBuy={buy}
+            price={prices[productId]}
+            onBuy={() => buy(productId)}
           />
         );
       })}
       {message && <Text style={styles.hint}>{t(message)}</Text>}
-      <Pressable accessibilityRole="button" onPress={() => run(restoreMaps)} style={styles.restore}>
+      <Pressable accessibilityRole="button" onPress={restore} style={styles.restore}>
         <Text style={styles.restoreText}>{t('maps.restore')}</Text>
       </Pressable>
     </View>
