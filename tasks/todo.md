@@ -326,7 +326,7 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 
 ## Navigation sur la carte (retour du 2026-10-11)
 La navigation est compliquée : s'inspirer de Google Maps.
-- [ ] Le panneau « Autour de toi » peut se refermer (et se rouvrir)
+- [ ] Le panneau « Autour de toi » peut se refermer (et se rouvrir). Fermé, il reste une barre réduite qui garde le lieu choisi, sa flèche de direction et sa distance (ou le temps à pied s'il est découvert) ; seule la liste se cache
 - [ ] La carte suit le point de l'utilisateur quand il se déplace ; un geste sur la carte arrête le suivi, le bouton de recentrage le relance
 - [ ] Des icônes dans les menus
 - [ ] Revoir l'onboarding : des zones floues en arrière-plan
