@@ -8,7 +8,7 @@ import type { Db } from '@/db/types';
 import { COUNTRY_MAP, mapProductId } from '@/features/purchases/mapProducts';
 import { usePurchasedMaps } from '@/features/purchases/PurchasesProvider';
 
-import { listMaps, type MapEntry, type MapStatus } from './ownership';
+import { isForSale, listMaps, type MapEntry, type MapStatus } from './ownership';
 
 export interface MapsState {
   maps: MapEntry[];
@@ -38,10 +38,9 @@ export function useMaps(db: Db): MapsState {
         const owned = [...(await listOwnedMaps(db)), ...purchased];
         const maps = listMaps(await listCachedAreas(db), owned);
         const country = owned.some((map) => map.areaId === COUNTRY_MAP) ? 'purchased' : 'locked';
-        // The free department is for sale too: bought, it unlocks its big cities.
         const forSale = [
           ...(country === 'locked' ? [COUNTRY_MAP] : []),
-          ...maps.filter((map) => map.status !== 'purchased').map((map) => map.area.id),
+          ...maps.filter((map) => isForSale(map, maps)).map((map) => map.area.id),
         ];
         setState({ maps, country, products: await loadProducts(forSale.map(mapProductId)) });
       }

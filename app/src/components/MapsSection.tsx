@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { PurchasesStoreProduct } from 'react-native-purchases';
 
+import { describeMap } from '@/features/maps/mapDescription';
 import type { MapStatus } from '@/features/maps/ownership';
 import { useMaps } from '@/features/maps/useMaps';
 import { buyMap, restoreMaps, type PurchaseOutcome } from '@/features/purchases/buyMap';
@@ -18,18 +19,22 @@ const STATUS_LABEL: Record<MapStatus, TranslationKey> = {
 
 interface MapRowProps {
   name: string;
+  description: string;
   status: MapStatus;
   indented?: boolean;
   product: PurchasesStoreProduct | undefined;
   onBuy: (product: PurchasesStoreProduct) => void;
 }
 
-function MapRow({ name, status, indented = false, product, onBuy }: MapRowProps) {
+function MapRow({ name, description, status, indented = false, product, onBuy }: MapRowProps) {
   return (
     <View style={[styles.row, indented && styles.city]}>
-      <Text style={styles.name} numberOfLines={1}>
-        {name}
-      </Text>
+      <View style={styles.texts}>
+        <Text style={styles.name} numberOfLines={1}>
+          {name}
+        </Text>
+        <Text style={styles.description}>{description}</Text>
+      </View>
       {status !== 'locked' && <Text style={styles.status}>{t(STATUS_LABEL[status])}</Text>}
       {status !== 'purchased' && product && (
         <Pressable
@@ -69,20 +74,26 @@ export function MapsSection() {
     <View>
       <MapRow
         name={t('maps.country')}
+        description={t('maps.describe.country')}
         status={country}
         product={products[mapProductId(COUNTRY_MAP)]}
         onBuy={buy}
       />
-      {maps.map(({ area, status }) => (
-        <MapRow
-          key={area.id}
-          name={area.name}
-          status={status}
-          indented={area.departmentId !== null}
-          product={products[mapProductId(area.id)]}
-          onBuy={buy}
-        />
-      ))}
+      {maps.map((entry) => {
+        const { area, status } = entry;
+        const { key, params } = describeMap(entry, maps);
+        return (
+          <MapRow
+            key={area.id}
+            name={area.name}
+            description={t(key, params)}
+            status={status}
+            indented={area.departmentId !== null}
+            product={products[mapProductId(area.id)]}
+            onBuy={buy}
+          />
+        );
+      })}
       {message && <Text style={styles.hint}>{t(message)}</Text>}
       <Pressable accessibilityRole="button" onPress={() => run(restoreMaps)} style={styles.restore}>
         <Text style={styles.restoreText}>{t('maps.restore')}</Text>
@@ -96,10 +107,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    minHeight: 48,
+    minHeight: 56,
+    paddingVertical: spacing.sm,
   },
+  texts: { flex: 1 },
   city: { paddingLeft: spacing.lg },
-  name: { flex: 1, fontSize: 16, lineHeight: 24, color: palette.light.text },
+  name: { fontSize: 16, lineHeight: 24, color: palette.light.text },
+  description: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted },
   status: { fontSize: 14, lineHeight: 20, fontWeight: '500', color: palette.light.text },
   locked: { fontWeight: '400', color: palette.light.textMuted },
   buy: {

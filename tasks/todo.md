@@ -299,8 +299,8 @@ Décision du 2026-10-10 : une carte = un **département** (OSM `admin_level=6`).
    - [x] Carte pays : `map_france`, débloque toutes les zones (`mapStatus`). Prix : ville < département < pays.
    - [x] Section « Mes cartes » : « Débloquer · prix » (prix localisé), aussi sur le département offert ; « Restaurer mes achats ». Un achat relance le téléchargement des lieux de la zone.
    - [x] Erreurs : annulé (silencieux), réseau, paiement en attente, autre. Zone sans produit : « À débloquer » sans bouton.
-   - [ ] Toi, tableau de bord RevenueCat : produits `map_landes`, `map_gironde`, `map_gironde-bordeaux`, `map_france` dans le Test Store. Retirer l'offering `default` (monthly, yearly, lifetime) qui ne sert plus.
-   - [ ] Test d'achat d'une carte sur le téléphone, puis restauration.
+   - [x] Tableau de bord RevenueCat (par l'API, 2026-10-11) : produits `map_landes`, `map_gironde`, `map_gironde-bordeaux`, `map_france` ; offering courante `maps` (package `france`) ; `monthly`, `yearly`, `default` et `detour_pro` supprimés, `lifetime` archivé (il a une transaction de test). Prix mis par toi le 2026-10-11 : Landes 2,99 €, Gironde 3,99 €, Bordeaux 3,99 €, France 19,99 €. À corriger : la Gironde doit coûter plus que Bordeaux.
+   - [x] Test sur le téléphone (2026-10-11, Test Store) : Bordeaux acheté à 3,99 €, « Débloquée » tout de suite ; « Restaurer mes achats » la garde. Gironde achetée ensuite : « Débloquée ». Le département offert sans grande ville bloquée (Landes) n'a plus de bouton. Descriptions sous chaque carte. Pas vu : restauration sur un autre appareil.
    - [ ] Prix de l'app dans la Play Console et App Store Connect, produits des cartes dans les deux stores, clés RevenueCat de production.
    - [ ] Lancement lent (vu le 2026-10-10, existait avant RevenueCat) : environ 30 s de calcul JS et d'affichage au démarrage avec 3 493 lieux en cache ; un appui pendant ce temps donne une ANR. À mesurer (brouillard ? lieux sur la carte ?) et corriger avant la bêta.
 8. [ ] **Tests** : `findArea` (grande ville avant département), collecte (Bordeaux hors Gironde), achat sandbox iOS et Android, restauration sur un autre appareil.

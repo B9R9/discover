@@ -38,6 +38,13 @@ export function listMaps(areas: readonly Area[], owned: readonly OwnedMap[]): Ma
   return [...groups.filter(hasUnlocked), ...groups.filter((group) => !hasUnlocked(group))].flat();
 }
 
+// Locked maps are for sale. The free department too, but only while one of its big cities is still locked:
+// otherwise buying it would add nothing.
+export function isForSale(entry: MapEntry, maps: readonly MapEntry[]): boolean {
+  if (entry.status !== 'free') return entry.status === 'locked';
+  return maps.some((map) => map.area.departmentId === entry.area.id && map.status === 'locked');
+}
+
 // The first area the phone is found in gives its department for free, once: moving never changes it.
 // ponytail: a department bought before the first GPS fix swallows the free claim (same owned_maps key), so the next department becomes free; store the claim apart if purchases open before onboarding ends.
 export async function claimFreeMap(db: Db, area: Area, now: number): Promise<OwnedMap[]> {

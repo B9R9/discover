@@ -4,7 +4,7 @@ import { listOwnedMaps } from '@/db/ownedMaps';
 import { migrate } from '@/db/migrations';
 import { openTestDb } from '@/db/testDb';
 
-import { claimFreeMap, isUnlocked, listMaps, mapStatus } from './ownership';
+import { claimFreeMap, isForSale, isUnlocked, listMaps, mapStatus } from './ownership';
 
 const square = { type: 'MultiPolygon' as const, coordinates: [] };
 const gironde: Area = { id: 'gironde', name: 'Gironde', departmentId: null, boundary: square };
@@ -52,6 +52,24 @@ test('buying the free department or the country unlocks the big cities', () => {
   const country = [{ areaId: 'france', source: 'purchased' as const, unlockedAt: 0 }];
   expect(mapStatus(landes, country)).toBe('purchased');
   expect(mapStatus(bordeaux, country)).toBe('purchased');
+});
+
+test('the free department is for sale only while a big city of it is locked', () => {
+  const free = (id: string) => [{ areaId: id, source: 'free' as const, unlockedAt: 1 }];
+  const withFreeLandes = listMaps([gironde, bordeaux, landes], free('landes'));
+  const landesEntry = withFreeLandes.find((map) => map.area.id === 'landes');
+  expect(landesEntry && isForSale(landesEntry, withFreeLandes)).toBe(false);
+
+  const withFreeGironde = listMaps([gironde, bordeaux, landes], free('gironde'));
+  const girondeEntry = withFreeGironde.find((map) => map.area.id === 'gironde');
+  expect(girondeEntry && isForSale(girondeEntry, withFreeGironde)).toBe(true);
+
+  const boughtBordeaux = [
+    ...free('gironde'),
+    { areaId: 'gironde-bordeaux', source: 'purchased' as const, unlockedAt: 0 },
+  ];
+  const all = listMaps([gironde, bordeaux], boughtBordeaux);
+  expect(all.filter((map) => isForSale(map, all))).toEqual([]);
 });
 
 test('claimFreeMap gives the department of the first area, once', async () => {

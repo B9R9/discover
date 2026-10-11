@@ -125,8 +125,19 @@ Clé publique du SDK dans `app/.env` : `EXPO_PUBLIC_REVENUECAT_KEY`. En dévelop
 
 L'app est payante au téléchargement (prix fixé dans la Play Console et App Store Connect) : RevenueCat ne vend que les cartes. Configurer le projet dans le tableau de bord RevenueCat (app.revenuecat.com), Test Store :
 
-1. Product catalog > Products : une carte par zone, achat unique, `map_<id de zone>` (`map_landes`, `map_gironde`, `map_gironde-bordeaux`), et `map_france`. Prix : ville < département < France.
-2. Rien d'autre : ni entitlement, ni offering, ni paywall. L'app lit les cartes par `getProducts` et les achats par `allPurchasedProductIdentifiers`.
+1. Product catalog > Products : une carte par zone, achat unique, `map_<id de zone>` (`map_landes`, `map_gironde`, `map_gironde-bordeaux`), et `map_france`. Prix : ville < département < France. **Chaque produit doit avoir un prix** : sans prix, le Test Store ne le renvoie pas à l'app (pas de bouton « Débloquer »). L'API v2 ne sait pas fixer ce prix, il se met dans le tableau de bord.
+2. Offering courante `maps` avec un package `france` (produit `map_france`). L'app n'en lit aucune, mais le SDK charge l'offering courante au démarrage et affiche une erreur si elle est vide (`why-are-offerings-empty`).
+3. Ni entitlement ni paywall. L'app lit les cartes par `getProducts` et les achats par `allPurchasedProductIdentifiers`.
+
+Créer un produit par l'API (clé secrète v2, permission Products en lecture et écriture, dans `REVENUECAT_KEY`) :
+
+```
+curl -s -X POST -H "Authorization: Bearer $REVENUECAT_KEY" -H "Content-Type: application/json" \
+  -d '{"store_identifier":"map_<id>","app_id":"app9bc7469901","type":"non_consumable","title":"Carte <nom>"}' \
+  https://api.revenuecat.com/v2/projects/proj9d60f0f6/products
+```
+
+`app9bc7469901` est l'app Test Store du projet `proj9d60f0f6` (Detour). Puis mettre le prix dans le tableau de bord.
 
 Ajouter un département : le collecter (voir plus haut), puis créer ses produits `map_<id>` pour lui et chaque grande ville. Une zone sans produit s'affiche « À débloquer », sans bouton.
 

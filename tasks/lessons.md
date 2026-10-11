@@ -49,3 +49,6 @@ Format :
 
 - **Erreur** : une ANR sur le téléphone juste après l'ajout de RevenueCat, d'abord attribuée au paywall. La pile de l'ANR (bugreport) et le même test sur le code d'avant (`git stash`) ont montré que c'était ancien : au lancement, environ 30 s de calcul (3 500 lieux en cache) bloquent JS et l'écran ; un appui pendant ce temps donne l'ANR.
 - **Règle** : sur une ANR, lire la pile (`adb bugreport`, puis `FS/data/anr/` dans le zip) et refaire le même geste sur le code d'avant le changement, au même moment après le lancement, avant d'accuser le changement.
+
+- **Erreur** : le lendemain, appuis `adb` lancés sans vérifier le focus : l'app n'était plus au premier plan, les appuis sont tombés sur l'écran d'accueil et ont ouvert l'app Téléphone (aucun appel passé). La vérification du focus était faite, mais dans la même commande que les appuis, sans arrêt si elle échouait.
+- **Règle** : vérifier le focus dans une commande à part, lire le résultat, et n'envoyer les appuis que si `mCurrentFocus` est `com.b9r9.discover`. Sinon, ne rien toucher et demander.
