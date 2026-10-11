@@ -305,6 +305,10 @@ Décision du 2026-10-10 : une carte = un **département** (OSM `admin_level=6`).
    - [x] Lancement lent (corrigé le 2026-10-11) : deux causes mesurées sur le téléphone. Le panneau « Autour de toi » rendait les 3 493 lieux (17 533 vues natives, ANR si on touchait l'écran) : il n'en montre plus que les 30 plus proches (217 vues). Et `replaceCachedPlaces` insérait un lieu par appel (3 493 allers-retours, 16,5 s) : insertions par paquets de 500 (0,4 s). Tout est prêt 3,6 s après le lancement, plus d'ANR avec un appui à 8 s.
 8. [ ] **Tests** : `findArea` (grande ville avant département), collecte (Bordeaux hors Gironde), achat sandbox iOS et Android, restauration sur un autre appareil.
 9. [ ] **Doc** : `docs/README.md`, `docs/runbook.md` (ajouter un département), `CLAUDE.md`, bilan.
+10. [ ] **Organisation des cartes et marché avec recherche** (demandé le 2026-10-11, à préciser avant de coder) :
+   - [ ] Organiser les cartes : mes cartes (offerte, achetées) à part des cartes à débloquer ; chaque département regroupé avec ses grandes villes
+   - [ ] Marché : écran des cartes à acheter, séparé de « Mes cartes »
+   - [ ] Recherche d'une carte par nom (département ou grande ville)
 
 Fait le 2026-10-10 (étapes 1 à 5, en local) : collecte Gironde (5355 lieux, Bordeaux 1644, 50 km² retirés) et Landes (3493 lieux, Biscarrosse dedans), 61 tests app et tests serveur verts. En ligne le 2026-10-10 : migration appliquée, Landes, Gironde et Bordeaux collectés, API Render servant `/areas` (3 zones). Fait sur le téléphone le 2026-10-10 : migration 6 passée, Landes en `free`, 3 493 lieux en cache, Piscine toujours « Découvert », 4 min sans erreur. Corrigé en passant : la tâche de fond fermait la connexion SQLite partagée avec l'app (voir `tasks/lessons.md`). Pas vu : une zone bloquée sur le téléphone (il faudrait être en Gironde), couverte par les tests.
 Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `features/maps/ownership.ts`, `isUnlocked` passe par `mapStatus`. Vu sur le téléphone : Landes « Offerte », Gironde et Bordeaux « À débloquer », 62 tests verts.
