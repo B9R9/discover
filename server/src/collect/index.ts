@@ -1,9 +1,10 @@
 import { connect } from '../db.ts';
 import { dedupePlaces } from './dedupe.ts';
 import { BIG_CITY_POPULATION, DEPARTMENT_SOURCES } from './departments.ts';
-import { fetchBigCities, fetchBoundaryLines, fetchPlaces } from './overpass.ts';
+import { fetchBigCities, fetchCommuneByName, fetchBoundaryLines, fetchPlaces } from './overpass.ts';
 import { saveDepartment, type CollectedCity } from './saveDepartment.ts';
 import { slugify } from './slugify.ts';
+import { TOURIST_SITES } from './touristSites.ts';
 
 const departmentId = process.argv[2];
 const department = DEPARTMENT_SOURCES.find((source) => source.id === departmentId);
@@ -17,12 +18,29 @@ try {
   // One Overpass request after the other, as its usage policy asks.
   const boundaryLines = await fetchBoundaryLines(department.osmRelation);
   const cities: CollectedCity[] = [];
-  for (const city of await fetchBigCities(department.osmRelation, BIG_CITY_POPULATION)) {
+  // Paris is department and commune at once: cutting the city out would leave an empty map.
+  const bigCities =
+    department.id === 'paris'
+      ? []
+      : await fetchBigCities(department.osmRelation, BIG_CITY_POPULATION);
+  for (const city of bigCities) {
     cities.push({
       ...city,
       // Prefixed: two departments may have a big city of the same name (Saint-Denis).
       id: `${department.id}-${slugify(city.name)}`,
       boundaryLines: await fetchBoundaryLines(city.osmRelation),
+    });
+  }
+  for (const site of TOURIST_SITES.filter((s) => s.departmentId === department.id)) {
+    const commune = await fetchCommuneByName(department.osmRelation, site.name);
+    if (!commune) {
+      console.warn(`  tourist site not found in OSM: ${site.name}`);
+      continue;
+    }
+    cities.push({
+      ...commune,
+      id: `${department.id}-${slugify(commune.name)}`,
+      boundaryLines: await fetchBoundaryLines(commune.osmRelation),
     });
   }
   const collected = await fetchPlaces(department.osmRelation);

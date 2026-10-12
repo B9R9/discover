@@ -70,6 +70,24 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  body: { fontSize: 16, lineHeight: 24, color: palette.light.text, marginTop: spacing.lg },
-  actions: { marginTop: 'auto', gap: spacing.md },
+  body: { 
+    fontSize: 16, 
+    lineHeight: 24, 
+    color: palette.light.text, 
+    marginTop: spacing.lg,
+    // Ensure better text rendering
+    fontWeight: '400',
+    textAlign: 'left',
+    // Prevent text from getting blurry by ensuring good rendering
+    includeFontPadding: false,
+    padding: 0,
+  },
+  actions: { 
+    marginTop: 'auto', 
+    gap: spacing.md,
+    // Ensure this container has proper layout with clear positioning
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

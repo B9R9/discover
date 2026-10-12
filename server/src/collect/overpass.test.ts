@@ -58,3 +58,13 @@ test('parseBigCity keeps communes above the population threshold', () => {
     null,
   );
 });
+
+test('communeByNameQuery looks a commune up by exact name inside the department', async () => {
+  const { communeByNameQuery, parseCommune } = await import('./overpass.ts');
+  assert.match(communeByNameQuery(7405, 'Étretat'), /\["name"="Étretat"\]\(area\.zone\)/);
+  assert.deepEqual(parseCommune({ type: 'relation', id: 1, tags: { name: 'Étretat' } }), {
+    name: 'Étretat',
+    osmRelation: 1,
+  });
+  assert.equal(parseCommune({ type: 'relation', id: 1, tags: {} }), null);
+});

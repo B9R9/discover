@@ -27,6 +27,10 @@ export function communesQuery(osmRelation: number): string {
   return `[out:json][timeout:90];area(${AREA_OFFSET + osmRelation})->.zone;relation["boundary"="administrative"]["admin_level"="8"]["population"](area.zone);out tags;`;
 }
 
+export function communeByNameQuery(osmRelation: number, name: string): string {
+  return `[out:json][timeout:60];area(${AREA_OFFSET + osmRelation})->.zone;relation["boundary"="administrative"]["admin_level"="8"]["name"=${JSON.stringify(name)}](area.zone);out tags;`;
+}
+
 export function boundaryQuery(osmRelation: number): string {
   return `[out:json][timeout:60];relation(${osmRelation});way(r);out geom;`;
 }
@@ -95,15 +99,21 @@ export function parsePlace(element: unknown): CollectedPlace | null {
   };
 }
 
-// OSM writes populations as free text, sometimes with spaces ("252 040").
-export function parseBigCity(element: unknown, minPopulation: number): BigCity | null {
+export function parseCommune(element: unknown): BigCity | null {
   if (!isRecord(element) || element.type !== 'relation' || typeof element.id !== 'number') {
     return null;
   }
-  const tags = readTags(element.tags);
-  const population = Number((tags.population ?? '').replace(/\s/g, ''));
-  if (!tags.name || !(population >= minPopulation)) return null;
-  return { name: tags.name, osmRelation: element.id };
+  const name = readTags(element.tags).name;
+  return name ? { name, osmRelation: element.id } : null;
+}
+
+// OSM writes populations as free text, sometimes with spaces ("252 040").
+export function parseBigCity(element: unknown, minPopulation: number): BigCity | null {
+  const commune = parseCommune(element);
+  const population = Number(
+    (readTags(isRecord(element) ? element.tags : {}).population ?? '').replace(/\s/g, ''),
+  );
+  return commune && population >= minPopulation ? commune : null;
 }
 
 export async function fetchBigCities(
@@ -114,6 +124,15 @@ export async function fetchBigCities(
   return elements
     .map((element) => parseBigCity(element, minPopulation))
     .filter((city) => city !== null);
+}
+
+// A commune looked up by its exact OSM name, for tourist sites (no population threshold).
+export async function fetchCommuneByName(
+  osmRelation: number,
+  name: string,
+): Promise<BigCity | null> {
+  const elements = await runQuery(communeByNameQuery(osmRelation, name));
+  return elements.map(parseCommune).find((city) => city !== null) ?? null;
 }
 
 export async function fetchPlaces(osmRelation: number): Promise<CollectedPlace[]> {
