@@ -452,3 +452,76 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 - En ligne : API Render `detour-api` (https://detour-api-30ul.onrender.com, gratuite) ; collecte chaque lundi par GitHub Actions (Render exige une carte pour un cron).
 - Vérifié : 56 tests app, 18 serveur, typecheck, lint, format ; workflow de collecte lancé (106 lieux) ; sur le téléphone à travers Render : lieux, connexion, session gardée, suppression du compte. Journaux Render : méthode, chemin, statut seulement.
 - Reste : domaine Détour + expéditeur Resend avant la bêta (phase 8). L'API gratuite s'endort (premier appel environ 30 s).
+
+## Orchestration Claude Code → Hermes Agent — implémentation locale (2026-10-12)
+
+Objectif : compléter le runner local existant pour qu'une commande planifie avec Claude Code, fasse implémenter les tâches une par une par Hermes via Ollama, puis fasse relire le diff réel par Claude Code. L'état et les journaux restent locaux ; aucun commit, push ou déploiement n'est automatique.
+
+Choix de sécurité retenus : Hermes Agent v0.21.7 confirme que `-z` contourne les approbations d'outils. Le runner limite donc chaque appel Hermes au toolset `file` (pas de terminal) et exécute lui-même les commandes de test issues d'une liste autorisée et sans shell. Claude planifie et relit en mode `plan`, avec les options réellement prises en charge par Claude Code 2.1.284. Les fichiers locaux existants sous `.agent/` sont préservés ; chaque run écrit dans un dossier unique plutôt que d'écraser un état local antérieur.
+
+### État vérifié avant l'implémentation
+
+- [x] Le runner existant planifie et relit avec Claude, lance Hermes en one-shot, limite les tentatives à 3, exige une branche dédiée et un arbre Git propre, écrit un état lisible et transmet à Claude le diff Git réel.
+- [x] Versions/configuration vérifiées : Claude Code 2.1.284 ; Hermes v0.21.7 ; Ollama 0.40.3 ; Hermes utilise effectivement `ollama-launch` et `deepseek-coder:33b`, présent dans `ollama list`.
+- [x] Le toolset `file` et son passage par option Hermes sont disponibles ; `-z` contourne les confirmations, d'où l'interdiction prévue du toolset terminal.
+- [x] Les 11 worktrees Git enregistrés sont propres ; le worktree `todo-navigation` est verrouillé par une session existante et restera intact. La branche `main` était propre et en avance d'un commit avant l'ajout de ce plan.
+- [x] Le runner, `.agent/` et ses journaux sont volontairement ignorés par Git et décrits comme locaux dans `docs/README.md` ; les prompts et l'état déjà présents restent intacts.
+
+### Écarts démontrés à corriger
+
+- Claude Code reçoit `--max-turns`, option absente de sa CLI installée : le runner actuel échoue avant la planification.
+- Le plan n'est validé que superficiellement : dépendances, critères, commandes, transitions d'état et reprises ne sont pas contrôlés ; `plan.json` est réécrit.
+- L'ordre des tâches est celui du tableau, pas celui du graphe de dépendances ; tentatives et verdicts ne sont pas persistés dans un état structuré.
+- Hermes est lancé sans toolset explicite ; le fournisseur/modèle local n'est ni contrôlé ni passé explicitement à chaque appel.
+- Les délais sont fixes ; les sorties et le code de retour sont capturés en mémoire, sans durée ni journal persistant par tentative ; le runner ne lance pas les validations lui-même.
+
+### Tâches validées et bilan d'implémentation
+
+#### T1 — Valider le contrat des plans et de l'état
+- [x] Valider les plans strictement : identifiants, dépendances sans cycle, fichiers dans le dépôt, critères, commandes de test allowlistées, fournisseur/modèle local et état.
+- [x] Persister l'état atomiquement dans un dossier unique par run ; une interruption ne redémarre rien sans choix explicite (`review`, `retry` ou `block`).
+- [x] Limiter chaque tâche à trois tentatives, valider les transitions et conserver les journaux même quand un appel échoue.
+- Vérifié : tests unitaires locaux sur plan, dépendances, transitions, limite d'essais, stockage, chemins, reprise et sorties.
+- Fichiers probables : `scripts/agent-loop.py`, tests du runner.
+
+#### T2 — Compléter la boucle Claude → Hermes → Claude
+- [x] Vérifier les exécutables, versions, configuration Hermes/Ollama, statut fournisseur/modèle et modèle installé ; revérifier avant chaque lancement Hermes.
+- [x] Passer explicitement le fournisseur et le modèle, limiter Hermes au toolset fichier, et exécuter les tests autorisés sans shell.
+- [x] Enregistrer stdout, stderr, statut, durée, timeouts et état par tentative ; préserver un diff qui sort de la portée et bloquer.
+- [x] Faire relire à Claude le diff effectif, y compris le contenu des nouveaux fichiers ; refuser un diff trop grand ou détecté comme contenant un secret.
+- [x] Exiger un plafond Claude explicite par appel ; aucun commit, push ni déploiement automatique.
+- Dépendance : T1.
+- Vérifié : exécutions simulées ; appels réels non lancés. Plafond recommandé et confirmé par l'utilisateur pour le pilote : 1 USD par appel Claude, avec `--max-tasks 1` (4 USD maximum).
+- Fichiers probables : `scripts/agent-loop.py`, tests du runner.
+
+#### T3 — Tester les reprises et les échecs sans modèles réels
+- [x] Ajouter des tests standard-library qui simulent les appels de processus, validations Git et verdicts sans exécuter les modèles.
+- [x] Couvrir dépendances, verdicts, tentatives, timeouts, capture, secrets, taille du diff, stockage et reprise explicite.
+- Critères vérifiés : la suite n'exécute aucun modèle ; un échec laisse un état structuré et les fichiers en place.
+- Dépendances : T1 et T2.
+- Vérifié : `python3 -m unittest discover -s .agent/tests -v` (63 tests : modes primary/fallback/recovery, classification des erreurs Claude, config, arbre sale).
+- Fichiers probables : tests du runner.
+
+#### T4 — Documenter le runner local sans publier l'état
+- [x] Préserver l'intention existante : runner, tests locaux, prompts, états et journaux restent ignorés par Git ; `.gitignore` et les fichiers `.agent/` préexistants restent intacts.
+- [x] Documenter prérequis, configuration Hermes/Ollama, budgets, commandes, limites, logs et reprise dans `docs/README.md` et `docs/runbook.md`.
+- Vérifié : commandes de tests et `--help` documentées ; l'exécution réelle reste explicitement une action manuelle.
+- Dépendances : T1 à T3.
+- Fichiers probables : `docs/README.md`, `docs/runbook.md`, fichiers locaux du runner et de ses tests.
+
+#### T5 — Vérifier et faire le bilan
+- [x] Exécuter les tests unitaires et la compilation Python ; vérifier la CLI et les options Hermes réellement installées.
+- [x] Confirmer que les changements suivis sont limités à la roadmap, la documentation et la leçon ; les fichiers runner et `.agent/` restent ignorés.
+- [x] Ne pas contacter de modèle réel depuis cet arbre de travail modifié ; aucun commit/push créé ni branche/worktree modifié.
+- Reste avant premier cycle réel : remplir les prompts locaux et lancer sur une branche dédiée propre. Le runner refusera l'arbre actuel tant que les changements documentaires suivis ne sont pas intégrés ou retirés.
+- Dépendances : T1 à T4.
+
+**État :** runner implémenté et validé par tests simulés ; cycle réel volontairement non lancé.
+
+### Relais Hermes quand Claude est indisponible
+
+- [x] Réduire le délai Claude à 2 minutes par appel (configurable).
+- [x] Si Claude est absent, expire, renvoie une erreur ou ne retourne rien pendant la planification, demander à Hermes de produire le plan localement puis poursuivre l'implémentation.
+- [x] Si Claude est indisponible à la revue, conserver les modifications en état `review`, suspendre le run avec code de sortie 2 et permettre de reprendre la revue sans relancer Hermes.
+- [x] Vérifié par tests simulés : fallback de planification, pause et reprise au stade review, sortie non nulle sur revue différée, capture d'un message d'indisponibilité/crédit.
+- Décision : Hermes ne peut pas s'auto-approuver ; la tâche ne devient terminée qu'après un verdict Claude.

@@ -58,3 +58,16 @@ Format :
 
 - **Erreur** : avec un département entier en cache (3 493 lieux), le lancement bloquait l'app environ 30 s. Deux causes, invisibles avec les 106 lieux de Biscarrosse : une liste qui rendait chaque lieu (17 533 vues natives), et une insertion SQLite attendue par lieu (16,5 s d'allers-retours JS et natif).
 - **Règle** : toute liste affichée est bornée (ou virtualisée) dès qu'elle vient de données serveur. Toute écriture SQLite de plus de quelques dizaines de lignes passe par des insertions groupées. Mesurer sur le téléphone avec le volume réel (`dumpsys meminfo` pour le nombre de vues, logs de durée) avant et après.
+
+- **Erreur** : j'ai commencé à détailler des changements au runner sans avoir d'abord séparé ses capacités déjà présentes de ses lacunes, malgré l'existence de fichiers locaux ignorés et de worktrees.
+- **Règle** : avant de proposer une évolution d'agent, inventorier le code local ignoré, l'état persistant et tous les worktrees ; ne planifier que les lacunes vérifiées et préserver tout état préexistant.
+
+- **Erreur** : le délai d'appel Claude de 30 minutes rendait toute indisponibilité trop bloquante, et le relais Hermes n'était pas défini.
+- **Règle** : pour une orchestration multi-agent, utiliser un délai court et explicite, permettre le relais local pour la planification/implémentation, mais conserver une revue indépendante comme condition d'approbation ; reprendre une revue suspendue sans réexécuter l'implémentation.
+
+## Runner local : modes et reprise
+
+- Un repli ne doit jamais valider : le travail d'Hermes finit en `awaiting_claude_review`, et seule une revue Claude réelle (après un health check borné) le fait passer à `approved`.
+- Ne pas réessayer une erreur d'authentification, de crédit ou de quota : seuls timeout et réseau, avec un nombre borné d'essais.
+- Un arbre Git sale est normal : mesurer ce que l'agent change par empreinte (baseline) au lieu d'exiger un arbre propre, et ne jamais envoyer à Claude les changements de l'utilisateur.
+- Garder chaque module sous 500 lignes : déplacer les fonctions dans un nouveau module et les ré-importer, les tests patchent les noms du runner.

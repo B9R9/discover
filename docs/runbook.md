@@ -28,6 +28,75 @@ Ajouter une dépendance à l'app : `cd app && npx expo install <paquet>` (versio
 
 Les skills d'agents et le runner expérimental décrits dans [la documentation](README.md#consignes-et-outils-ia) sont locaux et ne sont pas nécessaires pour installer, lancer ou builder l'app.
 
+## Boucle locale Claude Code → Hermes Agent
+
+Cette boucle expérimentale nécessite Python 3.9+ et utilise Claude Code pour planifier et relire, Hermes Agent pour modifier les fichiers avec son seul toolset `file`, puis lance elle-même les contrôles autorisés. Hermes doit pointer vers Ollama local ; aucun prompt, diff ou fichier du projet n'est envoyé à un fournisseur Hermes distant. Les vérifications déterministes simulées ne contactent aucun modèle.
+
+Le script, ses modules, les prompts, plans et journaux sont ignorés par Git et propres à ce clone. Un verrou local interdit deux runs concurrents. La boucle exige une branche dédiée ; l'arbre peut être sale, son état de départ est enregistré (voir plus bas). Procédures pas à pas : [runbook-agent-loop.md](runbook-agent-loop.md). Chaque exécution a un dossier unique sous `.agent/runtime/runs/`; ne supprime ni ne remplace pas un ancien état pour reprendre.
+
+Vérifier les dépendances et afficher l'aide (sans appeler Claude ni Hermes) :
+
+```
+python3 -m unittest discover -s .agent/tests -v
+python3 scripts/agent-loop.py --help
+```
+
+Avant le premier lancement, compléter `.agent/REQUEST.md` et `.agent/DECISIONS.md` sans y mettre de secret ni de donnée personnelle. Relire le diff et le commit de la branche, vérifier que `hermes status` montre bien le fournisseur/modèle Ollama voulus et que `ollama list` contient ce modèle. Pour le premier essai, limiter le run à une tâche et le plafond à 1 USD par appel Claude :
+
+```
+python3 scripts/agent-loop.py --max-tasks 1 --claude-max-budget-usd 1
+```
+
+Il n'y a volontairement aucune valeur de budget par défaut. Le plafond s'applique séparément à chaque appel Claude (planification et revue), et non à l'ensemble de la boucle : pour une tâche, 1 USD par appel borne le premier run à 4 USD au maximum (une planification et trois revues). Un run complet de huit tâches peut théoriquement aller jusqu'à 25 appels Claude. Claude a un délai de 2 minutes par appel (`--claude-timeout` pour le modifier). Si Claude n'est pas installé, ne répond pas à temps, renvoie une erreur ou ne retourne rien, Hermes prépare le plan localement puis implémente avec Ollama. Hermes ne peut cependant pas approuver son propre travail.
+
+Le runner refuse les plans invalides, cycles de dépendances, fichiers hors de la portée déclarée et commandes autres que `npm test`, `npm run typecheck`, `npm run lint` et `npm run format:check`. Chaque tâche est limitée à trois tentatives ; seul un verdict Claude `approved`, avec tous les contrôles réussis, la valide. Un arrêt au milieu d'une implémentation exige d'inspecter le diff puis de choisir explicitement :
+
+```
+python3 scripts/agent-loop.py --resume <run-id> --claude-max-budget-usd <montant>
+python3 scripts/agent-loop.py --resume <run-id> --recover-task <task-id> --recovery-action review --claude-max-budget-usd <montant>
+```
+
+`--recovery-action` accepte `review`, `retry` ou `block`. `review` demande une revue des changements présents, `retry` autorise une nouvelle tentative sans effacer les changements existants, et `block` arrête la tâche. Si Claude tombe en panne pendant la revue, les tests et l'implémentation sont conservés et l'état indique que le run attend Claude ; le processus sort avec le code 2. Une fois Claude disponible, relancer `--resume <run-id> --claude-max-budget-usd <montant>` : le runner reprend à la revue sans demander une nouvelle implémentation à Hermes. Les détails de chaque appel, sorties et état lisible se trouvent sous `.agent/runtime/runs/<run-id>/`. Les erreurs laissent les modifications en place : les inspecter avant toute reprise. Une exécution réelle de Claude/Hermes entraîne des appels payants à Claude et doit être déclenchée manuellement avec le plafond souhaité ; elle n'est pas lancée par les tests.
+
+### Modes, repli et récupération
+
+Le run a trois modes, enregistrés dans `plan.json` (`mode`, `plan_author`, `claude`, `history`, `checkpoints`, `baseline`) :
+
+| Mode       | Quand                                                                 | Qui fait quoi                                                      |
+| ---------- | --------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `primary`  | Claude répond                                                         | Claude planifie et relit, Hermes implémente, le runner teste       |
+| `fallback` | Claude ne répond pas (planification ou revue)                         | Hermes planifie (`plan_author: hermes`) et implémente ; les tâches finies passent en `awaiting_claude_review`, jamais `approved` |
+| `recovery` | Un appel court `claude --print` (health check) réussit en fallback    | Claude relit chaque tâche en attente (plan Hermes, diff, tests, raison du repli) ; corrections par Hermes puis nouvelle revue ; retour en `primary` quand plus rien n'est ouvert (`recovery_complete` dans `history`) |
+
+Échecs Claude classés : `timeout`, `network`, `rate_limit`, `auth`, `credit`, `other`. Seuls `timeout` et `network` sont réessayés, `claude_retries` fois (1 par défaut, 3 au plus) ; les autres basculent tout de suite sur Hermes. Pendant l'attente, Hermes continue les tâches dont les dépendances sont implémentées ; le health check est refait au plus toutes les `recovery_check_interval` secondes (300 par défaut) et à chaque `--resume`. Si tout est implémenté mais non relu, le run a le statut `awaiting_claude_review` et sort avec le code 2 : relancer `--resume <run-id>` quand Claude est de retour.
+
+L'arbre Git peut être sale au lancement : le runner enregistre l'empreinte (sha256) des fichiers déjà modifiés ou non suivis (`baseline`) et n'envoie à Claude que ce qui a changé depuis. Si Hermes modifie un fichier pendant la planification, le plan est rejeté. Les changements de `package.json`, lockfiles et `migrations/` exigent `--approve-sensitive`. Aucun commit, push, reset, stash ni clean n'est exécuté. Les journaux masquent les motifs de secrets courants.
+
+Configuration optionnelle (`.agent/config.json`, ignoré par Git, ou `--config chemin`) ; les options de la ligne de commande priment :
+
+```json
+{
+  "claude_command": ["claude"],
+  "claude_timeout": 120,
+  "claude_retries": 1,
+  "claude_retry_delay": 5,
+  "claude_max_budget_usd": 1,
+  "hermes_command": ["hermes"],
+  "hermes_timeout": 3600,
+  "ollama_model": "deepseek-coder:33b",
+  "max_tasks": 8,
+  "test_timeout": 900,
+  "validation_commands": ["npm test", "npm run typecheck"],
+  "recovery_check_interval": 300,
+  "health_check_timeout": 30,
+  "approve_sensitive": false
+}
+```
+
+`ollama_model` doit figurer dans `ollama list` ; `validation_commands` ne peut contenir que des commandes de la liste autorisée. Hermes n'a pas de skill `plan` (vérifié avec `hermes skills search plan`) : le prompt de planification intègre la méthode du skill `planning-and-task-breakdown` (tranches verticales, critères vérifiables) sans activer de skill. Limites connues : si un fichier déjà modifié par l'utilisateur est aussi modifié par Hermes, son diff entier est relu ; un run interrompu pendant une tâche exige toujours `--recover-task` ; aucun test n'appelle un vrai Claude ou un vrai Ollama.
+
+Inspecter : `.agent/runtime/runs/<run-id>/status.md` (mode, Claude, tâches), `plan.json` (état complet), `*.json` et `*.log` (un fichier par appel, `-retryN` pour les réessais). Tests : `python3 -m unittest discover -s .agent/tests`.
+
 ## Préparer le téléphone Android (Nothing Phone)
 
 1. Paramètres > À propos du téléphone : taper 7 fois sur « Numéro de build ».
