@@ -1,6 +1,6 @@
 # Documentation Détour
 
-Mise à jour au fil des phases de `tasks/todo.md`. Concept : `../discover.md`. Règles pour les agents : `../CLAUDE.md`. Exploitation : `runbook.md`. Charte graphique : `design.md`.
+Mise à jour au fil des phases de `roadmap.md`. Concept : `product-concept.md`. Consignes Claude Code : `../.claude/CLAUDE.md`. Consignes de l'app : `../app/AGENTS.md`. Exploitation : `runbook.md`. Charte graphique : `design.md`.
 
 ## Vue d'ensemble
 
@@ -13,6 +13,12 @@ App mobile (React Native + Expo) qui montre les lieux autour de l'utilisateur. L
 - `/shared` : types partagés (`@discover/shared`), consommés en source TypeScript, sans build.
 
 Monorepo npm workspaces. Expo SDK 57, React Native 0.86, TypeScript 6 strict. Le serveur tourne sur Node 24, qui exécute le TypeScript sans build.
+
+## Consignes et outils IA
+
+- `.claude/CLAUDE.md` contient les consignes générales de Claude Code ; `.claude/lessons.md` garde les leçons d'agent. `product-concept.md` est la source de vérité du concept produit et `roadmap.md` suit les phases du projet.
+- `app/AGENTS.md` et `app/.claude/settings.json` s'appliquent à l'app.
+- Les skills téléchargés ont une seule source locale, `.agents/skills/`. `.claude/skills/` et `.hermes/skills/` en sont des alias, pas des copies. Ces dossiers, `skills-lock.json`, le runner local `scripts/agent-loop.py` et ses données `.agent/` sont ignorés par Git ; ils ne sont donc pas fournis aux autres clones.
 
 ## Fonctionnalités
 

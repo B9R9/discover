@@ -26,6 +26,8 @@ Serveur : Docker Desktop et Supabase CLI (`brew install supabase/tap/supabase`).
 
 Ajouter une dépendance à l'app : `cd app && npx expo install <paquet>` (versions compatibles avec le SDK Expo).
 
+Les skills d'agents et le runner expérimental décrits dans [la documentation](README.md#consignes-et-outils-ia) sont locaux et ne sont pas nécessaires pour installer, lancer ou builder l'app.
+
 ## Préparer le téléphone Android (Nothing Phone)
 
 1. Paramètres > À propos du téléphone : taper 7 fois sur « Numéro de build ».

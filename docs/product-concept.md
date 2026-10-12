@@ -1,6 +1,6 @@
 # Détour : concept
 
-Source de vérité produit. Stack, structure et règles de code sont dans `CLAUDE.md`.
+Source de vérité produit. Stack, structure et règles de code sont dans `../.claude/CLAUDE.md`.
 
 ## Vision
 

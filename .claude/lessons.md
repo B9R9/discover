@@ -8,8 +8,11 @@ Format :
 
 ## Entrées
 
+- **Erreur** : j'ai d'abord supposé que les consignes Claude devaient rester à la racine, sans vérifier que Claude Code accepte aussi `.claude/CLAUDE.md`.
+- **Règle** : vérifier les emplacements officiellement chargés par l'outil et distinguer les consignes d'agent des documents produit partagés avant de proposer une organisation.
+
 - **Erreur** : la doc et le runbook n'étaient pas prévus dans le workflow ; rien ne forçait à les écrire pendant le développement.
-- **Règle** : chaque changement met à jour `docs/README.md` et `docs/runbook.md` dans le même commit, et `tasks/lessons.md` avant de clore la tâche (règle 7 de `CLAUDE.md`).
+- **Règle** : chaque changement met à jour `docs/README.md` et `docs/runbook.md` dans le même commit, et `.claude/lessons.md` avant de clore la tâche (règle 7 de `.claude/CLAUDE.md`).
 
 - **Erreur** : après ajout d'`expo-task-manager`, l'app plantait sur le téléphone dès qu'une position arrivait en arrière-plan (permission `RECEIVE_BOOT_COMPLETED` manquante). Les tests Jest ne pouvaient pas le voir.
 - **Règle** : après tout ajout de module natif, vérifier le manifeste généré (`app/android/app/src/main/AndroidManifest.xml`) et lancer l'app sur le téléphone en lisant `adb logcat | grep -E "FATAL|AndroidRuntime"` avant de dire que c'est fini.

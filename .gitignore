@@ -7,3 +7,9 @@ dist/
 coverage/
 *.tsbuildinfo
 .claude/worktrees/
+.agents/skills/
+.claude/skills/
+.hermes/skills/
+.agent/
+skills-lock.json
+scripts/agent-loop.py

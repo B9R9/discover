@@ -1,6 +1,6 @@
 # Détour : guide pour les agents
 
-Lis ce fichier en entier avant de toucher au code. Pour le concept complet, lis `discover.md`.
+Lis ce fichier en entier avant de toucher au code. Pour le concept complet, lis `docs/product-concept.md`.
 Avant de créer ou modifier un écran ou un composant, lis `docs/design.md` (charte graphique, tokens dans `app/src/theme/tokens.ts`).
 
 ## Le projet en bref
@@ -9,7 +9,7 @@ App mobile qui montre les activités et lieux autour de l'utilisateur. La carte 
 
 - Lieu découvert : l'app donne l'itinéraire.
 - Lieu pas découvert : l'app donne seulement la direction à vol d'oiseau.
-- Une carte = un département, sauf les grandes villes (plus de 100 000 habitants) qui ont leur propre carte. L'app est payante au téléchargement (prix du store), et donne la carte du département de l'utilisateur (sans ses grandes villes). Dans l'app, seulement des achats uniques de cartes (Google Play, App Store) : une grande ville seule, un département entier grandes villes comprises (plus cher qu'une ville), ou la France entière.
+- Une carte = un département, sauf les grandes villes (plus de 100 000 habitants) et une liste de sites touristiques (`server/src/collect/touristSites.ts`, ex. Mont-Saint-Michel) qui ont leur propre carte. L'app est payante au téléchargement (prix du store), et donne la carte du département de l'utilisateur (sans ses grandes villes). Dans l'app, seulement des achats uniques de cartes (Google Play, App Store) : une grande ville ou un site seul, un département entier grandes villes comprises (plus cher qu'une ville), ou la France entière.
 
 ## Stack
 
@@ -25,11 +25,11 @@ Attention : MapLibre est du code natif, donc Expo Go ne marche pas. Il faut un d
 ## Structure du dépôt
 
 ```
-/app        app Expo (écrans, composants, logique locale)
-/server     API Node et jobs de collecte des lieux
-/shared     types TypeScript partagés entre app et server
-discover.md concept du projet
-CLAUDE.md   ce fichier
+/app                    app Expo (écrans, composants, logique locale)
+/server                 API Node et jobs de collecte des lieux
+/shared                 types TypeScript partagés entre app et server
+/docs/product-concept.md concept du projet
+/.claude/CLAUDE.md      ce fichier
 ```
 
 Dans `/app/src` :
@@ -86,9 +86,9 @@ Les lieux viennent de web scraping et d'APIs. Ces jobs tournent côté serveur e
 - Une tâche par sous-agent.
 
 ### 3. Boucle d'amélioration
-- Après chaque correction de ma part, ajoute la leçon dans `tasks/lessons.md`.
+- Après chaque correction de ma part, ajoute la leçon dans `.claude/lessons.md`.
 - Écris-toi des règles qui évitent de refaire la même erreur.
-- Relis `tasks/lessons.md` au début de chaque session.
+- Relis `.claude/lessons.md` au début de chaque session.
 
 ### 4. Vérifier avant de dire que c'est fini
 - Ne marque jamais une tâche terminée sans preuve que ça marche.
@@ -107,19 +107,19 @@ Les lieux viennent de web scraping et d'APIs. Ces jobs tournent côté serveur e
 - Corrige les tests CI qui échouent sans attendre qu'on te dise comment.
 
 ### Gestion des tâches
-1. Écris le plan dans `tasks/todo.md` avec des cases à cocher.
+1. Écris le plan dans `docs/roadmap.md` avec des cases à cocher.
 2. Valide le plan avec moi avant de commencer.
 3. Coche les éléments au fur et à mesure.
 4. Résume les changements à chaque étape, en quelques lignes.
-5. Ajoute une section de bilan dans `tasks/todo.md` à la fin.
-6. Mets à jour `tasks/lessons.md` après chaque correction.
+5. Ajoute une section de bilan dans `docs/roadmap.md` à la fin.
+6. Mets à jour `.claude/lessons.md` après chaque correction.
 
 ### 7. Documentation et runbook au fil de l'eau
 - Chaque changement qui touche le comportement, l'installation, la config ou l'exploitation met à jour la doc dans le même commit.
 - `docs/README.md` : ce que fait l'app et comment elle est construite (architecture, fonctionnalités, décisions).
 - `docs/runbook.md` : comment installer, lancer, builder, déployer, diagnostiquer une panne, restaurer. Chaque procédure est une suite de commandes testées.
-- Une phase de `tasks/todo.md` n'est pas finie tant que la doc et le runbook ne la couvrent pas.
-- Mets aussi `tasks/lessons.md` à jour avant de clore la tâche.
+- Une phase de `docs/roadmap.md` n'est pas finie tant que la doc et le runbook ne la couvrent pas.
+- Mets aussi `.claude/lessons.md` à jour avant de clore la tâche.
 
 ### Principes
 - **Simplicité d'abord** : chaque changement le plus simple possible, avec le moins de code touché.

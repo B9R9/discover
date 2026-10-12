@@ -2,7 +2,7 @@
 
 Ordre pensé pour avoir une boucle jouable le plus tôt possible : carte, photo, validation, le tout en local. Le backend vient après, avec des lieux de test en dur au départ.
 
-Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tests, puis un test manuel sur development build. Après chaque phase, mettre à jour « État actuel » dans `CLAUDE.md` et le bilan en bas de ce fichier.
+Chaque phase finit par une vérification : `cd app && npx tsc --noEmit`, les tests, puis un test manuel sur development build. Après chaque phase, mettre à jour « État actuel » dans `.claude/CLAUDE.md` et le bilan en bas de ce fichier.
 
 ## Phase 0 : Fondations
 - [x] Créer `/app` avec Expo (TypeScript strict, `"strict": true`)
@@ -58,7 +58,7 @@ Dépendances (`npx expo install`) :
 - [x] 8. Profil : interrupteur « Enregistrer mes balades en arrière-plan »
 - [x] 9. Tests : 140 m dévoilé / 160 m caché, zones qui se chevauchent fusionnées, filtre de `recordPoint`, migration 2, perf (500 lieux + 20 000 points sous 1 s en Node)
 - [ ] 10. Test sur le Nothing Phone : carte, permissions, balade réelle app ouverte puis écran éteint, notification visible, réglage coupé
-- [ ] 11. Doc (`docs/README.md`, `docs/runbook.md`), « État actuel » dans `CLAUDE.md`, bilan
+- [ ] 11. Doc (`docs/README.md`, `docs/runbook.md`), « État actuel » dans `.claude/CLAUDE.md`, bilan
 
 Écarts avec le plan, une fois le code écrit :
 - Style `liberty` et non `positron` : `positron` est gris, et la charte réserve le gris au brouillard.
@@ -118,7 +118,7 @@ Dépendances (`npx expo install`) :
 - [x] 6. Galerie sur l'écran Profil : grille de miniatures (rayon 12, recadrées), nom du lieu et date. Vide : texte d'encouragement. Requête `listDiscoveriesWithPhotos` dans `db/discoveries.ts`.
 - [x] 7. Tests : 49 m acceptée, 51 m refusée, précision 31 m refusée, position simulée refusée, position périmée refusée, lieu déjà découvert, le plus proche gagne ; `saveDiscovery` écrit photo + découverte + chemin, et rien si la transaction échoue.
 - [x] 8. Téléphone : manifeste (permission caméra, pas de micro), `adb logcat` sans crash, vraie photo devant un lieu ou découverte simulée (repli : faux lieu posé à ma position, procédure dans le runbook).
-- [x] 9. Doc (`docs/README.md`, `docs/runbook.md`), « État actuel » dans `CLAUDE.md`, `tasks/lessons.md`, bilan.
+- [x] 9. Doc (`docs/README.md`, `docs/runbook.md`), « État actuel » dans `.claude/CLAUDE.md`, `.claude/lessons.md`, bilan.
 
 Écarts avec le plan, une fois le code écrit :
 - Dissipation pilotée en JS (`requestAnimationFrame`, seule l'opacité change) et non par `fill-opacity-transition` : avec une transition, rien ne garantit que MapLibre a peint l'état 0,9 avant de passer à 0.
@@ -226,7 +226,7 @@ Décisions du 2026-10-10 : phase 5 coupée en deux. 5a = lieux (base, collecte, 
    - collecte réelle de Biscarrosse sur Supabase local (nombre de lieux, catégories)
    - sur le téléphone : lieux de l'API sur la carte, la découverte « Piscine » toujours liée
    - journal du serveur relu : aucune position ni coordonnée reçue
-9. [x] **Doc** : `docs/README.md` (architecture serveur, catégories, flux des lieux), `docs/runbook.md` (lancer Supabase local, `.env`, collecte, `adb reverse`, réinitialiser la base), `CLAUDE.md` « État actuel », bilan.
+9. [x] **Doc** : `docs/README.md` (architecture serveur, catégories, flux des lieux), `docs/runbook.md` (lancer Supabase local, `.env`, collecte, `adb reverse`, réinitialiser la base), `.claude/CLAUDE.md` « État actuel », bilan.
 
 Écarts : `findCity` écrit à la main (point dans polygone, 25 lignes) plutôt qu'une dépendance. La synchro tourne une fois par lancement, au premier relevé GPS ; un changement de ville en cours de session attend le lancement suivant. Délai de 10 s sur chaque appel, ajouté après le test sur le téléphone.
 Fait sur le téléphone le 2026-10-10 : 106 lieux reçus, nouvelles catégories affichées, la Piscine toujours « Découvert ». Hors ligne (serveur arrêté, cache HTTP vidé) : villes lues dans `cities_cache`, lieux gardés, aucune erreur à l'écran. Journal du serveur : seulement `GET /cities` et `GET /cities/biscarrosse/places`.
@@ -273,7 +273,7 @@ Décisions du 2026-10-10 :
 8. [x] **Doc** :
    - `docs/README.md` : comptes, exception Auth, hébergement
    - `docs/runbook.md` : déployer, variables, relancer la collecte, restaurer (offre gratuite sans sauvegarde : migrations puis collecte ; comptes perdus)
-   - `CLAUDE.md` : exception Auth, « État actuel »
+   - `.claude/CLAUDE.md` : exception Auth, « État actuel »
    - bilan
 
 Écarts : SMTP Resend dès maintenant (offre gratuite : pas de modèle d'e-mail modifiable sans SMTP à nous), expéditeur `onboarding@resend.dev` ; SMTP déclaré seulement pour le projet en ligne (`[remotes.production]`), Mailpit en local. Services Render créés par l'outil MCP plutôt qu'un `render.yaml` (config décrite dans le runbook). Correction en passant : `Screen` comptait deux fois la zone sûre du bas dans Profil.
@@ -314,13 +314,22 @@ Décision du 2026-10-10 : une carte = un **département** (OSM `admin_level=6`).
    - [x] **Sécurité** : pas de vérification des achats par notre serveur pour l'instant (un téléphone rooté peut simuler un achat). Ajoutée à la phase 8 : l'API vérifie le jeton d'achat auprès de Google avant d'envoyer les lieux d'une zone payante.
    - [ ] **Play Console (toi, avec mon aide pas à pas)** : app créée, prix de l'app, produits intégrés `map_landes`, `map_gironde`, `map_gironde_bordeaux`, `map_france` avec leurs prix (ville < département < France), ton compte Google en testeur de licence, une version sur le test interne.
    - [x] **AAB signé** (2026-10-11) : clé d'envoi dans `~/.config/detour/`, plugin `withReleaseSigning.js`, `app-release.aab` signé `CN=Detour` avec `BILLING`. Reste (toi) : l'envoyer sur le test interne, ce qui fait apparaître « Produits ponctuels » dans la Play Console.
-   - [ ] **Test sur le téléphone** : achat d'une carte avec un compte testeur (pas de vrai paiement), carte « Débloquée », restauration après réinstallation.
-   - [ ] **Ménage RevenueCat** : `~/.config/detour/revenuecat.env` supprimé, doc à jour. Reste (toi) : révoquer les deux clés et supprimer le projet RevenueCat. Doc : `CLAUDE.md` (stack : paiements par les stores), `discover.md`, `docs/README.md`, `docs/runbook.md` (section Play Console à la place de RevenueCat).
+   - [x] **Test sur le téléphone** (2026-10-11, build du test interne `com.b9r9.dtour`, compte testeur de licence) : Bordeaux puis Gironde achetées par la vraie fenêtre Google Play, les deux passent à « Débloquée » et le bouton disparaît ; « Restaurer mes achats » répond « Achats restaurés. » et garde les deux. Prix affichés TVA comprise (4,99 € devient 5,99 €). Pas vu : restauration après désinstallation/réinstallation, achat de la France entière.
+   - [x] **Ménage RevenueCat** : `~/.config/detour/revenuecat.env` supprimé, doc à jour (`.claude/CLAUDE.md`, `docs/product-concept.md`, `docs/README.md`, `docs/runbook.md` : plus aucune mention hors historique). Reste (toi) : révoquer les deux clés et supprimer le projet RevenueCat.
+   - Décision du 2026-10-11 : pas de compte Apple pour l'instant (trop cher), on reste sur Android. Le code `expo-iap` couvre déjà StoreKit, mais rien n'est configuré ni testé côté iOS.
    Vérifié le 2026-10-11 : typecheck, lint, 67 tests ; development build avec `expo-iap` installé, `BILLING` dans le manifeste fusionné, activité `singleTop`, pas de crash ; « Restaurer mes achats » répond « Achats restaurés. » (connexion à Google Play OK) ; toutes les cartes « À débloquer » sans bouton tant que la Play Console n'a pas de produits.
-8. [ ] **Tests** : `findArea` (grande ville avant département), collecte (Bordeaux hors Gironde), achat sandbox iOS et Android, restauration sur un autre appareil.
-9. [ ] **Doc** : `docs/README.md`, `docs/runbook.md` (ajouter un département), `CLAUDE.md`, bilan.
+7c. [ ] **Script produits et prix pour toute la France** (demande du 2026-10-11, à faire plus tard) : un script serveur lit les zones (`areas`, départements et grandes villes), calcule un prix par zone (règle : ville < département < France ; ville selon son attrait, par exemple nombre de lieux ou population) et écrit le fichier d'import CSV des produits intégrés de la Play Console (`map_<id>` avec `_`). Pas d'API Google : l'import CSV évite un compte de service. Le prix France (`map_france`) vient de la somme ou d'un plafond fixé à la main. Grille du 2026-10-11 : ville 1,99 €, ville attractive 2,99 €, département 4,99 €, pays 19,99 €. « Attractive » = les grandes villes qui accueillent le plus de tourisme (2026-10-11). Aucune donnée de tourisme dans notre base : liste à la main dans le script, à valider par toi (proposition : Paris, Nice, Marseille, Lyon, Bordeaux, Strasbourg, Montpellier, Toulouse, Nantes, Lille, Aix-en-Provence, Annecy), plus Rouen, Nîmes, Dijon, Toulon ajoutées le 2026-10-11. Les autres villes de plus de 100 000 habitants sont à 1,99 €, sauf les villes de banlieue (Villeurbanne, Boulogne-Billancourt, Argenteuil, Montreuil, Saint-Denis 93) gardées à prix réduit (0,99 €, proposé le 2026-10-11, à confirmer). Liste des banlieues à la main. Paris (département et commune) : une seule carte « Paris » à 2,99 €, sans carte département (validé le 2026-10-11). 0,99 € validé.
+   - Décision du 2026-10-11 : **zones touristiques**. En plus des villes de plus de 100 000 habitants, une liste à la main de sites touristiques (Mont-Saint-Michel, Étretat, Carcassonne, Chamonix…) devient une zone à part, retirée de son département, au prix « attractive » 2,99 €. Touche : collecte (`ST_Difference` comme pour les grandes villes, limite OSM du site), `areas`, règle de `.claude/CLAUDE.md` et `docs/product-concept.md` (« grandes villes » devient « grandes villes et sites touristiques »), prix de la carte offerte (un site n'est jamais offert). À faire avant le script : liste des sites validée par toi.
+   Plan 7c (à valider, 2026-10-11) :
+   - [x] 1. `server/src/collect/pricing.ts` : listes à la main (villes attractives, banlieues) et `priceOf(zone)` (fonction pure, testée) : département 4,99, attractive ou site 2,99, banlieue 0,99, autre ville 1,99, France 19,99. Paris : département et ville fusionnés.
+   - [x] 2. `touristSites.ts` : sites par département, retrouvés par nom de commune dans la limite du département (même requête Overpass que les grandes villes, filtrée par nom au lieu de `population`). Ids `<département>-<slug>` comme les grandes villes. `saveDepartment` ne change pas (il reçoit déjà une liste de zones). Fait le 2026-10-11 : `fetchCommuneByName` vérifié sur Overpass en ligne (Arcachon trouvé dans la Gironde, nom inconnu donne `null`), 24 tests serveur verts. Pas encore collecté : un site introuvable est signalé par un avertissement, il ne bloque pas la collecte.
+   - [ ] 3. `npm run products` : lit `areas` + `pricing.ts`, écrit `products.csv` (format d'import de la Play Console, à vérifier dans la console avant d'écrire le code) avec `map_france`.
+   - [~] 4. `DEPARTMENT_SOURCES` : les 101 départements avec leur relation OSM (à récupérer par Overpass, pas de saisie à la main), collecte France entière (jobs hebdo plus longs : à mesurer, quotas Overpass). Fait le 2026-10-11 : 97 départements de métropole dans `departments.ts` (relations lues sur Overpass ; Rhône et Métropole de Lyon séparés, Corse 2A et 2B ; Paris sans découpe de ville ; DOM-TOM pas inclus). Testé en local sur la Manche : 3 266 lieux, Mont-Saint-Michel zone à part avec 44 lieux. Reste : collecte des autres départements en ligne (Overpass répond souvent 504, trois essais de 30 s), mesure de la durée du job hebdo.
+   - [ ] 5. Doc (`.claude/CLAUDE.md`, `docs/product-concept.md`, `docs/README.md`, `docs/runbook.md`), tests, bilan.
+8. [ ] **Tests** : `findArea` (grande ville avant département), collecte (Bordeaux hors Gironde), achat Android (fait pour Bordeaux et Gironde ; reste la France entière), restauration après réinstallation. Achat iOS : reporté (pas de compte Apple).
+9. [ ] **Doc** : `docs/README.md`, `docs/runbook.md` (ajouter un département), `.claude/CLAUDE.md`, bilan.
 
-Fait le 2026-10-10 (étapes 1 à 5, en local) : collecte Gironde (5355 lieux, Bordeaux 1644, 50 km² retirés) et Landes (3493 lieux, Biscarrosse dedans), 61 tests app et tests serveur verts. En ligne le 2026-10-10 : migration appliquée, Landes, Gironde et Bordeaux collectés, API Render servant `/areas` (3 zones). Fait sur le téléphone le 2026-10-10 : migration 6 passée, Landes en `free`, 3 493 lieux en cache, Piscine toujours « Découvert », 4 min sans erreur. Corrigé en passant : la tâche de fond fermait la connexion SQLite partagée avec l'app (voir `tasks/lessons.md`). Pas vu : une zone bloquée sur le téléphone (il faudrait être en Gironde), couverte par les tests.
+Fait le 2026-10-10 (étapes 1 à 5, en local) : collecte Gironde (5355 lieux, Bordeaux 1644, 50 km² retirés) et Landes (3493 lieux, Biscarrosse dedans), 61 tests app et tests serveur verts. En ligne le 2026-10-10 : migration appliquée, Landes, Gironde et Bordeaux collectés, API Render servant `/areas` (3 zones). Fait sur le téléphone le 2026-10-10 : migration 6 passée, Landes en `free`, 3 493 lieux en cache, Piscine toujours « Découvert », 4 min sans erreur. Corrigé en passant : la tâche de fond fermait la connexion SQLite partagée avec l'app (voir `.claude/lessons.md`). Pas vu : une zone bloquée sur le téléphone (il faudrait être en Gironde), couverte par les tests.
 Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `features/maps/ownership.ts`, `isUnlocked` passe par `mapStatus`. Vu sur le téléphone : Landes « Offerte », Gironde et Bordeaux « À débloquer », 62 tests verts.
 Écarts : `kind` remplacé par `department_id` (nul = département). Chemins dévoilés aussi en zone bloquée. Ids de grande ville préfixés (`gironde-bordeaux`) car Saint-Denis existe deux fois. Réponse Gironde de 750 Ko sans compression : gzip à ajouter si ça gêne. Reste ouvert : Paris, département et commune à la fois (département vide après découpage) ; un lieu perso créé en zone bloquée y dévoile 150 m.
 
@@ -390,7 +399,7 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 - Brouillard calculé par tuiles de 0,005° avec `polygon-clipping` : 500 lieux + 20 000 points en environ 1,2 s sur Mac, un nouveau point en moins de 50 ms. Bords adoucis par une ligne floutée découpée par tuile.
 - Chemin : points à 20 m minimum, précision 50 m ou mieux, coupure au-delà de 200 m, simplification à 5 m. Arrière-plan via tâche `walked-path-tracking` et service de premier plan Android ; sinon l'app ouverte enregistre.
 - Vérifié : 18 tests, typecheck, lint, format, `expo-doctor` 21/21, sur le téléphone : carte, brouillard, position, notification de fond, réglage Profil qui coupe et relance le service.
-- 3 bugs vus seulement sur le téléphone : `RECEIVE_BOOT_COMPLETED` manquante (crash), tâche enregistrée sans service après le crash, deux enregistrements simultanés. Corrigés, détaillés dans `tasks/lessons.md` et `docs/runbook.md`.
+- 3 bugs vus seulement sur le téléphone : `RECEIVE_BOOT_COMPLETED` manquante (crash), tâche enregistrée sans service après le crash, deux enregistrements simultanés. Corrigés, détaillés dans `.claude/lessons.md` et `docs/runbook.md`.
 - Reste : une vraie balade (app ouverte puis écran éteint) et la fluidité sur téléphone avec beaucoup de données.
 
 ### Phase 3
@@ -431,7 +440,14 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 ### Phase 5b
 - Projet Supabase `detour` en ligne (Paris, offre gratuite) : migration de la 5a, collecte, RLS vérifiée (la clé publique ne lit rien).
 - Connexion par code e-mail à 6 chiffres (10 min, une demande par minute), modèle français, envoi par Resend depuis `onboarding@resend.dev` (seul le titulaire du compte Resend reçoit les codes). Config dans `server/supabase/config.toml`, poussée par `supabase config push` ; SMTP seulement pour le projet en ligne, Mailpit en local.
-- App : section Compte dans Profil, session `supabase-js` dans le `localStorage` d'`expo-sqlite`. 1 dépendance : `@supabase/supabase-js`. Exception Auth notée dans `CLAUDE.md`.
+- App : section Compte dans Profil, session `supabase-js` dans le `localStorage` d'`expo-sqlite`. 1 dépendance : `@supabase/supabase-js`. Exception Auth notée dans `.claude/CLAUDE.md`.
+
+## Réorganisation des documents et consignes — 2026-10-12
+
+- [x] Déplacer les consignes Claude et les leçons d'agent dans `.claude/`.
+- [x] Garder le concept produit et la roadmap dans `docs/`.
+- [x] Mettre à jour les références dans les consignes, la documentation et la roadmap.
+- Vérification : références aux anciens chemins absentes ; instructions Claude confirmées par la documentation officielle.
 - API : `DELETE /me` (jeton vérifié par Supabase Auth, suppression avec la clé secrète, `fetch` seul). Délai de 10 s partagé (`fetchWithTimeout`) pour les appels de l'app.
 - En ligne : API Render `detour-api` (https://detour-api-30ul.onrender.com, gratuite) ; collecte chaque lundi par GitHub Actions (Render exige une carte pour un cron).
 - Vérifié : 56 tests app, 18 serveur, typecheck, lint, format ; workflow de collecte lancé (106 lieux) ; sur le téléphone à travers Render : lieux, connexion, session gardée, suppression du compte. Journaux Render : méthode, chemin, statut seulement.
