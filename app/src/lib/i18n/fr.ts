@@ -1,5 +1,6 @@
 export const fr = {
   'tabs.map': 'Carte',
+  'tabs.walks': 'Balades',
   'tabs.photo': 'Photo',
   'tabs.circle': 'Cercle',
   'tabs.profile': 'Profil',

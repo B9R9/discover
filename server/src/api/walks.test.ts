@@ -35,9 +35,28 @@ const walk = {
   ],
 };
 
-test('walk routes need a session', async () => {
+test('walks other than a plain GET need a session', async () => {
   const { services } = setup();
-  assert.equal((await route({ method: 'GET', pathname: '/walks' }, services)).status, 401);
+  assert.equal((await route({ method: 'POST', pathname: '/walks' }, services)).status, 401);
+  assert.equal(
+    (
+      await route(
+        { method: 'DELETE', pathname: '/walks/00000000-0000-4000-8000-000000000001' },
+        services,
+      )
+    ).status,
+    401,
+  );
+});
+
+test('a visitor without a session sees only the walks made by Détour', async () => {
+  const { as, services } = setup();
+  await as('a', 'POST', '/walks', walk);
+  const reply = await route({ method: 'GET', pathname: '/walks' }, services);
+  assert.equal(reply.status, 200);
+  const list = (reply.body as { walks: { pseudo: string | null }[] }).walks;
+  assert.equal(list.length, 1);
+  assert.equal(list[0]?.pseudo, null);
 });
 
 test('a walk is created with server-computed metrics, listed and deleted', async () => {

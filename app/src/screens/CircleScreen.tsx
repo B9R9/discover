@@ -6,7 +6,6 @@ import { AccountSection } from '@/components/AccountSection';
 import { FriendMapModal } from '@/components/FriendMapModal';
 import { FriendsList } from '@/components/FriendsList';
 import { MyMapSection } from '@/components/MyMapSection';
-import { WalksSection } from '@/components/WalksSection';
 import { PostCard } from '@/components/PostCard';
 import { PseudoForm } from '@/components/PseudoForm';
 import { Screen } from '@/components/Screen';
@@ -60,7 +59,6 @@ export function CircleScreen() {
                 />
               ))}
               <FriendsList list={circle.list} onChanged={reload} onOpenMap={setMapOf} />
-              <WalksSection />
               <MyMapSection />
               <AddFriendForm onSent={reload} />
             </>

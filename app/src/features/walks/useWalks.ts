@@ -4,17 +4,16 @@ import { useCallback, useState } from 'react';
 
 import { fetchWalks } from '@/features/social/walksApi';
 
-// The walks made by Détour and those of the user and their friends; read again when the tab comes into view.
-export function useWalks(signedIn: boolean): [SharedWalk[], () => void] {
+// The walks made by Détour, and those of the user and their friends when signed in; read again when the tab comes into view.
+export function useWalks(): [SharedWalk[], () => void] {
   const [walks, setWalks] = useState<SharedWalk[]>([]);
   const reload = useCallback(() => {
-    if (!signedIn) return;
     fetchWalks()
       .then((result) => {
         if (result.ok) setWalks(result.value);
       })
       .catch(console.warn);
-  }, [signedIn]);
+  }, []);
 
   useFocusEffect(reload);
   return [walks, reload];

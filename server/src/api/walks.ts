@@ -22,6 +22,11 @@ export async function walksRoute(
   const walk = WALK.exec(pathname);
   if (pathname !== '/walks' && !walk) return null;
 
+  // Walks made by Détour are open to everyone: a plain GET without a session lists only those.
+  if (pathname === '/walks' && method === 'GET' && !authorization) {
+    return { status: 200, body: { walks: await walks.list(null) } };
+  }
+
   const user = await authenticate(authorization, auth);
   if (typeof user !== 'string') return user;
 

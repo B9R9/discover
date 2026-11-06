@@ -31,7 +31,7 @@ export function parseWalks(body: unknown): SharedWalk[] | null {
 }
 
 export async function fetchWalks(): Promise<SocialResult<SharedWalk[]>> {
-  return toResult(await call('/walks', 'GET'), parseWalks);
+  return toResult(await call('/walks', 'GET', undefined, true), parseWalks);
 }
 
 // Only the snapped path and a name leave the phone: the server computes distance and duration.

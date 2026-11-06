@@ -12,7 +12,8 @@ export interface WalksStore {
     metrics: WalkMetrics,
   ): Promise<string | null>;
   // Walks made by Détour, then the user's and their friends', without hidden walks or blocked users.
-  list(userId: string): Promise<SharedWalk[]>;
+  // `null` for a visitor without a session: only the walks made by Détour.
+  list(userId: string | null): Promise<SharedWalk[]>;
   // False when the walk is not this user's.
   remove(userId: string, walkId: string): Promise<boolean>;
   report(userId: string, walkId: string): Promise<'ok' | 'unknown' | 'own'>;

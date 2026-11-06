@@ -15,10 +15,10 @@ import { DrawWalkModal } from './DrawWalkModal';
 import { WalkViewerModal } from './WalkViewerModal';
 
 // Walks made by Détour, by the user and by their friends, and the way to draw a new one.
-export function WalksSection() {
+export function WalksSection({ signedIn }: { signedIn: boolean }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const [walks, reload] = useWalks(true);
+  const [walks, reload] = useWalks();
   const [viewed, setViewed] = useState<SharedWalk | null>(null);
   const [drawing, setDrawing] = useState(false);
   const [message, setMessage] = useState<TranslationKey | null>(null);
@@ -34,9 +34,6 @@ export function WalksSection() {
 
   return (
     <View style={styles.box}>
-      <Text style={styles.section} accessibilityRole="header">
-        {t('walks.title')}
-      </Text>
       {walks.length === 0 && <Text style={styles.hint}>{t('walks.empty')}</Text>}
       {walks.map((walk) => (
         <View key={walk.id} style={styles.row}>
@@ -51,14 +48,14 @@ export function WalksSection() {
           </Text>
           <View style={styles.actions}>
             <Button label={t('walks.view')} variant="primary" onPress={() => setViewed(walk)} />
-            {walk.mine && (
+            {signedIn && walk.mine && (
               <Button
                 label={t('walks.delete')}
                 variant="secondary"
                 onPress={go(() => deleteWalk(walk.id))}
               />
             )}
-            {!walk.mine && walk.pseudo !== null && (
+            {signedIn && !walk.mine && walk.pseudo !== null && (
               <Button
                 label={t('walks.report')}
                 variant="secondary"
@@ -73,7 +70,11 @@ export function WalksSection() {
           {t(message)}
         </Text>
       )}
-      <Button label={t('walks.draw')} onPress={() => setDrawing(true)} />
+      {signedIn ? (
+        <Button label={t('walks.draw')} onPress={() => setDrawing(true)} />
+      ) : (
+        <Text style={styles.hint}>{t('walks.signIn')}</Text>
+      )}
       <WalkViewerModal walk={viewed} onClose={() => setViewed(null)} />
       <DrawWalkModal
         visible={drawing}

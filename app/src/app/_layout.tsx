@@ -46,8 +46,9 @@ function App() {
   return (
     <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: t('tabs.map') }} />
-      <Tabs.Screen name="circle" options={{ title: t('tabs.circle') }} />
+      <Tabs.Screen name="walks" options={{ title: t('tabs.walks') }} />
       <Tabs.Screen name="photo" options={{ title: t('tabs.photo') }} />
+      <Tabs.Screen name="circle" options={{ title: t('tabs.circle') }} />
       <Tabs.Screen name="profile" options={{ title: t('tabs.profile') }} />
     </Tabs>
   );

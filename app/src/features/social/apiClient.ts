@@ -43,16 +43,22 @@ function parse(text: string): unknown {
 }
 
 // Only a pseudo and a session token leave the phone: no position, no game data.
-export async function call(path: string, method: string, body?: unknown): Promise<Answer | null> {
+// `anonymous` lets a visitor without a session read what is open to everyone (the walks made by Détour).
+export async function call(
+  path: string,
+  method: string,
+  body?: unknown,
+  anonymous = false,
+): Promise<Answer | null> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   const baseUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (!token || !baseUrl) return null;
+  if ((!token && !anonymous) || !baseUrl) return null;
   try {
     const response = await fetchWithTimeout(`${baseUrl}${path}`, {
       method,
       headers: {
-        authorization: `Bearer ${token}`,
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
         ...(body === undefined ? {} : { 'content-type': 'application/json' }),
       },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),

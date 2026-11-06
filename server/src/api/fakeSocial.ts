@@ -245,7 +245,7 @@ export function fakeWalks(hasProfile: (user: string) => boolean = () => true): W
       Promise.resolve([
         official,
         ...[...walks.values()]
-          .filter((walk) => walk.author === user)
+          .filter((walk) => user !== null && walk.author === user)
           .map(({ author: _author, ...walk }) => walk),
       ]),
     remove: (user, id) => {
