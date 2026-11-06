@@ -375,11 +375,16 @@ Découpage en quatre étapes livrables chacune seule :
 
 Hors phase 7 : événements (questions ouvertes), messagerie, notifications push.
 
-À trancher avant 7a :
-1. Pseudo seul, ou nom affiché en plus ?
-2. Photos partagées : Supabase Storage (offre gratuite 1 Go) ou autre ?
-3. Modération au lancement : validation manuelle par toi, ou signalements seulement ?
-4. Faut-il un e-mail à nous (domaine + SMTP) dès 7a ? Les codes de connexion n'arrivent qu'aux membres de l'équipe Supabase tant que ce n'est pas fait, donc des amis ne pourraient pas se connecter pour tester.
+Décisions du 2026-11-06 :
+1. Pseudo seul, pas de nom affiché.
+2. Photos partagées dans Supabase Storage (offre gratuite, 1 Go).
+3. Modération au lancement : par signalements d'abus seulement, pas de validation manuelle avant publication.
+4. E-mail à nous (domaine + SMTP Resend) avant 7a, pour que des amis puissent recevoir le code de connexion. Étape 7-0 ci-dessous.
+
+**7-0. E-mail de connexion** (avant 7a)
+- [ ] Choisir le domaine d'envoi et ajouter ses enregistrements DNS (SPF, DKIM) chez Resend
+- [ ] Brancher le SMTP Resend dans `server/supabase/config.toml` puis `supabase config push`
+- [ ] Vérifier : un code arrive chez une adresse hors équipe Supabase
 
 ## Phase 8 : Finition et publication
 - [ ] Gestion d'erreurs (GPS refusé, caméra refusée, hors ligne, serveur indisponible)
