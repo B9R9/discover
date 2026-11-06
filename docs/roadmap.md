@@ -378,7 +378,7 @@ Découpage en quatre étapes livrables chacune seule :
 - Serveur : table `shared_maps` (une ligne par utilisateur, 5000 lieux au plus), `PUT/GET/DELETE /me/map`, `GET /friends/:pseudo/map` (amis acceptés et non bloqués, sinon 404). Limite du corps JSON portée à 256 Ko.
 - App : section « Ma carte partagée » dans Cercle ; bouton « Voir sa carte » sur chaque ami ; la carte de l'ami s'ouvre en lecture seule dans une fenêtre, brouillard levé autour de ses lieux.
 - Limite connue : la position d'un lieu vient du cache de CE téléphone. Les lieux d'un ami situés dans des départements que tu n'as pas ne s'affichent pas (le compteur dit « N lieux découverts, M sur ta carte »). Un jour, le serveur pourrait renvoyer les positions.
-- Chargement de la carte : un écran « Chargement de la carte… » couvre la carte tant que son style n'est pas chargé (carte principale et carte d'un ami), et un message d'échec si le chargement échoue.
+- Chargement de la carte : un écran « Chargement de la carte… » couvre la carte tant que son style n'est pas chargé (carte principale et carte d'un ami), et un message d'échec si le chargement échoue. Habillé ensuite avec le design « Chargement » (`LoadingScene`, animation Reanimated, points du chemin calculés dans `lib/routeDots.ts`). Pas encore utilisé au lancement de l'app (`_layout` renvoie null pendant les polices) : à décider.
 
 **7d-1. Spots publics** (plan du 2026-11-07, commencé dans la foulée de ta demande « enchaîne »)
 - L'utilisateur propose un de ses lieux `public` avec un genre (jamais un domicile `private`). Ce qui part : nom, genre, position exacte du lieu (il le sait : texte explicite et bouton de confirmation). Pas de photo au départ.
