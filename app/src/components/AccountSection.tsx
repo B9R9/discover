@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import {
@@ -10,7 +10,8 @@ import {
 } from '@/features/account/account';
 import { useSession } from '@/features/account/useSession';
 import { t, type TranslationKey } from '@/lib/i18n/t';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 import { Button } from './Button';
 
@@ -18,6 +19,8 @@ type Step = 'email' | 'code';
 
 // Optional account: the game works the same without one.
 export function AccountSection() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const session = useSession();
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
@@ -111,7 +114,7 @@ export function AccountSection() {
             value={email}
             onChangeText={setEmail}
             placeholder={t('account.emailPlaceholder')}
-            placeholderTextColor={palette.light.textMuted}
+            placeholderTextColor={colors.muted}
             accessibilityLabel={t('account.emailLabel')}
             autoCapitalize="none"
             autoComplete="email"
@@ -131,7 +134,7 @@ export function AccountSection() {
             onChangeText={setCode}
             accessibilityLabel={t('account.codeLabel')}
             placeholder="123456"
-            placeholderTextColor={palette.light.textMuted}
+            placeholderTextColor={colors.muted}
             keyboardType="number-pad"
             autoComplete="one-time-code"
             textContentType="oneTimeCode"
@@ -165,19 +168,21 @@ export function AccountSection() {
   );
 }
 
-const styles = StyleSheet.create({
-  section: { gap: spacing.md, marginTop: spacing.xxl },
-  title: { fontSize: 18, lineHeight: 24, fontWeight: '600', color: palette.light.text },
-  text: { fontSize: 16, lineHeight: 24, color: palette.light.text },
-  hint: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted },
-  input: {
-    borderWidth: 1,
-    borderColor: palette.light.border,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.md,
-    minHeight: 44,
-    fontSize: 16,
-    color: palette.light.text,
-  },
-  error: { fontSize: 14, lineHeight: 20, color: palette.state.error },
-});
+const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    section: { gap: spacing.md, marginTop: spacing.xxl },
+    title: { fontFamily: fonts.title, fontSize: 18, lineHeight: 24, color: c.ink },
+    text: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
+    hint: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
+    input: {
+      fontFamily: fonts.body,
+      borderWidth: 1,
+      borderColor: c.ink,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      minHeight: 44,
+      fontSize: 16,
+      color: c.ink,
+    },
+    error: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.stamp },
+  });

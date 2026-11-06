@@ -1,5 +1,5 @@
 import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -17,7 +17,8 @@ import { editPersonalPlace, type PlaceDetails } from '@/features/photo/createPer
 import { removePersonalPlace } from '@/features/photo/managePersonalPlace';
 import { categoryLabel, formatDay } from '@/lib/format';
 import { t, type TranslationKey } from '@/lib/i18n/t';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 import { Button } from './Button';
 import { PersonalPlaceForm } from './PersonalPlaceForm';
@@ -32,6 +33,8 @@ type Mode = 'view' | 'edit' | 'confirmDelete';
 
 // Server places open read-only: only places the user created can be edited or deleted.
 export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailModalProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const db = useSQLiteContext();
   const [personal, setPersonal] = useState<PersonalPlace | null>(null);
   const [mode, setMode] = useState<Mode>('view');
@@ -152,19 +155,20 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
   );
 }
 
-const styles = StyleSheet.create({
-  keyboard: { flex: 1 },
-  screen: { flex: 1, backgroundColor: palette.light.background, padding: spacing.lg },
-  content: { gap: spacing.md },
-  photo: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: radius.photo,
-    backgroundColor: palette.light.fog,
-  },
-  name: { fontSize: 22, lineHeight: 28, fontWeight: '600', color: palette.light.text },
-  meta: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted },
-  warning: { fontSize: 16, lineHeight: 24, color: palette.light.text },
-  error: { fontSize: 14, lineHeight: 20, color: palette.state.error },
-  actions: { gap: spacing.sm, marginTop: spacing.md },
-});
+const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    keyboard: { flex: 1 },
+    screen: { flex: 1, backgroundColor: c.paper, padding: spacing.lg },
+    content: { gap: spacing.md },
+    photo: {
+      width: '100%',
+      aspectRatio: 1,
+      borderRadius: radius.photo,
+      backgroundColor: c.fog,
+    },
+    name: { fontFamily: fonts.title, fontSize: 22, lineHeight: 28, color: c.ink },
+    meta: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
+    warning: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
+    error: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.stamp },
+    actions: { gap: spacing.sm, marginTop: spacing.md },
+  });

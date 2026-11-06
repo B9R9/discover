@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -7,7 +8,8 @@ import { useMaps } from '@/features/maps/useMaps';
 import { COUNTRY_MAP, mapProductId } from '@/features/purchases/mapProducts';
 import { useStore } from '@/features/purchases/StoreProvider';
 import { t, type TranslationKey } from '@/lib/i18n/t';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 const STATUS_LABEL: Record<MapStatus, TranslationKey> = {
   free: 'maps.free',
@@ -26,6 +28,8 @@ interface MapRowProps {
 }
 
 function MapRow({ name, description, status, indented = false, price, onBuy }: MapRowProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={[styles.row, indented && styles.city]}>
       <View style={styles.texts}>
@@ -54,6 +58,8 @@ function MapRow({ name, description, status, indented = false, price, onBuy }: M
 
 // ponytail: plain list, fine for a few departments; FlatList with search once all of France is collected.
 export function MapsSection() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { maps, country, prices } = useMaps(useSQLiteContext());
   const { message, buy, restore } = useStore();
   const countryProduct = mapProductId(COUNTRY_MAP);
@@ -92,37 +98,45 @@ export function MapsSection() {
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    minHeight: 56,
-    paddingVertical: spacing.sm,
-  },
-  texts: { flex: 1 },
-  city: { paddingLeft: spacing.lg },
-  name: { fontSize: 16, lineHeight: 24, color: palette.light.text },
-  description: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted },
-  status: { fontSize: 14, lineHeight: 20, fontWeight: '500', color: palette.light.text },
-  locked: { fontWeight: '400', color: palette.light.textMuted },
-  buy: {
-    borderWidth: 1,
-    borderColor: palette.light.border,
-    borderRadius: radius.round,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    minHeight: 36,
-    justifyContent: 'center',
-  },
-  pressed: { opacity: 0.8 },
-  buyText: { fontSize: 14, lineHeight: 20, fontWeight: '600', color: palette.light.text },
-  hint: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted, marginTop: spacing.sm },
-  restore: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start' },
-  restoreText: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: palette.light.text,
-    textDecorationLine: 'underline',
-  },
-});
+const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      minHeight: 56,
+      paddingVertical: spacing.sm,
+    },
+    texts: { flex: 1 },
+    city: { paddingLeft: spacing.lg },
+    name: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
+    description: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
+    status: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: c.ink },
+    locked: { fontFamily: fonts.body, color: c.muted },
+    buy: {
+      borderWidth: 1,
+      borderColor: c.ink,
+      borderRadius: radius.round,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      minHeight: 36,
+      justifyContent: 'center',
+    },
+    pressed: { opacity: 0.8 },
+    buyText: { fontFamily: fonts.bodyBold, fontSize: 14, lineHeight: 20, color: c.ink },
+    hint: {
+      fontFamily: fonts.body,
+      fontSize: 14,
+      lineHeight: 20,
+      color: c.muted,
+      marginTop: spacing.sm,
+    },
+    restore: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start' },
+    restoreText: {
+      fontFamily: fonts.body,
+      fontSize: 14,
+      lineHeight: 20,
+      color: c.ink,
+      textDecorationLine: 'underline',
+    },
+  });

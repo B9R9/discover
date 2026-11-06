@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { SPOT_GENRES, type SpotGenre, type Visibility } from '@/db/personalPlaces';
 import { MAX_NAME_LENGTH, type PlaceDetails } from '@/features/photo/createPersonalPlace';
 import { t, type TranslationKey } from '@/lib/i18n/t';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 import { Button } from './Button';
 
@@ -36,6 +37,8 @@ export function PersonalPlaceForm({
   onCancel,
   onEdit,
 }: PersonalPlaceFormProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [name, setName] = useState(initial?.name ?? '');
   const [visibility, setVisibility] = useState<Visibility>(initial?.visibility ?? 'private');
   const [genre, setGenre] = useState<SpotGenre | null>(initial?.genre ?? null);
@@ -56,7 +59,7 @@ export function PersonalPlaceForm({
           onEdit();
         }}
         placeholder={t('personal.namePlaceholder')}
-        placeholderTextColor={palette.light.textMuted}
+        placeholderTextColor={colors.muted}
         accessibilityLabel={t('personal.nameLabel')}
         maxLength={MAX_NAME_LENGTH}
         autoFocus={!initial}
@@ -117,44 +120,46 @@ export function PersonalPlaceForm({
   );
 }
 
-const styles = StyleSheet.create({
-  scroll: { alignSelf: 'stretch', flexGrow: 0, flexShrink: 1 },
-  card: {
-    backgroundColor: palette.light.surface,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-  title: { fontSize: 18, lineHeight: 24, fontWeight: '600', color: palette.light.text },
-  input: {
-    borderWidth: 1,
-    borderColor: palette.light.border,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.md,
-    minHeight: 44,
-    fontSize: 16,
-    color: palette.light.text,
-  },
-  kinds: { gap: spacing.sm },
-  kind: {
-    borderWidth: 1,
-    borderColor: palette.light.border,
-    borderRadius: radius.sm,
-    padding: spacing.md,
-  },
-  genres: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  genre: {
-    borderWidth: 1,
-    borderColor: palette.light.border,
-    borderRadius: radius.round,
-    paddingHorizontal: spacing.md,
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  genreLabel: { fontSize: 14, lineHeight: 20, color: palette.light.text },
-  kindSelected: { borderColor: palette.light.text, borderWidth: 2 },
-  label: { fontSize: 16, lineHeight: 24, color: palette.light.text },
-  hint: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted },
-  error: { fontSize: 14, lineHeight: 20, color: palette.state.error },
-  actions: { gap: spacing.sm },
-});
+const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    scroll: { alignSelf: 'stretch', flexGrow: 0, flexShrink: 1 },
+    card: {
+      backgroundColor: c.paperWhite,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+      gap: spacing.md,
+    },
+    title: { fontFamily: fonts.title, fontSize: 18, lineHeight: 24, color: c.ink },
+    input: {
+      fontFamily: fonts.body,
+      borderWidth: 1,
+      borderColor: c.ink,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      minHeight: 44,
+      fontSize: 16,
+      color: c.ink,
+    },
+    kinds: { gap: spacing.sm },
+    kind: {
+      borderWidth: 1,
+      borderColor: c.ink,
+      borderRadius: radius.sm,
+      padding: spacing.md,
+    },
+    genres: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    genre: {
+      borderWidth: 1,
+      borderColor: c.ink,
+      borderRadius: radius.round,
+      paddingHorizontal: spacing.md,
+      minHeight: 44,
+      justifyContent: 'center',
+    },
+    genreLabel: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.ink },
+    kindSelected: { borderColor: c.ink, borderWidth: 2 },
+    label: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
+    hint: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
+    error: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.stamp },
+    actions: { gap: spacing.sm },
+  });

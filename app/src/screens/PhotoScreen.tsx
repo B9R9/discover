@@ -1,7 +1,7 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useIsFocused, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -18,10 +18,13 @@ import {
 import { canCreatePersonalPlace, type PlaceDetails } from '@/features/photo/createPersonalPlace';
 import { usePlaceInRange } from '@/features/photo/usePlaceInRange';
 import { t, type TranslationKey } from '@/lib/i18n/t';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 // No gallery import: a place is only discovered by a photo taken on the spot.
 export function PhotoScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const db = useSQLiteContext();
   const router = useRouter();
   const focused = useIsFocused();
@@ -157,33 +160,46 @@ export function PhotoScreen() {
 
 const SHUTTER_SIZE = 76;
 
-const styles = StyleSheet.create({
-  keyboard: { flex: 1 },
-  screen: { flex: 1, backgroundColor: palette.light.text },
-  body: { fontSize: 16, lineHeight: 24, color: palette.light.text, marginTop: spacing.lg },
-  actions: { marginTop: 'auto' },
-  overlay: {
-    flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  message: {
-    backgroundColor: palette.light.surface,
-    borderRadius: radius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-  },
-  messageText: { fontSize: 16, lineHeight: 24, color: palette.light.text, textAlign: 'center' },
-  shutter: {
-    marginTop: 'auto',
-    width: SHUTTER_SIZE,
-    height: SHUTTER_SIZE,
-    borderRadius: radius.round,
-    backgroundColor: palette.light.accent,
-    borderWidth: 4,
-    borderColor: palette.light.surface,
-  },
-  shutterPressed: { opacity: 0.8 },
-  shutterDisabled: { opacity: 0.5 },
-});
+const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    keyboard: { flex: 1 },
+    screen: { flex: 1, backgroundColor: c.ink },
+    body: {
+      fontFamily: fonts.body,
+      fontSize: 16,
+      lineHeight: 24,
+      color: c.ink,
+      marginTop: spacing.lg,
+    },
+    actions: { marginTop: 'auto' },
+    overlay: {
+      flex: 1,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: spacing.lg,
+    },
+    message: {
+      backgroundColor: c.paperWhite,
+      borderRadius: radius.md,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+    },
+    messageText: {
+      fontFamily: fonts.body,
+      fontSize: 16,
+      lineHeight: 24,
+      color: c.ink,
+      textAlign: 'center',
+    },
+    shutter: {
+      marginTop: 'auto',
+      width: SHUTTER_SIZE,
+      height: SHUTTER_SIZE,
+      borderRadius: radius.round,
+      backgroundColor: c.lantern,
+      borderWidth: 4,
+      borderColor: c.paperWhite,
+    },
+    shutterPressed: { opacity: 0.8 },
+    shutterDisabled: { opacity: 0.5 },
+  });

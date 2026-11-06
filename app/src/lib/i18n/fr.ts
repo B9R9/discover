@@ -42,6 +42,8 @@ export const fr = {
   'place.close': 'Fermer',
   'profile.title': 'Profil',
   'profile.discoveries': 'Mes découvertes',
+  'profile.cover.count': '{count} lieux',
+  'profile.cover.countOne': '1 lieu',
   'profile.noDiscoveries':
     'Pas encore de découverte. Suis une flèche, il y a quelque chose par là.',
   'profile.unknownPlace': 'Lieu disparu',

@@ -1,5 +1,5 @@
 import { useSQLiteContext } from 'expo-sqlite';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
@@ -11,12 +11,15 @@ import {
   requestForegroundLocation,
 } from '@/features/onboarding/onboarding';
 import { t } from '@/lib/i18n/t';
-import { palette, spacing } from '@/theme/tokens';
+import { fonts, spacing, type ThemeColors } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 type Step = 'intro' | 'background' | 'denied';
 
 // Each permission is explained before the system asks for it.
 export function OnboardingScreen({ onDone }: { onDone: () => void }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const db = useSQLiteContext();
   const [step, setStep] = useState<Step>('intro');
 
@@ -69,25 +72,26 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
-  body: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: palette.light.text,
-    marginTop: spacing.lg,
-    // Ensure better text rendering
-    fontWeight: '400',
-    textAlign: 'left',
-    // Prevent text from getting blurry by ensuring good rendering
-    includeFontPadding: false,
-    padding: 0,
-  },
-  actions: {
-    marginTop: 'auto',
-    gap: spacing.md,
-    // Ensure this container has proper layout with clear positioning
-    alignSelf: 'stretch',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    body: {
+      fontFamily: fonts.body,
+      fontSize: 16,
+      lineHeight: 24,
+      color: c.ink,
+      marginTop: spacing.lg,
+      // Ensure better text rendering
+      textAlign: 'left',
+      // Prevent text from getting blurry by ensuring good rendering
+      includeFontPadding: false,
+      padding: 0,
+    },
+    actions: {
+      marginTop: 'auto',
+      gap: spacing.md,
+      // Ensure this container has proper layout with clear positioning
+      alignSelf: 'stretch',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });
