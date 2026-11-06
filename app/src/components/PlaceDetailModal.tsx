@@ -1,14 +1,6 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { DiscoveryWithPhoto } from '@/db/discoveries';
@@ -17,11 +9,13 @@ import { editPersonalPlace, type PlaceDetails } from '@/features/photo/createPer
 import { removePersonalPlace } from '@/features/photo/managePersonalPlace';
 import { categoryLabel, formatDay } from '@/lib/format';
 import { t, type TranslationKey } from '@/lib/i18n/t';
-import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
+import { fonts, spacing, type ThemeColors } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 import { Button } from './Button';
+import { Polaroid } from './Polaroid';
 import { PersonalPlaceForm } from './PersonalPlaceForm';
+import { Stamp } from './Stamp';
 
 interface PlaceDetailModalProps {
   discovery: DiscoveryWithPhoto | null;
@@ -100,17 +94,21 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
           ) : (
             discovery && (
               <ScrollView contentContainerStyle={styles.content}>
-                <Image
-                  source={{ uri: discovery.photoUri }}
-                  style={styles.photo}
-                  resizeMode="cover"
-                />
+                <View style={styles.polaroid}>
+                  <Polaroid
+                    photoUri={discovery.photoUri}
+                    caption={formatDay(discovery.discoveredAt)}
+                    tilt={-2}
+                    accessibilityLabel={name}
+                  />
+                </View>
                 <Text accessibilityRole="header" style={styles.name}>
                   {name}
                 </Text>
-                <Text style={styles.meta}>
-                  {categoryLabel(discovery.category)} · {formatDay(discovery.discoveredAt)}
-                </Text>
+                <View style={styles.metaRow}>
+                  <Text style={styles.meta}>{categoryLabel(discovery.category)}</Text>
+                  <Stamp label={t('places.discovered')} tilt={-6} />
+                </View>
                 {error && <Text style={styles.error}>{t(error)}</Text>}
                 {mode === 'confirmDelete' && (
                   <Text style={styles.warning}>{t('place.deleteWarning')}</Text>
@@ -130,7 +128,7 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
                     <>
                       <Button
                         label={t('place.deleteConfirm')}
-                        variant="secondary"
+                        variant="danger"
                         onPress={() => {
                           remove().catch(console.warn);
                         }}
@@ -160,13 +158,9 @@ const createStyles = (c: ThemeColors) =>
     keyboard: { flex: 1 },
     screen: { flex: 1, backgroundColor: c.paper, padding: spacing.lg },
     content: { gap: spacing.md },
-    photo: {
-      width: '100%',
-      aspectRatio: 1,
-      borderRadius: radius.photo,
-      backgroundColor: c.fog,
-    },
-    name: { fontFamily: fonts.title, fontSize: 22, lineHeight: 28, color: c.ink },
+    polaroid: { paddingHorizontal: spacing.md, paddingTop: spacing.sm },
+    metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    name: { fontFamily: fonts.title, fontSize: 28, lineHeight: 34, color: c.ink },
     meta: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
     warning: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
     error: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.stamp },
