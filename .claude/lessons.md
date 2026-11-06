@@ -8,6 +8,9 @@ Format :
 
 ## Entrées
 
+- **Erreur** : le texte des onglets non sélectionnés utilisait `colors.paper` sur la barre `tabBar`. Correct en clair, presque invisible en sombre (`#1C1A21` sur `#121017`), et je ne l'ai vu qu'après le passage à `userInterfaceStyle: automatic`. Le test de contraste ne couvrait pas ce couple.
+- **Règle** : un texte posé sur un fond propre (barre, bouton, carte) a son token `on<Fond>` dans les deux jeux de couleurs et une ligne dans `tokens.test.ts`. Ne jamais réutiliser `paper` ou `ink` comme couleur de texte sur un fond qui n'est pas celui de la page. Après un changement global de thème, ouvrir chaque écran en clair ET en sombre.
+
 - **Erreur** : j'ai d'abord supposé que les consignes Claude devaient rester à la racine, sans vérifier que Claude Code accepte aussi `.claude/CLAUDE.md`.
 - **Règle** : vérifier les emplacements officiellement chargés par l'outil et distinguer les consignes d'agent des documents produit partagés avant de proposer une organisation.
 

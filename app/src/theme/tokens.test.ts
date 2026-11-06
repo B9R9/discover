@@ -29,6 +29,7 @@ describe.each(themes)('%s theme', (_name, c) => {
     [c.stamp, c.paper],
     [c.stamp, c.paperWhite],
     [c.onStamp, c.stamp],
+    [c.onTabBar, c.tabBar],
     [c.postalText, c.paper],
     [c.brownStamp, c.paper],
   ];

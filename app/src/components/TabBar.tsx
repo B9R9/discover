@@ -70,7 +70,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               style={styles.item}
             >
               <Text
-                style={[styles.label, { color: focused ? colors.lantern : colors.paper }]}
+                style={[styles.label, { color: focused ? colors.lantern : colors.onTabBar }]}
                 numberOfLines={1}
               >
                 {title}
