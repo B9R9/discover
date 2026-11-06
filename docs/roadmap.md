@@ -346,6 +346,41 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 - [ ] Événements : à préciser (voir questions ouvertes)
 - [ ] Test : une photo partagée ne contient aucune donnée EXIF de position
 
+### Plan détaillé phase 7 : social (proposé le 2026-11-06, à valider)
+
+Principe : l'app reste jouable sans compte. Le compte n'est demandé que pour partager, commenter ou laisser une balade. Rien ne part sans confirmation. Les chemins parcourus et la position ne partent jamais.
+
+Découpage en quatre étapes livrables chacune seule :
+
+**7a. Profil public et amis** (base de tout le reste)
+- Table `profiles` (id = utilisateur Supabase, pseudo unique, créé à la première action sociale), table `friendships` (demande, acceptée, retirée).
+- API : `PUT /me/profile`, `GET /users?pseudo=`, `POST /friends/requests`, accepter, retirer, `GET /friends`. Jeton de session obligatoire.
+- App : `features/social/`, écran Cercle (liste d'amis, demandes), invitation par pseudo.
+- Pas de recherche libre dans l'annuaire : on trouve quelqu'un par son pseudo exact (vie privée).
+
+**7b. Photo et commentaire sur un lieu**
+- L'utilisateur choisit de partager une de ses découvertes : photo (EXIF retiré sur l'appareil avant l'envoi, test dédié) + commentaire court.
+- Table `place_posts` (lieu, auteur, photo, commentaire, date, statut de modération), stockage des photos (Supabase Storage, URL signées).
+- Signaler un post, bloquer un utilisateur, supprimer le sien, suppression en cascade à la suppression du compte.
+- Visible : de ses amis seulement au départ (la communauté ouverte demande une vraie modération, voir 7d).
+
+**7c. Carte d'un ami**
+- Partage de la liste des lieux découverts (ids de lieux et dates), pas des chemins, pas de synchronisation automatique : l'utilisateur envoie un instantané, qu'il peut retirer.
+- L'ami voit ses lieux révélés sur sa propre carte en « carte d'un ami » (lecture seule).
+
+**7d. Spots publics et balades**
+- Partage d'un lieu perso `public` à la communauté, après modération (file d'attente côté serveur, validation manuelle au début).
+- Balades : tracé dessiné puis accroché par OpenRouteService (décision déjà prise), publié directement au début ; modération plus tard (décision du 2026-11-06).
+- Les lieux `private` (domicile) ne sont jamais publics.
+
+Hors phase 7 : événements (questions ouvertes), messagerie, notifications push.
+
+À trancher avant 7a :
+1. Pseudo seul, ou nom affiché en plus ?
+2. Photos partagées : Supabase Storage (offre gratuite 1 Go) ou autre ?
+3. Modération au lancement : validation manuelle par toi, ou signalements seulement ?
+4. Faut-il un e-mail à nous (domaine + SMTP) dès 7a ? Les codes de connexion n'arrivent qu'aux membres de l'équipe Supabase tant que ce n'est pas fait, donc des amis ne pourraient pas se connecter pour tester.
+
 ## Phase 8 : Finition et publication
 - [ ] Gestion d'erreurs (GPS refusé, caméra refusée, hors ligne, serveur indisponible)
 - [ ] Mode hors ligne : jouer avec `places_cache`, synchroniser au retour du réseau
