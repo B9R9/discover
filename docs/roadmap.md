@@ -387,9 +387,13 @@ Découpage en quatre étapes livrables chacune seule :
 - App : sur la fiche d'un lieu public créé par l'utilisateur, « Proposer à la communauté », avec l'état (en attente, publié, refusé).
 - Limite connue : si les frontières de zone changent à une collecte, la zone d'un spot publié n'est pas recalculée.
 
-**7d-2. Balades**
-- Tracé dessiné puis accroché par OpenRouteService (décision déjà prise), publié directement au début ; modération plus tard (décision du 2026-11-06).
-- Les lieux `private` (domicile) ne sont jamais publics.
+**7d-2. Balades** — plan du 2026-11-07, **à valider avant de coder**
+- Principe : l'utilisateur dessine un tracé sur la carte (quelques points posés au doigt), OpenRouteService `foot-walking` l'accroche aux chemins piétons (un appel par tracé validé, depuis le téléphone comme l'itinéraire, clé `EXPO_PUBLIC_ORS_KEY`), il donne un nom et publie. Les autres voient la balade sur la carte et peuvent la suivre. Les chemins réellement parcourus ne partent jamais ; seul le tracé dessiné et accroché est publié.
+- Qui voit une balade ? Décision à prendre : (a) tous les utilisateurs, publication directe comme prévu le 2026-11-06, ou (b) mes amis d'abord (comme les posts, aucun risque de modération). Proposition : (b) au départ, (a) quand la modération existera, car un tracé public peut passer devant un domicile ou être injurieux.
+- Serveur : table `walks` (auteur, nom 3 à 80 caractères, tracé en lignes PostGIS, distance, durée, masqué, date), signalement comme pour les posts (masquée dès 3 signalements), `POST /walks`, `GET /walks` (visibles pour moi), `DELETE /walks/:id`. Le tracé est validé côté serveur : 2 à 500 points, 25 km au plus, coordonnées valides.
+- App : écran « Dessiner » (poser des points, annuler le dernier, voir le tracé accroché, nom, publier), liste « Balades » dans Cercle, affichage du tracé sur la carte avec distance et durée.
+- Ce qui n'est pas dans cette étape : suivre une balade pas à pas, noter ou commenter, balades en dehors des zones achetées (le tracé s'affiche, mais le fond de carte n'est pas fourni par nous).
+- Question ouverte pour toi : visibilité (a) ou (b) ci-dessus ?
 
 Hors phase 7 : événements (questions ouvertes), messagerie, notifications push.
 
