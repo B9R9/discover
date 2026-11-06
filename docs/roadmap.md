@@ -381,7 +381,7 @@ Décisions du 2026-11-06 :
 3. Modération au lancement : par signalements d'abus seulement, pas de validation manuelle avant publication.
 4. E-mail à nous (domaine + SMTP Resend) avant 7a, pour que des amis puissent recevoir le code de connexion. Étape 7-0 ci-dessous.
 
-**7-0. E-mail de connexion** (avant 7a)
+**7-0. E-mail de connexion** (reporté le 2026-11-06 : pas de domaine pour le moment ; à faire avant la bêta, phase 8. En attendant, seuls les membres de l'équipe Supabase reçoivent le code, donc les tests sociaux se font entre comptes de l'équipe)
 - [ ] Choisir le domaine d'envoi et ajouter ses enregistrements DNS (SPF, DKIM) chez Resend
 - [ ] Brancher le SMTP Resend dans `server/supabase/config.toml` puis `supabase config push`
 - [ ] Vérifier : un code arrive chez une adresse hors équipe Supabase
