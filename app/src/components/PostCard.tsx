@@ -41,15 +41,21 @@ export function PostCard({ post, onChanged }: PostCardProps) {
 
   return (
     <View style={styles.card}>
+      <View style={styles.author}>
+        <View style={styles.avatar} accessibilityElementsHidden>
+          <Text style={styles.initial}>{post.pseudo.slice(0, 1).toUpperCase()}</Text>
+        </View>
+        <View>
+          <Text style={styles.pseudo}>{post.pseudo}</Text>
+          <Text style={styles.when}>{formatDay(Date.parse(post.createdAt)).toUpperCase()}</Text>
+        </View>
+      </View>
       <Polaroid
         photoUri={post.photoUrl}
         caption={post.placeName}
         tilt={-1.5}
         accessibilityLabel={t('feed.photoLabel', { pseudo: post.pseudo })}
       />
-      <Text style={styles.meta}>
-        {post.pseudo} · {formatDay(Date.parse(post.createdAt))}
-      </Text>
       {post.comment !== '' && <Text style={styles.comment}>{post.comment}</Text>}
       {confirmBlock ? (
         <>
@@ -97,8 +103,26 @@ export function PostCard({ post, onChanged }: PostCardProps) {
 const createStyles = (c: ThemeColors) =>
   StyleSheet.create({
     card: { gap: spacing.sm, marginTop: spacing.lg },
+    author: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm + 2 },
+    avatar: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: c.postal,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    initial: { fontFamily: fonts.title, fontSize: 20, color: c.onStamp },
+    pseudo: { fontFamily: fonts.stamp, fontSize: 14, color: c.ink },
+    when: { fontFamily: fonts.stamp, fontSize: 11, letterSpacing: 1.1, color: c.stamp },
     meta: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
-    comment: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
+    comment: {
+      fontFamily: fonts.hand,
+      fontSize: 22,
+      lineHeight: 28,
+      color: c.ink,
+      transform: [{ rotate: '-1deg' }],
+    },
     actions: { gap: spacing.sm },
     error: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.stamp },
   });

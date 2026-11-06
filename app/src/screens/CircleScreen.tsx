@@ -30,7 +30,7 @@ export function CircleScreen() {
     <Screen edges={['top', 'right', 'left']}>
       <KeyboardAvoidingView behavior="padding" style={styles.keyboard}>
         <ScrollView keyboardShouldPersistTaps="handled">
-          <ScreenTitle>{t('circle.title')}</ScreenTitle>
+          <ScreenTitle kicker={t('circle.kicker')}>{t('circle.title')}</ScreenTitle>
           {session === null && (
             <>
               <Text style={styles.text}>{t('circle.signedOut')}</Text>

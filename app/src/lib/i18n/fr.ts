@@ -80,6 +80,7 @@ export const fr = {
   'purchases.error.pending': 'Paiement en attente. La carte se débloquera dès qu’il sera validé.',
   'purchases.error.failed': 'L’achat n’a pas abouti. Réessaie dans un moment.',
   'circle.title': 'Cercle',
+  'circle.kicker': 'Les carnets des autres',
   'circle.signedOut': 'Connecte-toi pour retrouver tes amis et partager tes découvertes.',
   'circle.pseudoTitle': 'Choisis ton pseudo',
   'circle.pseudoHint':

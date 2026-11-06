@@ -628,7 +628,7 @@ Référence : `docs/design.md` (charte validée, mode clair et mode sombre) et l
 - [x] Validation d'un lieu (2026-11-06) : `ValidatedOverlay` après une photo réussie, le polaroïd monte (450 ms) puis le tampon « Validé » se pose, 0,9 s de pause, retour à la carte. `captureDiscovery` renvoie maintenant `photoUri`. Pas vue sur le téléphone le 2026-11-06 (rien à l'écran après la photo) : gardée telle quelle, à revoir plus tard.
 - [x] Fiche d'un lieu (2026-11-06) : photo en polaroïd avec la date en légende manuscrite, nom en Fraunces 28, tampon « Découvert », suppression en bouton danger. Pas de billet ni de note : rien à y mettre tant que Sorties n'existe pas.
 - [ ] Sorties et détail d'une sortie
-- [ ] Cercle et sous-pages (carte partagée, voyageur, mots doux, balades, laisser une balade, dessiner)
+- [ ] Cercle et sous-pages (carte partagée, voyageur, mots doux, balades, laisser une balade, dessiner). Fait le 2026-11-07 : bandeau « Les carnets des autres » (`ScreenTitle` accepte un `kicker`), post avec avatar, date en tampon et commentaire en Caveat. Reste : puces Voisins/Amis, « J'y vais », mots doux, profil voyageur (pas de données côté serveur pour l'instant).
 - [ ] Moi et sous-pages (pages collées, données, réglages, débloquer une ville)
 - Les écrans sociaux (Cercle) suivent la phase 7 : on ne fait ici que l'habillage de ce qui existe déjà.
 
