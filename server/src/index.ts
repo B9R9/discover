@@ -1,27 +1,49 @@
-import { createServer } from 'node:http';
+import { createServer, type IncomingMessage } from 'node:http';
 
 import { supabaseAuthAdmin } from './api/authAdmin.ts';
 import { postgresPlacesStore } from './api/placesStore.ts';
 import { route, type Reply, type Services } from './api/routes.ts';
+import { postgresSocialStore } from './api/socialStore.ts';
 import { readPort } from './config.ts';
 import { connect } from './db.ts';
 
 const port = readPort(process.env.PORT);
 const { SUPABASE_URL, SUPABASE_SECRET_KEY } = process.env;
+const sql = connect(process.env.DATABASE_URL);
 const services: Services = {
-  store: postgresPlacesStore(connect(process.env.DATABASE_URL)),
+  store: postgresPlacesStore(sql),
+  social: postgresSocialStore(sql),
   auth:
     SUPABASE_URL && SUPABASE_SECRET_KEY
       ? supabaseAuthAdmin(SUPABASE_URL, SUPABASE_SECRET_KEY)
       : null,
 };
 
+const MAX_BODY_BYTES = 4096;
+
+// JSON bodies are tiny (a pseudo): anything bigger or malformed is treated as no body.
+async function readJson(req: IncomingMessage): Promise<unknown> {
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of req) {
+    size += (chunk as Buffer).length;
+    if (size > MAX_BODY_BYTES) return undefined;
+    chunks.push(chunk as Buffer);
+  }
+  try {
+    return size === 0 ? undefined : JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  } catch {
+    return undefined;
+  }
+}
+
 createServer(async (req, res) => {
   const { pathname } = new URL(req.url ?? '/', 'http://localhost');
   const method = req.method ?? 'GET';
   let reply: Reply;
   try {
-    reply = await route({ method, pathname, authorization: req.headers.authorization }, services);
+    const { authorization } = req.headers;
+    reply = await route({ method, pathname, authorization, body: await readJson(req) }, services);
   } catch (error) {
     console.error(error);
     reply = { status: 500, body: { error: 'internal' } };
@@ -29,7 +51,11 @@ createServer(async (req, res) => {
   res.writeHead(reply.status, {
     'content-type': 'application/json',
     // Places change at most once a day (collection job); nothing else may be cached.
-    'cache-control': reply.status === 200 && method === 'GET' ? 'public, max-age=3600' : 'no-store',
+    // A reply for a signed-in user is never shared through a cache.
+    'cache-control':
+      reply.status === 200 && method === 'GET' && !req.headers.authorization
+        ? 'public, max-age=3600'
+        : 'no-store',
   });
   res.end(reply.body === null ? undefined : JSON.stringify(reply.body));
   // Method, path and status only: never the query string, a token or the client address.

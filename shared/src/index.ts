@@ -33,3 +33,19 @@ export interface Area {
   departmentId: AreaId | null;
   boundary: MultiPolygon;
 }
+
+// Pseudos are lowercase so that "Léa" and "léa" cannot both exist and look alike.
+export const PSEUDO_PATTERN = /^[a-z0-9_]{3,20}$/;
+
+export function isValidPseudo(value: unknown): value is string {
+  return typeof value === 'string' && PSEUDO_PATTERN.test(value);
+}
+
+// What a user sees of their circle: pseudos only, never an id or an e-mail.
+export interface FriendList {
+  friends: string[];
+  // Asked to be your friend, waiting for your answer.
+  incoming: string[];
+  // You asked, waiting for their answer.
+  outgoing: string[];
+}

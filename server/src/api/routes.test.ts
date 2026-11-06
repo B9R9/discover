@@ -5,6 +5,7 @@ import type { Place } from '@discover/shared';
 
 import type { AuthAdmin } from './authAdmin.ts';
 import type { PlacesStore } from './placesStore.ts';
+import { fakeSocial } from './fakeSocial.ts';
 import { route, type Services } from './routes.ts';
 
 const museum: Place = {
@@ -40,7 +41,7 @@ function fakeAuth() {
   return { auth, deleted };
 }
 
-const services: Services = { store, auth: null };
+const services: Services = { store, social: fakeSocial(), auth: null };
 const get = (pathname: string) => route({ method: 'GET', pathname }, services);
 
 test('route lists areas and the places of an area', async () => {
@@ -62,7 +63,7 @@ test('DELETE /me deletes the user behind a valid session token', async () => {
   const { auth, deleted } = fakeAuth();
   const reply = await route(
     { method: 'DELETE', pathname: '/me', authorization: 'Bearer good' },
-    { store, auth },
+    { store, social: fakeSocial(), auth },
   );
   assert.deepEqual(reply, { status: 204, body: null });
   assert.deepEqual(deleted, ['user-1']);
@@ -73,7 +74,7 @@ test('DELETE /me refuses a missing or bad token and deletes nobody', async () =>
   for (const authorization of [undefined, 'Bearer bad', 'good', 'Basic good']) {
     const reply = await route(
       { method: 'DELETE', pathname: '/me', authorization },
-      { store, auth },
+      { store, social: fakeSocial(), auth },
     );
     assert.equal(reply.status, 401);
   }
@@ -84,7 +85,12 @@ test('/me answers 503 without Auth settings and 405 for other methods', async ()
   const request = { method: 'DELETE', pathname: '/me', authorization: 'Bearer good' };
   assert.equal((await route(request, services)).status, 503);
   assert.equal(
-    (await route({ method: 'GET', pathname: '/me' }, { store, auth: fakeAuth().auth })).status,
+    (
+      await route(
+        { method: 'GET', pathname: '/me' },
+        { store, social: fakeSocial(), auth: fakeAuth().auth },
+      )
+    ).status,
     405,
   );
 });
