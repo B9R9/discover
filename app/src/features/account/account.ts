@@ -20,7 +20,12 @@ export function isValidCode(code: string): boolean {
   return new RegExp(`^\\d{${CODE_LENGTH}}$`).test(code);
 }
 
-function failure(code: string | undefined): AccountResult {
+// Logs the code only (never the e-mail), so a blocked sign-in can be diagnosed in the Metro logs.
+function failure(code: string | undefined, status?: number): AccountResult {
+  console.warn('Sign-in failed', { code, status });
+  if (code === 'email_address_not_authorized') {
+    return { ok: false, error: 'account.error.notAuthorized' };
+  }
   if (code === 'otp_expired') return { ok: false, error: 'account.error.badCode' };
   if (code?.startsWith('over_')) return { ok: false, error: 'account.error.tooMany' };
   return { ok: false, error: 'account.error.network' };
@@ -30,7 +35,7 @@ export async function requestCode(email: string): Promise<AccountResult> {
   const address = normalizeEmail(email);
   if (!isValidEmail(address)) return { ok: false, error: 'account.error.badEmail' };
   const { error } = await supabase.auth.signInWithOtp({ email: address });
-  return error ? failure(error.code) : { ok: true };
+  return error ? failure(error.code, error.status) : { ok: true };
 }
 
 export async function verifyCode(email: string, code: string): Promise<AccountResult> {
@@ -41,7 +46,7 @@ export async function verifyCode(email: string, code: string): Promise<AccountRe
     token,
     type: 'email',
   });
-  return error ? failure(error.code) : { ok: true };
+  return error ? failure(error.code, error.status) : { ok: true };
 }
 
 export async function signOut(): Promise<AccountResult> {

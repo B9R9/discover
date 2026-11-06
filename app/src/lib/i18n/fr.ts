@@ -125,6 +125,8 @@ export const fr = {
   'account.error.badEmail': 'Cet e-mail ne semble pas valide.',
   'account.error.badCode': 'Code incorrect ou expiré. Demande un nouveau code.',
   'account.error.tooMany': 'Trop de demandes. Réessaie dans quelques minutes.',
+  'account.error.notAuthorized':
+    "Cet e-mail ne peut pas encore recevoir de code : la bêta n'est pas ouverte à tout le monde.",
   'account.error.network': 'Impossible de joindre Détour. Vérifie ta connexion et réessaie.',
   'onboarding.title': 'Bienvenue sur Détour',
   'onboarding.concept':
