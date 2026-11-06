@@ -364,7 +364,7 @@ Découpage en quatre étapes livrables chacune seule :
 - Signaler un post, bloquer un utilisateur, supprimer le sien, suppression en cascade à la suppression du compte.
 - Visible : de ses amis seulement au départ (la communauté ouverte demande une vraie modération, voir 7d).
 
-**7b, plan détaillé (2026-11-07)**
+**7b, plan détaillé (2026-11-07)** — code fait le 2026-11-07 (serveur 41 tests, app 118 tests, typecheck et lint propres). Reste : appliquer la migration `20261107010000_posts.sql` (`supabase db push`), redéployer l'API, tester à deux comptes. Non vérifié contre un vrai Storage : l'envoi de la photo par un PUT brut sur l'URL signée (si Storage le refuse, passer en `multipart/form-data`), et le bucket créé par la migration.
 - Visibilité : l'auteur et ses amis acceptés, personne d'autre. Un utilisateur bloqué (dans un sens ou dans l'autre) disparaît du fil.
 - Photos : Supabase Storage, bucket privé `post-photos`. L'app ne reçoit jamais d'URL publique : l'API signe des URL d'envoi (une par post) et de lecture (1 h). Le serveur ne touche pas aux octets de la photo.
 - EXIF : retiré sur le téléphone avant l'envoi, sans dépendance (`stripJpeg`, fonction pure testée : tous les segments sauf JFIF et profil ICC sont supprimés, l'orientation est conservée dans un EXIF minimal pour que la photo ne tourne pas).

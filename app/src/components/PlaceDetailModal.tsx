@@ -15,6 +15,7 @@ import { useTheme } from '@/theme/useTheme';
 import { Button } from './Button';
 import { Polaroid } from './Polaroid';
 import { PersonalPlaceForm } from './PersonalPlaceForm';
+import { SharePostForm } from './SharePostForm';
 import { Stamp } from './Stamp';
 
 interface PlaceDetailModalProps {
@@ -23,7 +24,7 @@ interface PlaceDetailModalProps {
   onChanged: () => void;
 }
 
-type Mode = 'view' | 'edit' | 'confirmDelete';
+type Mode = 'view' | 'edit' | 'confirmDelete' | 'share';
 
 // Server places open read-only: only places the user created can be edited or deleted.
 export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailModalProps) {
@@ -34,6 +35,7 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
   const [mode, setMode] = useState<Mode>('view');
   const [error, setError] = useState<TranslationKey | null>(null);
   const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<TranslationKey | null>(null);
   const placeId = discovery?.placeId;
 
   // The screen remounts this modal per place (key), so the state starts fresh for each one.
@@ -91,6 +93,19 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
               onCancel={() => setMode('view')}
               onEdit={() => setError(null)}
             />
+          ) : discovery && mode === 'share' ? (
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <SharePostForm
+                placeId={discovery.placeId}
+                placeName={name}
+                photoUri={discovery.photoUri}
+                onDone={() => {
+                  setMode('view');
+                  setNotice('share.done');
+                }}
+                onCancel={() => setMode('view')}
+              />
+            </ScrollView>
           ) : (
             discovery && (
               <ScrollView contentContainerStyle={styles.content}>
@@ -110,6 +125,7 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
                   <Stamp label={t('places.discovered')} tilt={-6} />
                 </View>
                 {error && <Text style={styles.error}>{t(error)}</Text>}
+                {notice && <Text style={styles.meta}>{t(notice)}</Text>}
                 {mode === 'confirmDelete' && (
                   <Text style={styles.warning}>{t('place.deleteWarning')}</Text>
                 )}
@@ -139,6 +155,15 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
                         onPress={() => setMode('view')}
                       />
                     </>
+                  )}
+                  {mode === 'view' && (
+                    <Button
+                      label={t('share.button')}
+                      onPress={() => {
+                        setNotice(null);
+                        setMode('share');
+                      }}
+                    />
                   )}
                   {mode === 'view' && (
                     <Button label={t('place.close')} variant="secondary" onPress={onClose} />

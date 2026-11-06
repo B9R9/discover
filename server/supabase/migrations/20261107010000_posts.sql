@@ -3,6 +3,8 @@ create table public.place_posts (
   id uuid primary key default gen_random_uuid(),
   author uuid not null references auth.users (id) on delete cascade,
   place_id text not null check (char_length(place_id) between 1 and 120),
+  -- Shown to friends, who may not have this place (one the author created) in their own cache.
+  place_name text not null default '' check (char_length(place_name) <= 120),
   comment text not null check (char_length(comment) <= 280),
   photo_path text not null,
   -- Visible only once the photo reached Storage.

@@ -7,6 +7,7 @@ const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const POST = new RegExp(`^/posts/(${UUID})(/uploaded|/report)?$`);
 const READ_URL_SECONDS = 3600;
 const MAX_PLACE_ID_LENGTH = 120;
+const MAX_PLACE_NAME_LENGTH = 120;
 
 const error = (status: number, code: string): Reply => ({ status, body: { error: code } });
 const NO_CONTENT: Reply = { status: 204, body: null };
@@ -45,11 +46,17 @@ export async function postsRoute(
     if (method === 'GET') return listPosts(user, posts, storage);
     if (method === 'POST') {
       const placeId = text(body, 'placeId')?.trim();
+      const placeName = text(body, 'placeName')?.trim() ?? '';
       const comment = text(body, 'comment')?.trim() ?? '';
-      if (!placeId || placeId.length > MAX_PLACE_ID_LENGTH || comment.length > MAX_COMMENT_LENGTH) {
+      if (
+        !placeId ||
+        placeId.length > MAX_PLACE_ID_LENGTH ||
+        placeName.length > MAX_PLACE_NAME_LENGTH ||
+        comment.length > MAX_COMMENT_LENGTH
+      ) {
         return error(422, 'invalid_post');
       }
-      const created = await posts.createPost(user, placeId, comment);
+      const created = await posts.createPost(user, placeId, placeName, comment);
       if (!created) return error(409, 'profile_required');
       return {
         status: 201,
@@ -99,6 +106,7 @@ async function listPosts(
         id: row.id,
         pseudo: row.pseudo,
         placeId: row.placeId,
+        placeName: row.placeName,
         comment: row.comment,
         createdAt: row.createdAt,
         mine: row.mine,

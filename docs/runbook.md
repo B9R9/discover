@@ -198,7 +198,8 @@ Il faut deux comptes qui reçoivent le code : tant qu'il n'y a pas de SMTP à no
 2. Lancer l'API (`cd server && npm run dev`, ou la version Render redéployée) avec `SUPABASE_URL` et `SUPABASE_SECRET_KEY`.
 3. Téléphone A : Profil, se connecter, onglet Cercle, choisir un pseudo. Téléphone B (ou le même après déconnexion) : idem avec un autre e-mail.
 4. A invite B par pseudo ; B voit la demande dans « Demandes reçues » après être revenu sur l'onglet, l'accepte ; les deux se voient dans « Amis ».
-5. Sans l'app, avec un jeton de session : `curl -H "Authorization: Bearer <jeton>" $EXPO_PUBLIC_API_URL/friends`. Sans jeton, la réponse est `401`.
+5. Partage (7b) : sur le téléphone A, Profil, ouvrir une découverte, « Partager avec mes amis », écrire un commentaire, envoyer. Sur le téléphone B (ami de A), onglet Cercle : le post apparaît dans « Partagé par tes amis ». Vérifier dans Supabase (Storage, bucket `post-photos`) que le fichier est là, et qu'il ne contient pas de position : `exiftool` sur la photo téléchargée ne doit montrer aucun champ GPS.
+6. Sans l'app, avec un jeton de session : `curl -H "Authorization: Bearer <jeton>" $EXPO_PUBLIC_API_URL/friends`. Sans jeton, la réponse est `401`.
 
 ## Achats de cartes (Play Console)
 

@@ -59,6 +59,7 @@ export interface SharedPost {
   id: string;
   pseudo: string;
   placeId: PlaceId;
+  placeName: string;
   comment: string;
   createdAt: string;
   mine: boolean;

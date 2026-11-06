@@ -66,6 +66,7 @@ export const fakeSessions: AuthAdmin = {
 interface FakePost {
   author: string;
   placeId: string;
+  placeName: string;
   comment: string;
   path: string;
   uploaded: boolean;
@@ -77,13 +78,14 @@ export function fakePosts(hasProfile: (user: string) => boolean = () => true): P
   const posts = new Map<string, FakePost>();
   let next = 0;
   return {
-    createPost: (user, placeId, comment) => {
+    createPost: (user, placeId, placeName, comment) => {
       if (!hasProfile(user)) return Promise.resolve(null);
       const id = `00000000-0000-4000-8000-${String(++next).padStart(12, '0')}`;
       const path = `${user}/${id}.jpg`;
       posts.set(id, {
         author: user,
         placeId,
+        placeName,
         comment,
         path,
         uploaded: false,
@@ -105,6 +107,7 @@ export function fakePosts(hasProfile: (user: string) => boolean = () => true): P
             id,
             pseudo: 'moi',
             placeId: post.placeId,
+            placeName: post.placeName,
             comment: post.comment,
             createdAt: '2026-11-07T10:00:00Z',
             mine: true,

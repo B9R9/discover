@@ -66,6 +66,7 @@ test('posts need a pseudo, a place and a comment of at most 280 characters', asy
     { placeId: '', comment: 'x' },
     { placeId: 'p', comment: 'x'.repeat(281) },
     { placeId: 'p'.repeat(121), comment: '' },
+    { placeId: 'p', placeName: 'n'.repeat(121), comment: '' },
   ]) {
     assert.equal((await as('a', 'POST', '/posts', body)).status, 422);
   }

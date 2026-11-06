@@ -157,5 +157,5 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 - [x] Lieux créés par l'utilisateur, spots et chez quelqu'un, en local : genre, modifier, supprimer (phases 4b à 4d)
 - [x] Stockage local des découvertes (SQLite, migrations, requêtes)
 - [x] Backend et collecte des lieux (phase 5 : Supabase en ligne, collecte OSM chaque semaine, API sur Render, comptes par code e-mail et suppression de compte ; reste un domaine pour les e-mails avant la bêta)
-- [ ] Partage et commentaires (phase 7 : 7a profil et amis codé et testé en unitaire, migration à appliquer en ligne ; 7b à 7d à faire)
+- [ ] Partage et commentaires (phase 7 : 7a profil et amis en ligne et testé ; 7b photos partagées codé, migration et test à deux comptes à faire ; 7c et 7d à faire)
 - [ ] Achat de cartes (phase 6 : zones départements et grandes villes, carte offerte et zone bloquée faites en local ; écran des cartes fait ; achats de cartes par `expo-iap` codés ; reste produits et test d'achat dans la Play Console)

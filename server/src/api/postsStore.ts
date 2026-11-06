@@ -6,6 +6,7 @@ export interface FeedRow {
   id: string;
   pseudo: string;
   placeId: string;
+  placeName: string;
   comment: string;
   createdAt: string;
   mine: boolean;
@@ -17,6 +18,7 @@ export interface PostsStore {
   createPost(
     userId: string,
     placeId: string,
+    placeName: string,
     comment: string,
   ): Promise<{ id: string; path: string } | null>;
   // false when the post is not this user's.
@@ -35,14 +37,14 @@ const FEED_LIMIT = 50;
 
 export function postgresPostsStore(sql: Sql): PostsStore {
   return {
-    async createPost(userId, placeId, comment) {
+    async createPost(userId, placeId, placeName, comment) {
       const [profile] = await sql`select 1 from profiles where user_id = ${userId}`;
       if (!profile) return null;
       const id = crypto.randomUUID();
       const path = `${userId}/${id}.jpg`;
       await sql`
-        insert into place_posts (id, author, place_id, comment, photo_path)
-        values (${id}, ${userId}, ${placeId}, ${comment}, ${path})`;
+        insert into place_posts (id, author, place_id, place_name, comment, photo_path)
+        values (${id}, ${userId}, ${placeId}, ${placeName}, ${comment}, ${path})`;
       return { id, path };
     },
 
@@ -55,7 +57,7 @@ export function postgresPostsStore(sql: Sql): PostsStore {
 
     listFeed(userId) {
       return sql<FeedRow[]>`
-        select p.id, pr.pseudo, p.place_id as "placeId", p.comment, p.created_at as "createdAt",
+        select p.id, pr.pseudo, p.place_id as "placeId", p.place_name as "placeName", p.comment, p.created_at as "createdAt",
           p.author = ${userId} as mine, p.photo_path as path
         from place_posts p
         join profiles pr on pr.user_id = p.author
