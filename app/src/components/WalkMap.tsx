@@ -57,6 +57,14 @@ export function WalkMap({
     if (follow && position) camera.current?.jumpTo({ center: position });
   }, [follow, position]);
 
+  // Stopping the follow brings the whole walk back into view.
+  const wasFollowing = useRef(false);
+  useEffect(() => {
+    if (wasFollowing.current && !follow && initial)
+      camera.current?.fitBounds(initial, { duration: 600 });
+    wasFollowing.current = follow;
+  }, [follow, initial]);
+
   const line = useMemo<GeoJSON.GeoJSON>(
     () => (path.length > 1 ? { type: 'LineString', coordinates: path.map((p) => [...p]) } : EMPTY),
     [path],
