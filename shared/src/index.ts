@@ -66,3 +66,12 @@ export interface SharedPost {
   // Signed, expires after an hour.
   photoUrl: string;
 }
+
+// Map shared with friends (phase 7c): the places discovered, as ids. No dates, no paths, no personal places.
+export const MAX_SHARED_PLACES = 5000;
+
+export interface SharedMap {
+  pseudo: string;
+  placeIds: string[];
+  updatedAt: string;
+}

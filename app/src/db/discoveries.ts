@@ -94,3 +94,12 @@ export async function countDiscoveries(db: Db): Promise<number> {
   );
   return row?.count ?? 0;
 }
+
+// The ids that may be shown to friends: places from the server, never the ones the user created.
+export async function listSharableIds(db: Db): Promise<string[]> {
+  const rows = await db.getAllAsync<{ placeId: string }>(
+    "SELECT place_id AS placeId FROM discovered_places WHERE place_id NOT LIKE 'personal:%' ORDER BY discovered_at",
+    [],
+  );
+  return rows.map((row) => row.placeId);
+}

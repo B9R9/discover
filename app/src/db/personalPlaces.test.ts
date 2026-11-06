@@ -1,8 +1,8 @@
-import { addDiscovery, listDiscoveredPositions } from './discoveries';
+import { addDiscovery, listDiscoveredPositions, listSharableIds } from './discoveries';
 import { migrate } from './migrations';
 import { deletePersonalPlace, getPersonalPlace, updatePersonalPlace } from './personalPlaces';
 import { addPhoto } from './photos';
-import { listPlacesWithDiscovery, replaceCachedPlaces } from './placesCache';
+import { listCachedPlacesByIds, listPlacesWithDiscovery, replaceCachedPlaces } from './placesCache';
 import { openTestDb } from './testDb';
 
 import { editPersonalPlace, recordPersonalPlace } from '@/features/photo/createPersonalPlace';
@@ -70,4 +70,28 @@ test('a server place can be neither edited nor deleted', async () => {
   ).toBe(false);
   expect(await deletePersonalPlace(db, 'osm:1')).toBeNull();
   expect(await listPlacesWithDiscovery(db)).toMatchObject([{ name: 'Musée', discovered: true }]);
+});
+
+test('only server places can be shared with friends, and cached ones are found by id', async () => {
+  const db = await dbWithPlace();
+  const photoId = await addPhoto(db, { uri: 'file:///p.jpg', ...position, accuracy: 5, takenAt: 2000 });
+  await replaceCachedPlaces(
+    db,
+    'landes',
+    [
+      {
+        id: 'osm:node/1',
+        areaId: 'landes',
+        name: 'Phare',
+        ...position,
+        category: 'viewpoint',
+      },
+    ],
+    1,
+  );
+  await addDiscovery(db, { placeId: 'osm:node/1', discoveredAt: 2000, path: [], photoId });
+  expect(await listSharableIds(db)).toEqual(['osm:node/1']);
+  expect(
+    (await listCachedPlacesByIds(db, ['osm:node/1', 'osm:node/9'])).map((p) => p.name),
+  ).toEqual(['Phare']);
 });

@@ -59,3 +59,20 @@ export async function listPlacesWithDiscovery(db: Db): Promise<CachedPlace[]> {
   );
   return rows.map((row) => ({ ...row, discovered: row.discovered === 1 }));
 }
+
+const IDS_PER_QUERY = 500;
+
+// The cached places among `ids`. A friend may have places in areas this phone does not hold: those are missing.
+export async function listCachedPlacesByIds(db: Db, ids: readonly string[]): Promise<Place[]> {
+  const found: Place[] = [];
+  for (let start = 0; start < ids.length; start += IDS_PER_QUERY) {
+    const chunk = ids.slice(start, start + IDS_PER_QUERY);
+    found.push(
+      ...(await db.getAllAsync<Place>(
+        `SELECT id, area_id AS areaId, name, latitude, longitude, category FROM places_cache WHERE id IN (${chunk.map(() => '?').join(', ')})`,
+        [...chunk],
+      )),
+    );
+  }
+  return found;
+}

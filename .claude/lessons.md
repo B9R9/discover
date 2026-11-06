@@ -80,3 +80,5 @@ Format :
 
 - **Erreur** : tests de composants écrits en synchrone ; `@testing-library/react-native` 14 rend et déclenche les événements en asynchrone (`render function has not been called`).
 - **Règle** : dans les tests de composants, `await render(...)` et `await fireEvent.press(...)`.
+
+- Un corps JSON limité à quelques Ko ne suffit pas pour une liste d'ids : dimensionner la limite sur le pire cas (5000 ids de 120 caractères) avant d'ajouter une route qui reçoit une liste.

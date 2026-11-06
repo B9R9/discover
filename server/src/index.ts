@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage } from 'node:http';
 
 import { supabaseAuthAdmin } from './api/authAdmin.ts';
 import { postgresPlacesStore } from './api/placesStore.ts';
+import { postgresMapsStore } from './api/mapsStore.ts';
 import { postgresPostsStore } from './api/postsStore.ts';
 import { route, type Reply, type Services } from './api/routes.ts';
 import { postgresSocialStore } from './api/socialStore.ts';
@@ -16,6 +17,7 @@ const services: Services = {
   store: postgresPlacesStore(sql),
   social: postgresSocialStore(sql),
   posts: postgresPostsStore(sql),
+  maps: postgresMapsStore(sql),
   storage:
     SUPABASE_URL && SUPABASE_SECRET_KEY
       ? supabaseStorageAdmin(SUPABASE_URL, SUPABASE_SECRET_KEY)
@@ -26,9 +28,10 @@ const services: Services = {
       : null,
 };
 
-const MAX_BODY_BYTES = 4096;
+// The biggest body is a shared map: 5000 place ids of at most 120 characters stay below this.
+const MAX_BODY_BYTES = 262_144;
 
-// JSON bodies are tiny (a pseudo): anything bigger or malformed is treated as no body.
+// JSON bodies are small (a pseudo, a comment, a list of ids): anything bigger or malformed is treated as no body.
 async function readJson(req: IncomingMessage): Promise<unknown> {
   const chunks: Buffer[] = [];
   let size = 0;

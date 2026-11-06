@@ -5,6 +5,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { MapLoading } from '@/components/MapLoading';
 import { FogLayers } from '@/components/FogLayers';
 import { PlaceLayers } from '@/components/PlaceLayers';
 import { PlacesPanel } from '@/components/PlacesPanel';
@@ -28,6 +29,8 @@ export function MapScreen() {
   const { places, lockedArea } = useNearbyPlaces(db, position);
   const [selectedId, setSelectedId] = useState<PlaceId | null>(null);
   const [panelHeight, setPanelHeight] = useState(0);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapFailed, setMapFailed] = useState(false);
   const selected = places.find((place) => place.id === selectedId) ?? null;
   const heading = useHeading(selected !== null && !selected.discovered);
   const route = useWalkingRoute(db, selected, position);
@@ -58,6 +61,8 @@ export function MapScreen() {
         mapStyle={look.mapStyle}
         logo={false}
         compass={false}
+        onDidFinishLoadingMap={() => setMapLoaded(true)}
+        onDidFailLoadingMap={() => setMapFailed(true)}
         // The panel covers the bottom of the map: center the camera on the visible part.
         contentInset={{ bottom: panelHeight }}
       >
@@ -66,6 +71,7 @@ export function MapScreen() {
         <PlaceLayers places={places} route={route} selectedId={selectedId} colors={look.colors} />
         {position && <UserDot {...position} colors={look.colors} />}
       </Map>
+      {!mapLoaded && <MapLoading failed={mapFailed} />}
       <PlacesPanel
         places={places}
         hasPosition={hasFix}

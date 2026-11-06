@@ -373,9 +373,12 @@ Découpage en quatre étapes livrables chacune seule :
 - Modération par signalements : `POST /posts/:id/report` ; un post signalé par 3 personnes différentes est masqué automatiquement. `POST /blocks` bloque quelqu'un (et retire l'amitié). Suppression de son post, et à la suppression du compte, de toutes ses photos.
 - App : bouton « Partager » sur la fiche d'un lieu (aperçu, commentaire, confirmation explicite), fil des amis dans l'onglet Cercle, signaler et bloquer depuis un post.
 
-**7c. Carte d'un ami**
-- Partage de la liste des lieux découverts (ids de lieux et dates), pas des chemins, pas de synchronisation automatique : l'utilisateur envoie un instantané, qu'il peut retirer.
-- L'ami voit ses lieux révélés sur sa propre carte en « carte d'un ami » (lecture seule).
+**7c. Carte d'un ami** — code fait le 2026-11-07 (serveur 46 tests, app typecheck et lint propres). Reste : appliquer la migration `20261107020000_shared_maps.sql`, redéployer l'API, tester à deux comptes amis.
+- Ce qui est partagé : la liste des ids de lieux découverts (lieux du serveur seulement). Ni dates, ni chemins, ni lieux créés par l'utilisateur (le serveur refuse les ids `personal:`). Pas de synchronisation automatique : l'utilisateur envoie un instantané, le met à jour ou l'arrête.
+- Serveur : table `shared_maps` (une ligne par utilisateur, 5000 lieux au plus), `PUT/GET/DELETE /me/map`, `GET /friends/:pseudo/map` (amis acceptés et non bloqués, sinon 404). Limite du corps JSON portée à 256 Ko.
+- App : section « Ma carte partagée » dans Cercle ; bouton « Voir sa carte » sur chaque ami ; la carte de l'ami s'ouvre en lecture seule dans une fenêtre, brouillard levé autour de ses lieux.
+- Limite connue : la position d'un lieu vient du cache de CE téléphone. Les lieux d'un ami situés dans des départements que tu n'as pas ne s'affichent pas (le compteur dit « N lieux découverts, M sur ta carte »). Un jour, le serveur pourrait renvoyer les positions.
+- Chargement de la carte : un écran « Chargement de la carte… » couvre la carte tant que son style n'est pas chargé (carte principale et carte d'un ami), et un message d'échec si le chargement échoue.
 
 **7d. Spots publics et balades**
 - Partage d'un lieu perso `public` à la communauté, après modération (file d'attente côté serveur, validation manuelle au début).

@@ -5,7 +5,7 @@ import type { Place } from '@discover/shared';
 
 import type { AuthAdmin } from './authAdmin.ts';
 import type { PlacesStore } from './placesStore.ts';
-import { fakePosts, fakeSocial } from './fakeSocial.ts';
+import { fakeMaps, fakePosts, fakeSocial } from './fakeSocial.ts';
 import { route, type Services } from './routes.ts';
 
 const museum: Place = {
@@ -45,6 +45,7 @@ const services: Services = {
   store,
   social: fakeSocial(),
   posts: fakePosts(),
+  maps: fakeMaps(),
   storage: null,
   auth: null,
 };
@@ -69,7 +70,7 @@ test('DELETE /me deletes the user behind a valid session token', async () => {
   const { auth, deleted } = fakeAuth();
   const reply = await route(
     { method: 'DELETE', pathname: '/me', authorization: 'Bearer good' },
-    { store, social: fakeSocial(), posts: fakePosts(), storage: null, auth },
+    { store, social: fakeSocial(), posts: fakePosts(), maps: fakeMaps(), storage: null, auth },
   );
   assert.deepEqual(reply, { status: 204, body: null });
   assert.deepEqual(deleted, ['user-1']);
@@ -80,7 +81,7 @@ test('DELETE /me refuses a missing or bad token and deletes nobody', async () =>
   for (const authorization of [undefined, 'Bearer bad', 'good', 'Basic good']) {
     const reply = await route(
       { method: 'DELETE', pathname: '/me', authorization },
-      { store, social: fakeSocial(), posts: fakePosts(), storage: null, auth },
+      { store, social: fakeSocial(), posts: fakePosts(), maps: fakeMaps(), storage: null, auth },
     );
     assert.equal(reply.status, 401);
   }
@@ -94,7 +95,14 @@ test('/me answers 503 without Auth settings and 405 for other methods', async ()
     (
       await route(
         { method: 'GET', pathname: '/me' },
-        { store, social: fakeSocial(), posts: fakePosts(), storage: null, auth: fakeAuth().auth },
+        {
+          store,
+          social: fakeSocial(),
+          posts: fakePosts(),
+          maps: fakeMaps(),
+          storage: null,
+          auth: fakeAuth().auth,
+        },
       )
     ).status,
     405,

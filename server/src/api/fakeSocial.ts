@@ -1,4 +1,5 @@
 import type { AuthAdmin } from './authAdmin.ts';
+import type { MapRow, MapsStore } from './mapsStore.ts';
 import type { PostsStore } from './postsStore.ts';
 import type { SocialStore } from './socialStore.ts';
 import type { StorageAdmin } from './storageAdmin.ts';
@@ -152,4 +153,28 @@ export function fakeStorage() {
     },
   };
   return { storage, removed };
+}
+
+// In-memory maps: `friendsOf` says which pseudos each user may see.
+export function fakeMaps(
+  hasProfile: (user: string) => boolean = () => true,
+  friendsOf: Record<string, string[]> = {},
+): MapsStore {
+  const maps = new Map<string, MapRow>();
+  return {
+    save: (user, placeIds) => {
+      if (!hasProfile(user)) return Promise.resolve(false);
+      maps.set(user, { placeIds, updatedAt: '2026-11-07T10:00:00Z' });
+      return Promise.resolve(true);
+    },
+    remove: (user) => {
+      maps.delete(user);
+      return Promise.resolve();
+    },
+    get: (user) => Promise.resolve(maps.get(user) ?? null),
+    getFriend: (user, pseudo) => {
+      const map = friendsOf[user]?.includes(pseudo) ? maps.get(pseudo) : undefined;
+      return Promise.resolve(map ? { pseudo, ...map } : null);
+    },
+  };
 }

@@ -199,7 +199,8 @@ Il faut deux comptes qui reçoivent le code : tant qu'il n'y a pas de SMTP à no
 3. Téléphone A : Profil, se connecter, onglet Cercle, choisir un pseudo. Téléphone B (ou le même après déconnexion) : idem avec un autre e-mail.
 4. A invite B par pseudo ; B voit la demande dans « Demandes reçues » après être revenu sur l'onglet, l'accepte ; les deux se voient dans « Amis ».
 5. Partage (7b) : sur le téléphone A, Profil, ouvrir une découverte, « Partager avec mes amis », écrire un commentaire, envoyer. Sur le téléphone B (ami de A), onglet Cercle : le post apparaît dans « Partagé par tes amis ». Vérifier dans Supabase (Storage, bucket `post-photos`) que le fichier est là, et qu'il ne contient pas de position : `exiftool` sur la photo téléchargée ne doit montrer aucun champ GPS.
-6. Sans l'app, avec un jeton de session : `curl -H "Authorization: Bearer <jeton>" $EXPO_PUBLIC_API_URL/friends`. Sans jeton, la réponse est `401`.
+6. Carte d'un ami (7c) : sur A, Cercle, « Ma carte partagée », « Partager ma carte » (le compteur s'affiche). Sur B, Cercle, « Voir sa carte » à côté de A : la carte s'ouvre avec le brouillard levé autour de ses lieux. Sur A, « Arrêter de partager » : B reçoit « ne partage pas sa carte ». Pour voir des lieux, B doit avoir le même département en cache (carte du département ouverte au moins une fois).
+7. Sans l'app, avec un jeton de session : `curl -H "Authorization: Bearer <jeton>" $EXPO_PUBLIC_API_URL/friends`. Sans jeton, la réponse est `401`.
 
 ## Achats de cartes (Play Console)
 

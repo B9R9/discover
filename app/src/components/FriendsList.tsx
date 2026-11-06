@@ -12,10 +12,11 @@ import { Button } from './Button';
 interface FriendsListProps {
   list: FriendList;
   onChanged: () => void;
+  onOpenMap: (pseudo: string) => void;
 }
 
 // Friends, then the requests waiting for an answer, each with the one or two actions that make sense.
-export function FriendsList({ list, onChanged }: FriendsListProps) {
+export function FriendsList({ list, onChanged, onOpenMap }: FriendsListProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [error, setError] = useState<TranslationKey | null>(null);
@@ -32,7 +33,12 @@ export function FriendsList({ list, onChanged }: FriendsListProps) {
 
   const row = (
     pseudo: string,
-    actions: { label: TranslationKey; run: () => Promise<SocialResult<true>>; primary?: boolean }[],
+    actions: {
+      label: TranslationKey;
+      run: () => Promise<SocialResult<true>>;
+      primary?: boolean;
+    }[],
+    extra?: React.ReactNode,
   ) => (
     <View key={pseudo} style={styles.row}>
       <Text style={styles.pseudo}>{pseudo}</Text>
@@ -47,6 +53,7 @@ export function FriendsList({ list, onChanged }: FriendsListProps) {
             }}
           />
         ))}
+        {extra}
       </View>
     </View>
   );
@@ -73,7 +80,15 @@ export function FriendsList({ list, onChanged }: FriendsListProps) {
         <Text style={styles.hint}>{t('circle.noFriends')}</Text>
       ) : (
         list.friends.map((pseudo) =>
-          row(pseudo, [{ label: 'circle.remove', run: () => removeFriend(pseudo) }]),
+          row(
+            pseudo,
+            [{ label: 'circle.remove', run: () => removeFriend(pseudo) }],
+            <Button
+              label={t('circle.viewMap')}
+              variant="primary"
+              onPress={() => onOpenMap(pseudo)}
+            />,
+          ),
         )
       )}
       {list.outgoing.length > 0 && (

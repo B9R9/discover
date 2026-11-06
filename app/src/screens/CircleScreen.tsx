@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { AddFriendForm } from '@/components/AddFriendForm';
 import { AccountSection } from '@/components/AccountSection';
+import { FriendMapModal } from '@/components/FriendMapModal';
 import { FriendsList } from '@/components/FriendsList';
+import { MyMapSection } from '@/components/MyMapSection';
 import { PostCard } from '@/components/PostCard';
 import { PseudoForm } from '@/components/PseudoForm';
 import { Screen } from '@/components/Screen';
@@ -22,6 +24,7 @@ export function CircleScreen() {
   const session = useSession();
   const [circle, reload] = useCircle(Boolean(session));
   const [posts, reloadFeed] = useFeed(Boolean(session));
+  const [mapOf, setMapOf] = useState<string | null>(null);
 
   return (
     <Screen edges={['top', 'right', 'left']}>
@@ -55,12 +58,14 @@ export function CircleScreen() {
                   }}
                 />
               ))}
-              <FriendsList list={circle.list} onChanged={reload} />
+              <FriendsList list={circle.list} onChanged={reload} onOpenMap={setMapOf} />
+              <MyMapSection />
               <AddFriendForm onSent={reload} />
             </>
           )}
         </ScrollView>
       </KeyboardAvoidingView>
+      <FriendMapModal pseudo={mapOf} onClose={() => setMapOf(null)} />
     </Screen>
   );
 }
