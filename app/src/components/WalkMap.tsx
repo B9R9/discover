@@ -1,5 +1,5 @@
 import { Camera, GeoJSONSource, Layer, Map, type CameraRef } from '@maplibre/maplibre-react-native';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { DEFAULT_CENTER, DEFAULT_ZOOM } from '@/features/map/mapStyle';
@@ -8,6 +8,7 @@ import type { Stop } from '@/features/walks/snapWalk';
 import { useSQLiteContext } from 'expo-sqlite';
 
 import { MapLoading } from './MapLoading';
+import { UserDot } from './UserDot';
 
 interface WalkMapProps {
   // The walk, drawn as a line.
@@ -17,6 +18,9 @@ interface WalkMapProps {
   onPress?: (point: Stop) => void;
   // Where to look when there is no walk yet (drawing).
   start?: Stop | null;
+  // The user, shown as a dot. With `follow`, the camera stays on them.
+  position?: Stop | null;
+  follow?: boolean;
 }
 
 const EMPTY: GeoJSON.GeoJSON = { type: 'FeatureCollection', features: [] };
@@ -34,13 +38,24 @@ function bounds(points: readonly Stop[]): [number, number, number, number] | nul
 }
 
 // A map with one walk on it. The camera first fits the walk, then the user moves it freely.
-export function WalkMap({ path, stops = [], onPress, start = null }: WalkMapProps) {
+export function WalkMap({
+  path,
+  stops = [],
+  onPress,
+  start = null,
+  position = null,
+  follow = false,
+}: WalkMapProps) {
   const db = useSQLiteContext();
   const [look] = useMapStyle(db);
   const camera = useRef<CameraRef>(null);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const [initial] = useState(() => bounds(path));
+
+  useEffect(() => {
+    if (follow && position) camera.current?.jumpTo({ center: position });
+  }, [follow, position]);
 
   const line = useMemo<GeoJSON.GeoJSON>(
     () => (path.length > 1 ? { type: 'LineString', coordinates: path.map((p) => [...p]) } : EMPTY),
@@ -93,6 +108,9 @@ export function WalkMap({ path, stops = [], onPress, start = null }: WalkMapProp
             }}
           />
         </GeoJSONSource>
+        {position && (
+          <UserDot longitude={position[0]} latitude={position[1]} colors={look.colors} />
+        )}
       </Map>
       {!loaded && <MapLoading failed={failed} />}
     </View>

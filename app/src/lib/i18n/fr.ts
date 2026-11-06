@@ -130,6 +130,7 @@ export const fr = {
   'spot.error.exists': 'Ce lieu est déjà proposé.',
   'spot.error.tooMany': 'Trop de propositions en attente. Attends qu’elles soient validées.',
   'spot.error.invalid': 'Ce lieu ne peut pas être proposé : il lui faut un nom et un genre.',
+  'walks.follow': 'Me suivre',
   'walks.kicker': 'Laissées par les voyageurs',
   'walks.filter.all': 'Toutes',
   'walks.filter.short': 'Moins d’1 h',
