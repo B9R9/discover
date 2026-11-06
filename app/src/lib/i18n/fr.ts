@@ -8,6 +8,8 @@ export const fr = {
   'photo.permissionAllow': 'Autoriser',
   'photo.permissionSettings': 'Ouvrir les réglages',
   'photo.capture': 'Prendre la photo',
+  'photo.validated': 'Validé',
+  'photo.validatedPhoto': 'Ta photo du lieu découvert',
   'photo.near': 'Tu y es presque, prends ta photo',
   'photo.far': "Rapproche-toi d'un lieu pour le découvrir",
   'photo.checking': 'On vérifie où tu es…',

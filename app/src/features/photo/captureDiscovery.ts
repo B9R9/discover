@@ -26,6 +26,8 @@ export interface Capture {
   result: PhotoValidation;
   // Kept only when no place is in range: the user may turn it into a personal place.
   shot: Shot | null;
+  // Where the photo of a validated discovery now lives.
+  photoUri: string | null;
 }
 
 // The camera writes to the cache, which the system may empty: kept photos live in the documents folder.
@@ -36,11 +38,12 @@ function photosDirectory(): Directory {
 }
 
 // Moves the photo out of the cache, then stores it; the file goes away if storing fails.
-async function keepShot(shot: Shot, store: (photoUri: string) => Promise<void>): Promise<void> {
+async function keepShot(shot: Shot, store: (photoUri: string) => Promise<void>): Promise<string> {
   const kept = new File(photosDirectory(), `${shot.takenAt}.jpg`);
   await new File(shot.cacheUri).move(kept);
   try {
     await store(kept.uri);
+    return kept.uri;
   } catch (error) {
     kept.delete();
     throw error;
@@ -75,14 +78,14 @@ export async function captureDiscovery(db: Db, camera: CameraView): Promise<Capt
       : { cacheUri: picture.uri, position: { latitude, longitude }, accuracy, takenAt };
 
   if (result.ok && shot) {
-    await keepShot(shot, (photoUri) =>
-      recordDiscovery(db, { ...shot, placeId: result.placeId, photoUri }),
+    const photoUri = await keepShot(shot, (uri) =>
+      recordDiscovery(db, { ...shot, placeId: result.placeId, photoUri: uri }),
     );
-    return { result, shot: null };
+    return { result, shot: null, photoUri };
   }
-  if (!result.ok && result.reason === 'tooFar' && shot) return { result, shot };
+  if (!result.ok && result.reason === 'tooFar' && shot) return { result, shot, photoUri: null };
   new File(picture.uri).delete();
-  return { result, shot: null };
+  return { result, shot: null, photoUri: null };
 }
 
 // The photo stays in the cache on a refusal, so the user can fix the name and try again.

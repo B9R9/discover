@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { PersonalPlaceForm } from '@/components/PersonalPlaceForm';
 import { ScreenTitle } from '@/components/ScreenTitle';
+import { ValidatedOverlay } from '@/components/ValidatedOverlay';
 import {
   captureDiscovery,
   discardShot,
@@ -36,6 +37,7 @@ export function PhotoScreen() {
   const [message, setMessage] = useState<TranslationKey | null>(null);
   // A photo taken away from any place, waiting for the user to make it a personal place.
   const [pending, setPending] = useState<Shot | null>(null);
+  const [validatedUri, setValidatedUri] = useState<string | null>(null);
 
   if (!permission) return null;
   if (!permission.granted) {
@@ -71,8 +73,12 @@ export function PhotoScreen() {
     run(async () => {
       if (!camera.current) return;
       setMessage('photo.checking');
-      const { result, shot } = await captureDiscovery(db, camera.current);
-      if (result.ok) return done();
+      const { result, shot, photoUri } = await captureDiscovery(db, camera.current);
+      if (result.ok) {
+        setMessage(null);
+        setValidatedUri(photoUri);
+        return;
+      }
       if (shot && (await canCreatePersonalPlace(db, Date.now()))) {
         setMessage(null);
         setPending(shot);
@@ -92,6 +98,7 @@ export function PhotoScreen() {
   function done() {
     setPending(null);
     setMessage(null);
+    setValidatedUri(null);
     router.navigate('/');
   }
 
@@ -154,6 +161,7 @@ export function PhotoScreen() {
           )}
         </SafeAreaView>
       </KeyboardAvoidingView>
+      {validatedUri && <ValidatedOverlay photoUri={validatedUri} onDone={done} />}
     </View>
   );
 }
