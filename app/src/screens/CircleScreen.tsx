@@ -1,9 +1,8 @@
-import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { AddFriendForm } from '@/components/AddFriendForm';
-import { Button } from '@/components/Button';
+import { AccountSection } from '@/components/AccountSection';
 import { FriendsList } from '@/components/FriendsList';
 import { PseudoForm } from '@/components/PseudoForm';
 import { Screen } from '@/components/Screen';
@@ -18,7 +17,6 @@ import { useTheme } from '@/theme/useTheme';
 export function CircleScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const router = useRouter();
   const session = useSession();
   const [circle, reload] = useCircle(Boolean(session));
 
@@ -30,7 +28,7 @@ export function CircleScreen() {
           {session === null && (
             <>
               <Text style={styles.text}>{t('circle.signedOut')}</Text>
-              <Button label={t('circle.signIn')} onPress={() => router.navigate('/profile')} />
+              <AccountSection />
             </>
           )}
           {session && circle.error && <Text style={styles.error}>{t(circle.error)}</Text>}

@@ -80,7 +80,6 @@ export const fr = {
   'purchases.error.failed': 'L’achat n’a pas abouti. Réessaie dans un moment.',
   'circle.title': 'Cercle',
   'circle.signedOut': 'Connecte-toi pour retrouver tes amis et partager tes découvertes.',
-  'circle.signIn': 'Se connecter',
   'circle.pseudoTitle': 'Choisis ton pseudo',
   'circle.pseudoHint':
     'Tes amis te trouvent avec ce pseudo. 3 à 20 caractères : lettres minuscules, chiffres et _.',
