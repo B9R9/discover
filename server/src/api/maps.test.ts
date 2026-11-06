@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { fakeMaps, fakeSpots, fakePosts, fakeSessions, fakeSocial } from './fakeSocial.ts';
+import {
+  fakeMaps,
+  fakeSpots,
+  fakeWalks,
+  fakePosts,
+  fakeSessions,
+  fakeSocial,
+} from './fakeSocial.ts';
 import { route, type Reply, type Services } from './routes.ts';
 
 function setup() {
@@ -11,6 +18,7 @@ function setup() {
     posts: fakePosts(),
     maps: fakeMaps((user) => user !== 'nobody', { a: ['b'] }),
     spots: fakeSpots(),
+    walks: fakeWalks(),
     storage: null,
     auth: fakeSessions,
   };

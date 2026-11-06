@@ -2,6 +2,9 @@ import type { AuthAdmin } from './authAdmin.ts';
 import type { MapRow, MapsStore } from './mapsStore.ts';
 import type { SpotStatus } from '@discover/shared';
 
+import type { SharedWalk } from '@discover/shared';
+
+import type { WalksStore } from './walksStore.ts';
 import { MAX_PENDING_SPOTS, type SpotsStore } from './spotsStore.ts';
 import type { PostsStore } from './postsStore.ts';
 import type { SocialStore } from './socialStore.ts';
@@ -202,5 +205,57 @@ export function fakeSpots(hasProfile: (user: string) => boolean = () => true): S
           .map(([key, status]) => ({ placeId: key.slice(user.length + 1), status })),
       ),
     withdraw: (user, placeId) => Promise.resolve(spots.delete(`${user}/${placeId}`)),
+  };
+}
+
+// In-memory walks: the user sees their own, plus one made by Détour.
+export function fakeWalks(hasProfile: (user: string) => boolean = () => true): WalksStore {
+  const walks = new Map<string, SharedWalk & { author: string }>();
+  let next = 0;
+  const official: SharedWalk = {
+    id: '00000000-0000-4000-8000-ffffffffffff',
+    name: 'Balade Détour',
+    pseudo: null,
+    mine: false,
+    path: [
+      [0, 0],
+      [0, 0.01],
+    ],
+    distanceMeters: 1112,
+    durationSeconds: 890,
+    createdAt: '2026-11-07T10:00:00Z',
+  };
+  return {
+    create: (user, name, path, metrics) => {
+      if (!hasProfile(user)) return Promise.resolve(null);
+      const id = `00000000-0000-4000-8000-${String(++next).padStart(12, '0')}`;
+      walks.set(id, {
+        id,
+        author: user,
+        name,
+        pseudo: 'moi',
+        mine: true,
+        path,
+        ...metrics,
+        createdAt: '2026-11-07T10:00:00Z',
+      });
+      return Promise.resolve(id);
+    },
+    list: (user) =>
+      Promise.resolve([
+        official,
+        ...[...walks.values()]
+          .filter((walk) => walk.author === user)
+          .map(({ author: _author, ...walk }) => walk),
+      ]),
+    remove: (user, id) => {
+      const walk = walks.get(id);
+      return Promise.resolve(walk?.author === user && walks.delete(id));
+    },
+    report: (user, id) => {
+      const walk = walks.get(id);
+      if (!walk) return Promise.resolve('unknown');
+      return Promise.resolve(walk.author === user ? 'own' : 'ok');
+    },
   };
 }

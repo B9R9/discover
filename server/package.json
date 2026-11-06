@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test \"src/**/*.test.ts\"",
     "collect": "node --env-file-if-exists=.env src/collect/index.ts",
-    "spots": "node --env-file-if-exists=.env src/spots/index.ts"
+    "spots": "node --env-file-if-exists=.env src/spots/index.ts",
+    "walks": "node --env-file-if-exists=.env src/walks/index.ts"
   },
   "dependencies": {
     "@discover/shared": "*",

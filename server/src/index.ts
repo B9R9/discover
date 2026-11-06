@@ -4,6 +4,7 @@ import { supabaseAuthAdmin } from './api/authAdmin.ts';
 import { postgresPlacesStore } from './api/placesStore.ts';
 import { postgresMapsStore } from './api/mapsStore.ts';
 import { postgresSpotsStore } from './api/spotsStore.ts';
+import { postgresWalksStore } from './api/walksStore.ts';
 import { postgresPostsStore } from './api/postsStore.ts';
 import { route, type Reply, type Services } from './api/routes.ts';
 import { postgresSocialStore } from './api/socialStore.ts';
@@ -20,6 +21,7 @@ const services: Services = {
   posts: postgresPostsStore(sql),
   maps: postgresMapsStore(sql),
   spots: postgresSpotsStore(sql),
+  walks: postgresWalksStore(sql),
   storage:
     SUPABASE_URL && SUPABASE_SECRET_KEY
       ? supabaseStorageAdmin(SUPABASE_URL, SUPABASE_SECRET_KEY)

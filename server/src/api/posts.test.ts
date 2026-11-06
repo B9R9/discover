@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import {
   fakeMaps,
   fakeSpots,
+  fakeWalks,
   fakePosts,
   fakeSessions,
   fakeSocial,
@@ -25,6 +26,7 @@ function setup(hasProfile: (user: string) => boolean = () => true) {
     posts: fakePosts(hasProfile),
     maps: fakeMaps(),
     spots: fakeSpots(),
+    walks: fakeWalks(),
     storage,
     auth: fakeSessions,
   };

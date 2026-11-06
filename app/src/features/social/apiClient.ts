@@ -22,6 +22,9 @@ const ERRORS: Record<string, TranslationKey> = {
   already_proposed: 'spot.error.exists',
   too_many_pending: 'spot.error.tooMany',
   invalid_spot: 'spot.error.invalid',
+  invalid_walk: 'walk.error.invalid',
+  unknown_walk: 'walk.error.unknown',
+  own_walk: 'walk.error.own',
 };
 
 const NETWORK: TranslationKey = 'account.error.network';

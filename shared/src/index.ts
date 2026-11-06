@@ -90,3 +90,19 @@ export const SPOT_GENRES = [
 export type SpotGenre = (typeof SPOT_GENRES)[number];
 
 export type SpotStatus = 'pending' | 'approved' | 'rejected';
+
+// A walk drawn on the map and snapped to footpaths (phase 7d-2). `pseudo` is null for walks made by Détour.
+export const MAX_WALK_POINTS = 2000;
+export const MAX_WALK_METERS = 25_000;
+
+export interface SharedWalk {
+  id: string;
+  name: string;
+  pseudo: string | null;
+  mine: boolean;
+  // [longitude, latitude] pairs.
+  path: [number, number][];
+  distanceMeters: number;
+  durationSeconds: number;
+  createdAt: string;
+}
