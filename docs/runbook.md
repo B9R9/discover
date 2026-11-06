@@ -206,6 +206,8 @@ Tester un achat sans payer :
 
 Logs : `adb logcat -s ReactNativeJS:V | grep -iE "purchase|store"`.
 
+Changer l'icône, le splash ou `userInterfaceStyle` dans `app.json` demande le même `prebuild --clean` puis `run:android` : Metro ne suffit pas. L'ancienne icône peut rester en cache : désinstalle l'app avant de réinstaller.
+
 Après un ajout de module natif comme `expo-iap`, `prebuild --clean` efface `android/local.properties` : `ANDROID_HOME` doit être exporté (voir Installer), sinon Gradle échoue avec `SDK location not found`.
 
 ## Clé OpenRouteService

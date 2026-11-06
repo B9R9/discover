@@ -534,15 +534,15 @@ Référence : `docs/design.md` (charte validée, mode clair et mode sombre) et l
 - [x] Remplacer `app/src/theme/tokens.ts` par `colors`, `colorsDark`, `fonts`, `spacing`, `radius`, `motion` de la charte.
 - [x] Hook de thème qui choisit le jeu de couleurs selon le réglage du téléphone.
 - [x] Installer et charger `@expo-google-fonts/fraunces`, `caveat`, `special-elite`, `dm-sans` (garder l'écran de lancement tant que les polices ne sont pas prêtes).
-- [ ] Passer `userInterfaceStyle` à `automatic` dans `app.json` : reporté à la fin de R4, car les écrans lisent encore `palette.light` (le système passerait en sombre sous des écrans clairs).
+- [x] `userInterfaceStyle` à `automatic` dans `app.json` (2026-11-06) : tous les écrans lisent le thème. Demande un rebuild natif.
 - Vérifier : `npm run typecheck`, `npm run lint`, l'app démarre sur le téléphone avec les nouvelles polices.
 - Fait le 2026-11-06 : typecheck, lint et 88 tests passent (dont `tokens.test.ts`, 21 cas de contraste). Pas encore vu sur le téléphone : lancer `cd app && npm start` et vérifier que l'app démarre, que l'écran de lancement disparaît et qu'aucune erreur de police n'apparaît.
 - Écart avec la charte d'origine : `stamp` assombri en clair, éclairci en sombre, `muted` et `kraft` sombre ajoutés (voir `docs/design.md`).
 
 ### R2 — Icône et lancement
-- [ ] Brancher `app/assets/brand/` dans `app.json` : `icon`, `adaptiveIcon.foregroundImage`, `backgroundColor` `#2A2630`, image de lancement.
-- [ ] Retirer les anciens `app/assets/logo-detour*.svg` et `chemin-angulaire*.svg` s'ils ne sont plus utilisés.
-- [ ] Écran de lancement animé (trajet, mot, croix), coupé dès que l'app est prête, version sans animation si « réduire les animations ».
+- [x] Icône branchée (2026-11-06) : `icon.png` (1024), icône adaptative Android (avant-plan réduit à 62 % pour tenir dans la zone sûre, fond `#2A2630`, version monochrome), image de lancement sur `#2A2630`. Les PNG sont tirés des SVG de `assets/brand/`.
+- [x] Anciens `logo-detour*.svg`, `chemin-angulaire*.svg` et `android-icon-background.png` retirés (rien ne les utilisait).
+- [ ] Écran de lancement animé (pour l'instant : image fixe) (trajet, mot, croix), coupé dès que l'app est prête, version sans animation si « réduire les animations ».
 - Vérifier : development build sur le téléphone, icône visible sur l'écran d'accueil.
 
 ### R3 — Composants de base
