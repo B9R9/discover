@@ -352,7 +352,7 @@ Principe : l'app reste jouable sans compte. Le compte n'est demandé que pour pa
 
 Découpage en quatre étapes livrables chacune seule :
 
-**7a. Profil public et amis** (base de tout le reste)
+**7a. Profil public et amis** (base de tout le reste) — code fait le 2026-11-06, reste : appliquer la migration `20261107000000_social.sql` en ligne (`supabase db push`, voir runbook) et tester à deux comptes (membres de l'équipe Supabase, voir 7-0)
 - Table `profiles` (id = utilisateur Supabase, pseudo unique, créé à la première action sociale), table `friendships` (demande, acceptée, retirée).
 - API : `PUT /me/profile`, `GET /users?pseudo=`, `POST /friends/requests`, accepter, retirer, `GET /friends`. Jeton de session obligatoire.
 - App : `features/social/`, écran Cercle (liste d'amis, demandes), invitation par pseudo.

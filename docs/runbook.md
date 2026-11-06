@@ -190,6 +190,16 @@ Vérifier la tâche de fond (permission « Toujours » + réglage actif) : la no
 adb shell dumpsys activity services com.b9r9.dtour | grep -i location
 ```
 
+## Tester le Cercle (amis)
+
+Il faut deux comptes qui reçoivent le code : tant qu'il n'y a pas de SMTP à nous (phase 7-0), seuls les e-mails des membres de l'équipe Supabase en reçoivent.
+
+1. Appliquer la migration sur la base visée : `cd server && source .env.production && supabase db push -p "$SUPABASE_DB_PASSWORD"` (en ligne), ou `supabase db reset` (base locale).
+2. Lancer l'API (`cd server && npm run dev`, ou la version Render redéployée) avec `SUPABASE_URL` et `SUPABASE_SECRET_KEY`.
+3. Téléphone A : Profil, se connecter, onglet Cercle, choisir un pseudo. Téléphone B (ou le même après déconnexion) : idem avec un autre e-mail.
+4. A invite B par pseudo ; B voit la demande dans « Demandes reçues » après être revenu sur l'onglet, l'accepte ; les deux se voient dans « Amis ».
+5. Sans l'app, avec un jeton de session : `curl -H "Authorization: Bearer <jeton>" $EXPO_PUBLIC_API_URL/friends`. Sans jeton, la réponse est `401`.
+
 ## Achats de cartes (Play Console)
 
 L'app parle directement à Google Play Billing (`expo-iap`), sans clé ni service tiers. L'app est payante au téléchargement ; les cartes sont des produits intégrés, en achat unique.
