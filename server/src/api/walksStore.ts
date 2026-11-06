@@ -46,7 +46,7 @@ export function postgresWalksStore(sql: Sql): WalksStore {
 
     list(userId) {
       return sql<WalkRow[]>`
-        select w.id, w.name, pr.pseudo, w.author = ${userId} as mine, w.path,
+        select w.id, w.name, pr.pseudo, coalesce(w.author = ${userId}, false) as mine, w.path,
           w.distance_m as "distanceMeters", w.duration_s as "durationSeconds", w.created_at as "createdAt"
         from walks w
         left join profiles pr on pr.user_id = w.author
