@@ -309,18 +309,29 @@ Envoyer : Play Console > Tester et publier > Tests > Test interne > Créer une r
 
 _iOS (TestFlight) : phase 8._
 
+## Changer de projet Supabase
+
+Un projet de l'offre gratuite se met en pause après une période sans activité (statut `INACTIVE`, erreur `tenant/user not found` sur le pooler). Le relancer depuis le dashboard (« Restore project ») ou en créer un autre. Pour en changer :
+
+1. `server/.env.production` : `SUPABASE_DB_PASSWORD`, `DATABASE_URL` (pooler en mode session), `SUPABASE_URL`, `SUPABASE_SECRET_KEY`.
+2. `app/.env` : `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY`, puis `cd app && npx expo start -c`.
+3. Render (`detour-api`) : `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, puis redéployer.
+4. GitHub : secret `DATABASE_URL` du dépôt (collecte hebdomadaire).
+5. `server/supabase/config.toml` : `project_id` de `[remotes.production]`, et le lien du CLI : `supabase link --project-ref <ref>`.
+6. `supabase db push`, `supabase config push`, puis la collecte à la main (`landes`, `gironde`).
+
 ## Déployer le serveur
 
 Secrets du projet en ligne dans `server/.env.production` (ignoré par git, droits 600) : `SUPABASE_DB_PASSWORD`, `DATABASE_URL`, `RESEND_API_KEY`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`. Le recréer à la main depuis le tableau de bord Supabase (Database > Connect > Session pooler, et Settings > API Keys) et Resend si le fichier est perdu. Le CLI masque les clés secrètes sans `--reveal` :
 
 ```
-supabase projects api-keys --project-ref oqlyowhfpfueslepdlzi --reveal -o json
+supabase projects api-keys --project-ref fmhtvyhsqfcdacasbspx --reveal -o json
 ```
 
-Base en ligne (CLI déjà lié au projet `oqlyowhfpfueslepdlzi`, voir `server/supabase/.temp/`) :
+Base en ligne (CLI déjà lié au projet `fmhtvyhsqfcdacasbspx`, voir `server/supabase/.temp/`) :
 
 ```
-cd server && supabase link --project-ref oqlyowhfpfueslepdlzi   # une fois par poste
+cd server && supabase link --project-ref fmhtvyhsqfcdacasbspx   # une fois par poste
 cd server && source .env.production && supabase db push -p "$SUPABASE_DB_PASSWORD"
 cd server && set -a && source .env.production && set +a && supabase config push   # Auth, modèles d'e-mail, SMTP Resend
 cd server && node --env-file=.env.production src/collect/index.ts landes   # collecte à la main sur la base en ligne (puis gironde)

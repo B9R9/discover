@@ -478,7 +478,7 @@ Décisions du 2026-11-06 :
 - Reste (5b) : comptes, suppression de compte, collecte planifiée, hébergement API + projet Supabase en ligne.
 
 ### Phase 5b
-- Projet Supabase `detour` en ligne (Paris, offre gratuite) : migration de la 5a, collecte, RLS vérifiée (la clé publique ne lit rien).
+- Projet Supabase `detour` en ligne (offre gratuite ; ancien projet Paris en pause le 2026-11-06, remplacé par `fmhtvyhsqfcdacasbspx`, mêmes migrations et collecte à refaire) : migration de la 5a, collecte, RLS vérifiée (la clé publique ne lit rien).
 - Connexion par code e-mail à 6 chiffres (10 min, une demande par minute), modèle français, envoi par Resend depuis `onboarding@resend.dev` (seul le titulaire du compte Resend reçoit les codes). Config dans `server/supabase/config.toml`, poussée par `supabase config push` ; SMTP seulement pour le projet en ligne, Mailpit en local.
 - App : section Compte dans Profil, session `supabase-js` dans le `localStorage` d'`expo-sqlite`. 1 dépendance : `@supabase/supabase-js`. Exception Auth notée dans `.claude/CLAUDE.md`.
 
