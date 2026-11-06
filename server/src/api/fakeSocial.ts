@@ -1,5 +1,8 @@
 import type { AuthAdmin } from './authAdmin.ts';
 import type { MapRow, MapsStore } from './mapsStore.ts';
+import type { SpotStatus } from '@discover/shared';
+
+import { MAX_PENDING_SPOTS, type SpotsStore } from './spotsStore.ts';
 import type { PostsStore } from './postsStore.ts';
 import type { SocialStore } from './socialStore.ts';
 import type { StorageAdmin } from './storageAdmin.ts';
@@ -176,5 +179,28 @@ export function fakeMaps(
       const map = friendsOf[user]?.includes(pseudo) ? maps.get(pseudo) : undefined;
       return Promise.resolve(map ? { pseudo, ...map } : null);
     },
+  };
+}
+
+// In-memory spot proposals; `statuses` lets a test mark one as decided.
+export function fakeSpots(hasProfile: (user: string) => boolean = () => true): SpotsStore {
+  const spots = new Map<string, SpotStatus>();
+  return {
+    submit: (user, spot) => {
+      if (!hasProfile(user)) return Promise.resolve('profile_required');
+      const key = `${user}/${spot.placeId}`;
+      if (spots.has(key)) return Promise.resolve('exists');
+      const pending = [...spots].filter(([k, v]) => k.startsWith(`${user}/`) && v === 'pending');
+      if (pending.length >= MAX_PENDING_SPOTS) return Promise.resolve('too_many');
+      spots.set(key, 'pending');
+      return Promise.resolve('ok');
+    },
+    listMine: (user) =>
+      Promise.resolve(
+        [...spots]
+          .filter(([key]) => key.startsWith(`${user}/`))
+          .map(([key, status]) => ({ placeId: key.slice(user.length + 1), status })),
+      ),
+    withdraw: (user, placeId) => Promise.resolve(spots.delete(`${user}/${placeId}`)),
   };
 }

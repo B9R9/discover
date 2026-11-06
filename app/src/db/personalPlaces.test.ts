@@ -74,7 +74,12 @@ test('a server place can be neither edited nor deleted', async () => {
 
 test('only server places can be shared with friends, and cached ones are found by id', async () => {
   const db = await dbWithPlace();
-  const photoId = await addPhoto(db, { uri: 'file:///p.jpg', ...position, accuracy: 5, takenAt: 2000 });
+  const photoId = await addPhoto(db, {
+    uri: 'file:///p.jpg',
+    ...position,
+    accuracy: 5,
+    takenAt: 2000,
+  });
   await replaceCachedPlaces(
     db,
     'landes',

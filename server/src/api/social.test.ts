@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { fakeMaps, fakePosts, fakeSessions, fakeSocial } from './fakeSocial.ts';
+import { fakeMaps, fakeSpots, fakePosts, fakeSessions, fakeSocial } from './fakeSocial.ts';
 import type { PlacesStore } from './placesStore.ts';
 import { route, type Reply, type Services } from './routes.ts';
 
@@ -16,6 +16,7 @@ function setup() {
     social: fakeSocial(),
     posts: fakePosts(),
     maps: fakeMaps(),
+    spots: fakeSpots(),
     storage: null,
     auth: fakeSessions,
   };

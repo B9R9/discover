@@ -117,6 +117,18 @@ export const fr = {
   'feed.blockWarning':
     "Tu ne verras plus ses posts et il sera retiré de tes amis. Tu ne pourras pas l'inviter de nouveau.",
   'feed.blockConfirm': 'Oui, bloquer',
+  'spot.propose': 'Proposer à la communauté',
+  'spot.hint':
+    'Si tu confirmes, le nom, le genre et la position exacte de ce lieu sont envoyés. Après validation, il apparaît sur les cartes de tout le monde.',
+  'spot.confirm': 'Confirmer la proposition',
+  'spot.pending': 'Proposé, en attente de validation.',
+  'spot.approved': 'Publié sur les cartes.',
+  'spot.rejected': 'Refusé.',
+  'spot.withdraw': 'Retirer la proposition',
+  'spot.signIn': 'Connecte-toi pour proposer ce lieu.',
+  'spot.error.exists': 'Ce lieu est déjà proposé.',
+  'spot.error.tooMany': 'Trop de propositions en attente. Attends qu’elles soient validées.',
+  'spot.error.invalid': 'Ce lieu ne peut pas être proposé : il lui faut un nom et un genre.',
   'circle.viewMap': 'Voir sa carte',
   'mymap.title': 'Ma carte partagée',
   'mymap.hint':

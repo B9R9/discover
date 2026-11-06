@@ -10,7 +10,8 @@
     "dev": "node --watch --env-file-if-exists=.env src/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --test \"src/**/*.test.ts\"",
-    "collect": "node --env-file-if-exists=.env src/collect/index.ts"
+    "collect": "node --env-file-if-exists=.env src/collect/index.ts",
+    "spots": "node --env-file-if-exists=.env src/spots/index.ts"
   },
   "dependencies": {
     "@discover/shared": "*",

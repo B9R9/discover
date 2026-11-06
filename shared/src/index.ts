@@ -75,3 +75,18 @@ export interface SharedMap {
   placeIds: string[];
   updatedAt: string;
 }
+
+// Kinds of public spot. Also their category key in the app (`category.<genre>`).
+export const SPOT_GENRES = [
+  'viewpoint',
+  'nature',
+  'shop',
+  'food',
+  'beach',
+  'streetart',
+  'heritage',
+  'leisure',
+] as const;
+export type SpotGenre = (typeof SPOT_GENRES)[number];
+
+export type SpotStatus = 'pending' | 'approved' | 'rejected';

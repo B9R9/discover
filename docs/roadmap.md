@@ -380,9 +380,15 @@ Découpage en quatre étapes livrables chacune seule :
 - Limite connue : la position d'un lieu vient du cache de CE téléphone. Les lieux d'un ami situés dans des départements que tu n'as pas ne s'affichent pas (le compteur dit « N lieux découverts, M sur ta carte »). Un jour, le serveur pourrait renvoyer les positions.
 - Chargement de la carte : un écran « Chargement de la carte… » couvre la carte tant que son style n'est pas chargé (carte principale et carte d'un ami), et un message d'échec si le chargement échoue.
 
-**7d. Spots publics et balades**
-- Partage d'un lieu perso `public` à la communauté, après modération (file d'attente côté serveur, validation manuelle au début).
-- Balades : tracé dessiné puis accroché par OpenRouteService (décision déjà prise), publié directement au début ; modération plus tard (décision du 2026-11-06).
+**7d-1. Spots publics** (plan du 2026-11-07, commencé dans la foulée de ta demande « enchaîne »)
+- L'utilisateur propose un de ses lieux `public` avec un genre (jamais un domicile `private`). Ce qui part : nom, genre, position exacte du lieu (il le sait : texte explicite et bouton de confirmation). Pas de photo au départ.
+- Serveur : table `spot_submissions` (en attente, accepté, refusé), `POST /spots`, `GET /spots/mine`, `DELETE /spots/:placeId` (retirer sa proposition, et le lieu publié s'il l'était). Au plus 20 propositions en attente par personne.
+- Validation à la main au début : `cd server && npm run spots -- list | approve <id> | reject <id>`. Un spot accepté entre dans `places` (id `spot:<uuid>`, source `user`, zone la plus petite qui le couvre), donc arrive dans les cartes de tous au prochain téléchargement de la zone. La collecte OSM ne supprime que la source `osm`, les spots survivent.
+- App : sur la fiche d'un lieu public créé par l'utilisateur, « Proposer à la communauté », avec l'état (en attente, publié, refusé).
+- Limite connue : si les frontières de zone changent à une collecte, la zone d'un spot publié n'est pas recalculée.
+
+**7d-2. Balades**
+- Tracé dessiné puis accroché par OpenRouteService (décision déjà prise), publié directement au début ; modération plus tard (décision du 2026-11-06).
 - Les lieux `private` (domicile) ne sont jamais publics.
 
 Hors phase 7 : événements (questions ouvertes), messagerie, notifications push.

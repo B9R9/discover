@@ -1,21 +1,11 @@
-import type { PlaceId } from '@discover/shared';
+import { SPOT_GENRES, type PlaceId, type SpotGenre } from '@discover/shared';
 
 import type { Db, GeoPoint } from './types';
 
 export type Visibility = 'public' | 'private';
 
 // Kinds of public spot. Also their category key (`category.<genre>`); no genre shows as a plain "Spot".
-export const SPOT_GENRES = [
-  'viewpoint',
-  'nature',
-  'shop',
-  'food',
-  'beach',
-  'streetart',
-  'heritage',
-  'leisure',
-] as const;
-export type SpotGenre = (typeof SPOT_GENRES)[number];
+export { SPOT_GENRES, type SpotGenre };
 
 export interface PersonalPlace extends GeoPoint {
   id: PlaceId;

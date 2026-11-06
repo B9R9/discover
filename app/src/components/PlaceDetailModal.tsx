@@ -14,6 +14,7 @@ import { useTheme } from '@/theme/useTheme';
 
 import { Button } from './Button';
 import { Polaroid } from './Polaroid';
+import { ProposeSpot } from './ProposeSpot';
 import { PersonalPlaceForm } from './PersonalPlaceForm';
 import { SharePostForm } from './SharePostForm';
 import { Stamp } from './Stamp';
@@ -155,6 +156,9 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
                         onPress={() => setMode('view')}
                       />
                     </>
+                  )}
+                  {personal?.visibility === 'public' && personal.genre && mode === 'view' && (
+                    <ProposeSpot place={personal} />
                   )}
                   {mode === 'view' && (
                     <Button

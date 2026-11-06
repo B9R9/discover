@@ -19,6 +19,9 @@ const ERRORS: Record<string, TranslationKey> = {
   invalid_post: 'circle.error.invalidPost',
   unknown_post: 'circle.error.unknownPost',
   own_post: 'circle.error.ownPost',
+  already_proposed: 'spot.error.exists',
+  too_many_pending: 'spot.error.tooMany',
+  invalid_spot: 'spot.error.invalid',
 };
 
 const NETWORK: TranslationKey = 'account.error.network';
