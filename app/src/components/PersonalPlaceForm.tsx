@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   genre: {
     borderWidth: 1,
     borderColor: palette.light.border,
-    borderRadius: radius.pill,
+    borderRadius: radius.round,
     paddingHorizontal: spacing.md,
     minHeight: 44,
     justifyContent: 'center',

@@ -16,6 +16,10 @@
   },
   "dependencies": {
     "@discover/shared": "*",
+    "@expo-google-fonts/caveat": "^0.4.2",
+    "@expo-google-fonts/dm-sans": "^0.4.2",
+    "@expo-google-fonts/fraunces": "^0.4.1",
+    "@expo-google-fonts/special-elite": "^0.4.1",
     "@maplibre/maplibre-react-native": "^11.5.0",
     "@supabase/supabase-js": "^2.117.3",
     "expo": "~57.0.27",

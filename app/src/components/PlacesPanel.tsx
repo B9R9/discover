@@ -5,7 +5,8 @@ import type { NearbyPlace } from '@/features/places/nearbyPlaces';
 import type { RouteState } from '@/features/places/useWalkingRoute';
 import { formatDistance, formatWalkDuration } from '@/lib/format';
 import { t } from '@/lib/i18n/t';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { fonts, radius, spacing } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 import { DirectionArrow } from './DirectionArrow';
 import { PlaceRow } from './PlaceRow';
@@ -52,13 +53,18 @@ export function PlacesPanel({
   route,
   onHeightChange,
 }: PlacesPanelProps) {
+  const { colors } = useTheme();
+  const hint = [styles.hint, { color: colors.muted }];
   return (
     <View
-      style={styles.panel}
+      style={[
+        styles.panel,
+        { backgroundColor: colors.paperLight, borderColor: colors.ink, shadowColor: colors.ink },
+      ]}
       onLayout={(event) => onHeightChange(event.nativeEvent.layout.height)}
     >
-      <View style={styles.handle} />
-      <Text accessibilityRole="header" style={styles.title}>
+      <View style={[styles.handle, { backgroundColor: colors.kraft }]} />
+      <Text accessibilityRole="header" style={[styles.title, { color: colors.ink }]}>
         {t('places.title')}
       </Text>
       {selected && !selected.discovered && (
@@ -68,18 +74,16 @@ export function PlacesPanel({
             rotation={selected.bearing - (heading ?? 0)}
             distance={selected.distance}
           />
-          <Text style={styles.hint}>{t('places.hint')}</Text>
+          <Text style={[styles.note, { color: colors.ink }]}>{t('places.hint')}</Text>
         </View>
       )}
       {selected?.discovered && (
-        <Text style={[styles.detail, styles.route]}>{routeText(route)}</Text>
+        <Text style={[styles.detail, styles.route, { color: colors.ink }]}>{routeText(route)}</Text>
       )}
-      {!hasPosition && <Text style={styles.hint}>{t('places.waitingPosition')}</Text>}
-      {lockedAreaName && (
-        <Text style={styles.hint}>{t('places.locked', { area: lockedAreaName })}</Text>
-      )}
+      {!hasPosition && <Text style={hint}>{t('places.waitingPosition')}</Text>}
+      {lockedAreaName && <Text style={hint}>{t('places.locked', { area: lockedAreaName })}</Text>}
       {hasPosition && !lockedAreaName && places.length === 0 && (
-        <Text style={styles.hint}>{t('places.empty')}</Text>
+        <Text style={hint}>{t('places.empty')}</Text>
       )}
       <ScrollView style={styles.list}>
         {places.slice(0, LISTED_PLACES).map((place) => (
@@ -101,27 +105,22 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: palette.light.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
+    borderTopWidth: 2,
+    borderTopLeftRadius: radius.card,
+    borderTopRightRadius: radius.card,
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.sm,
-    shadowColor: palette.light.text,
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: -3 },
+    elevation: 6,
   },
-  handle: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.pill,
-    backgroundColor: palette.light.border,
-    marginVertical: spacing.sm,
-  },
-  title: { fontSize: 18, lineHeight: 24, fontWeight: '600', color: palette.light.text },
+  handle: { alignSelf: 'center', width: 40, height: 3, marginVertical: spacing.sm },
+  title: { fontFamily: fonts.title, fontSize: 24, lineHeight: 28 },
   detail: { marginTop: spacing.md, gap: spacing.sm },
-  route: { fontSize: 16, lineHeight: 24, fontWeight: '500', color: palette.light.text },
-  hint: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted, marginTop: spacing.sm },
+  route: { fontFamily: fonts.stamp, fontSize: 16, lineHeight: 24 },
+  // Handwritten remark: charter minimum is 20 px.
+  note: { fontFamily: fonts.hand, fontSize: 22, lineHeight: 26 },
+  hint: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, marginTop: spacing.sm },
   list: { maxHeight: 220, marginTop: spacing.sm },
 });

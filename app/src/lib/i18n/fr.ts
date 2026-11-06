@@ -45,6 +45,13 @@ export const fr = {
   'profile.noDiscoveries':
     'Pas encore de découverte. Suis une flèche, il y a quelque chose par là.',
   'profile.unknownPlace': 'Lieu disparu',
+  'profile.mapStyle': 'Type de carte',
+  'profile.mapStyle.carnet': 'Carnet',
+  'profile.mapStyle.carnet.hint': 'Papier, encre et brouillard hachuré.',
+  'profile.mapStyle.classique': 'Classique',
+  'profile.mapStyle.classique.hint': "Les couleurs d'OpenStreetMap.",
+  'profile.mapStyle.sombre': 'Sombre',
+  'profile.mapStyle.sombre.hint': 'Pour les balades du soir.',
   'profile.backgroundTracking': 'Enregistrer mes balades en arrière-plan',
   'profile.backgroundTrackingHint':
     'La carte se dévoile même écran éteint. Il faut autoriser la position « Toujours ».',

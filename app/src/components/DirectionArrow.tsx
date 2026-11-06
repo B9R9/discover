@@ -2,7 +2,8 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { formatDistance } from '@/lib/format';
 import { t } from '@/lib/i18n/t';
-import { palette, spacing } from '@/theme/tokens';
+import { fonts, spacing } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 interface DirectionArrowProps {
   // Degrees clockwise from the top of the screen.
@@ -11,6 +12,7 @@ interface DirectionArrowProps {
 }
 
 export function DirectionArrow({ rotation, distance }: DirectionArrowProps) {
+  const { colors } = useTheme();
   const label = formatDistance(distance);
   return (
     <View
@@ -18,8 +20,13 @@ export function DirectionArrow({ rotation, distance }: DirectionArrowProps) {
       accessible
       accessibilityLabel={t('places.directionLabel', { distance: label })}
     >
-      <View style={[styles.arrow, { transform: [{ rotate: `${rotation}deg` }] }]} />
-      <Text style={styles.distance}>{label}</Text>
+      <View
+        style={[
+          styles.arrow,
+          { borderBottomColor: colors.stamp, transform: [{ rotate: `${rotation}deg` }] },
+        ]}
+      />
+      <Text style={[styles.distance, { color: colors.ink }]}>{label}</Text>
     </View>
   );
 }
@@ -34,7 +41,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 36,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: palette.light.accent,
   },
-  distance: { fontSize: 22, lineHeight: 28, fontWeight: '600', color: palette.light.text },
+  distance: { fontFamily: fonts.stamp, fontSize: 22, lineHeight: 28 },
 });

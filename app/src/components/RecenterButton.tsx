@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { t } from '@/lib/i18n/t';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { radius, spacing } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
 
 interface RecenterButtonProps {
   onPress: () => void;
@@ -9,16 +10,26 @@ interface RecenterButtonProps {
 }
 
 export function RecenterButton({ onPress, bottom }: RecenterButtonProps) {
+  const { colors } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={t('map.recenter')}
       onPress={onPress}
       hitSlop={8}
-      style={({ pressed }) => [styles.button, { bottom }, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.button,
+        {
+          bottom,
+          backgroundColor: colors.paperLight,
+          borderColor: colors.ink,
+          shadowColor: colors.ink,
+        },
+        pressed && styles.pressed,
+      ]}
     >
-      <View style={styles.ring}>
-        <View style={styles.dot} />
+      <View style={[styles.ring, { borderColor: colors.ink }]}>
+        <View style={[styles.dot, { backgroundColor: colors.postal }]} />
       </View>
     </Pressable>
   );
@@ -30,24 +41,23 @@ const styles = StyleSheet.create({
     right: spacing.lg,
     width: 48,
     height: 48,
-    borderRadius: radius.pill,
+    borderRadius: radius.round,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.light.surface,
-    shadowColor: palette.light.text,
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
     elevation: 4,
   },
   pressed: { opacity: 0.8 },
   ring: {
     width: 22,
     height: 22,
-    borderRadius: radius.pill,
+    borderRadius: radius.round,
     borderWidth: 2,
-    borderColor: palette.light.text,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dot: { width: 8, height: 8, borderRadius: radius.pill, backgroundColor: palette.light.accent },
+  dot: { width: 8, height: 8, borderRadius: radius.round },
 });

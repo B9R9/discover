@@ -1,204 +1,238 @@
 # Détour : charte graphique
 
-Lis ce fichier avant de créer ou modifier un écran ou un composant. Les valeurs ci-dessous sont la référence. Ne mets jamais une couleur ou une taille en dur dans un composant, utilise les tokens de `app/src/theme/tokens.ts`.
+Lis ce fichier avant de créer ou modifier un écran ou un composant. Il remplace l'ancienne version (parchemin, orange Lanterne, vert Sentier, Fraunces 600 et Inter), qui était trop rudimentaire et ne portait pas l'esprit de l'app.
 
-C'est une première version. Les choix marqués "à valider" peuvent changer.
+Référence visuelle : le canvas « Détour, direction carnet de voyage » (https://claude.ai/artifact/UtVQy8ZYtA5ju55kidNP9m). En cas de doute, le canvas fait foi pour l'apparence, ce fichier fait foi pour les valeurs et les règles.
 
-## Marque
-
-- **Nom** : Détour (sortir du chemin le plus rapide pour découvrir ce qu'il y a autour).
-- **Logo** : un cercle plein couleur Lanterne qui émerge du brouillard, avec un halo de lumière. Le concept de l'app en un seul symbole.
-- Fichiers : `app/assets/logo-detour.svg` (version complète, avec dégradés), `app/assets/logo-detour-flat.svg` (version simplifiée en aplats), `app/assets/logo-detour-1024.png` (aperçu 1024 px, pas encore fourni).
-- **Logotype** : le mot « détour » en minuscules, entouré d'un chemin angulaire Sentier qui part d'un cercle vide (le départ) et finit sur un point Lanterne (le lieu découvert). Sert aux en-têtes, à l'écran d'accueil et aux supports, pas à l'icône de l'app.
-- Fichiers : `app/assets/logo-detour-wordmark.svg` (fond clair : Encre et Sentier), `app/assets/logo-detour-wordmark-dark.svg` (fond sombre : Craie et Sentier clair). Fond transparent, à poser sur Parchemin ou Nuit.
-- Pour l'icône de l'app, exporte le SVG en PNG 1024 x 1024 sans transparence. Garde le cercle centré, avec de la marge autour.
-- Ne modifie pas les couleurs du logo. Le fond est toujours Brume (`#D5D9DD`) ou, en sombre, Brume nuit (`#2B343C`).
+Ne mets jamais une couleur, une taille ou une police en dur dans un composant. Tout vient de `app/src/theme/tokens.ts`.
 
 ## Ambiance
 
-Détour, c'est la curiosité et la balade. On doit avoir l'impression de déplier une vieille carte d'explorateur et de la voir se remplir de couleur au fil des découvertes.
+Détour est un carnet de voyage de poche. On ne consulte pas une carte froide, on remplit un carnet : on y colle des photos, on y pose des tampons, on y trace des chemins au crayon. Le tout doit sembler fait à la main, vagabond et un peu bohème, jamais lisse ni corporate.
 
-- **Chaleureux et humain**, pas froid ni technique.
-- **Calme** : on marche, on lève les yeux, l'interface ne doit pas crier.
-- **Le contraste central** : ce qui n'est pas découvert est dans le brouillard (gris doux, effacé), ce qui est découvert est vivant et coloré.
+Trois idées guident tout le reste :
 
-À éviter : look de GPS classique, néons, dégradés flashy, ton corporate.
+- **Le brouillard est du papier encore vierge.** Ce qui n'est pas découvert reste hachuré et pâle. Ce qui est découvert se colorie.
+- **Chaque lieu devient une page du carnet.** Photo en polaroïd, note manuscrite, tampon numéroté.
+- **Tout bouge comme du papier.** On glisse, on se redresse, on se pose. Pas de rebond de dessin animé.
+
+À éviter : look de GPS, néons, dégradés, verre dépoli, coins très arrondis, blanc pur, gris froid, ton publicitaire.
 
 ## Couleurs
 
-### Mode clair
+### Mode clair (la référence)
 
-| Rôle | Nom | Valeur |
-|---|---|---|
-| Fond de l'app | Parchemin | `#F6F1E7` |
-| Surface (cartes, feuilles) | Papier | `#FFFFFF` |
-| Texte principal | Encre | `#1F2A33` |
-| Texte secondaire | Brume foncée | `#5B6670` |
-| Accent principal (actions) | Lanterne | `#F2A33A` |
-| Texte sur l'accent | Encre | `#1F2A33` |
-| Chemins parcourus et lieux découverts | Sentier | `#2F7F79` |
-| Brouillard (zones non découvertes) | Brume | `#D5D9DD` |
-| Bordures | Trait | `#E3DCCB` |
+| Token | Nom | Valeur | Usage |
+|---|---|---|---|
+| `paper` | Papier | `#EFE4CC` | Fond des écrans |
+| `paperLight` | Papier clair | `#FBF6E8` | Billets, lignes, étiquettes |
+| `paperWhite` | Papier blanc | `#FFFDF6` | Polaroïds, cartes mises en avant |
+| `kraft` | Kraft | `#D9C39A` | Fonds de démos, séparations |
+| `fog` | Brouillard | `#E2D2AE` | Zones non découvertes (avec hachures) |
+| `ink` | Encre | `#2A2630` | Texte, contours, barre d'onglets |
+| `stamp` | Tampon | `#B13F2C` | Action principale, validation, trajets |
+| `lantern` | Lanterne | `#E3A33B` | Lieux révélés, scotch, onglet actif |
+| `sage` | Sauge | `#6F8660` | Parcs, nature, zones découvertes |
+| `postal` | Bleu postal | `#38577A` | Eau, étiquettes secondaires, kickers |
+| `muted` | Encre douce | `#5E5866` | Texte secondaire, aides, légendes |
 
-### Mode sombre
+### Mode sombre (validé)
 
-| Rôle | Nom | Valeur |
-|---|---|---|
-| Fond de l'app | Nuit | `#14191E` |
-| Surface | Ardoise | `#1E262D` |
-| Texte principal | Craie | `#F2EEE4` |
-| Texte secondaire | Brume claire | `#A3ADB5` |
-| Accent principal | Lanterne | `#F2A33A` |
-| Chemins et lieux découverts | Sentier clair | `#5FB8B0` |
-| Brouillard | Brume nuit | `#2B343C` |
-| Bordures | Trait nuit | `#2F3A43` |
+Même logique : un carnet de nuit. Les écrans Carte et Moi existent en version sombre sur le canvas.
 
-### Couleurs d'état
-
-| État | Valeur |
+| Token | Valeur |
 |---|---|
-| Succès (lieu validé) | `#3E9B5F` |
-| Erreur | `#C94B3B` |
-| Information | `#3C7DB5` |
+| `paper` | `#1C1A21` |
+| `paperLight` | `#26232C` |
+| `paperWhite` | `#2F2B36` |
+| `ink` (texte, contours) | `#EFE4CC` |
+| `stamp` | `#E8765F` |
+| `fog` | `#2B2832` |
+| `kraft` (séparations) | `#3A3641` |
+| `muted` | `#B3AAA0` |
+| barre d'onglets | `#121017` |
+| `postal` (texte) | `#7FA3CC` |
+| brun des tampons | `#C9A860` |
+
+`lantern`, `sage` et `postal` (en surface, comme l'eau de la carte) restent identiques. Le texte sur un bouton `stamp` passe en `#1C1A21`, car du blanc sur `#E8765F` n'atteint pas 4,5:1. Les ombres deviennent noires (35 %) et les contours des traits clairs à 35 %.
 
 ### Règles d'usage
 
-- L'accent Lanterne sert aux actions principales (prendre une photo, valider). Un seul bouton accent par écran.
-- Le texte sur l'accent est toujours en Encre, jamais en blanc (contraste insuffisant).
-- Le vert Sentier est réservé à ce qui est découvert : chemins, lieux validés, badges. Ne l'utilise pas pour de la décoration.
-- Le brouillard est la seule couleur "éteinte" de la carte. Pas d'autre gris sur la carte.
-- Vise un contraste d'au moins 4,5:1 pour le texte (WCAG AA) et vérifie les nouvelles combinaisons.
+- Une seule action principale par écran, en `stamp`. Le texte dessus est en `paperWhite` (contraste 5,5:1).
+- `lantern` et `sage` ne portent jamais de texte sur fond `paper` (contraste trop faible). Ils servent de couleur de surface ou de décor.
+- `postal` sert aux petites étiquettes en capitales (11 à 13 px), au contraste suffisant sur `paper`.
+- Pas d'autre rouge que `stamp`, pas d'autre gris que `fog` sur la carte.
+- Contraste minimum 4,5:1 pour tout texte. `app/src/theme/tokens.test.ts` vérifie les paires de la charte dans les deux modes : ajoute-y toute nouvelle combinaison.
 
 ## Typographie
 
-- **Titres** : Fraunces (serif chaleureux, esprit carte ancienne), poids 600. À valider.
-- **Texte et interface** : Inter, poids 400, 500 et 600.
-- Chargement avec `@expo-google-fonts/fraunces` et `@expo-google-fonts/inter`.
+Quatre voix, chacune avec un rôle précis. Ne les mélange pas.
 
-| Style | Police | Taille | Interligne | Poids |
-|---|---|---|---|---|
-| Titre 1 | Fraunces | 28 | 34 | 600 |
-| Titre 2 | Fraunces | 22 | 28 | 600 |
-| Titre 3 | Inter | 18 | 24 | 600 |
-| Corps | Inter | 16 | 24 | 400 |
-| Corps petit | Inter | 14 | 20 | 400 |
-| Légende | Inter | 12 | 16 | 500 |
-| Bouton | Inter | 16 | 20 | 600 |
+| Rôle | Police | Usage | Taille typique |
+|---|---|---|---|
+| Titres | Fraunces italique 700 | Noms de lieux, titres d'écran, wordmark | 20 à 38 px |
+| Notes à la main | Caveat 700 | Annotations, légendes de photo, mots doux | 20 à 28 px |
+| Tampons et étiquettes | Special Elite 400 | Dates, compteurs, kickers, boutons, onglets | 11 à 17 px |
+| Texte courant | DM Sans 400, 500, 700 | Descriptions, histoires, aide | 14 à 15 px |
 
-Respecte la taille de texte système de l'utilisateur (accessibilité), ne bloque pas le zoom.
+- Kickers en capitales avec `letterSpacing` 0.12 à 0.16 em.
+- Interligne du texte courant : 1.5. Titres : 1.05 à 1.1.
+- Une phrase manuscrite fait une ou deux lignes. Au-delà, passe en DM Sans.
+- Paquets Expo : `@expo-google-fonts/fraunces`, `@expo-google-fonts/caveat`, `@expo-google-fonts/special-elite`, `@expo-google-fonts/dm-sans`.
 
-## Espacements et formes
+## Matières et gestes
 
-- Grille de 4 : `4, 8, 12, 16, 24, 32, 48`.
-- Marge latérale des écrans : 16.
-- Rayons : petits éléments 8, cartes 16, feuilles du bas 24, boutons et badges en pilule (999).
-- Ombres douces, une seule intensité pour les cartes : léger flou, opacité faible. Pas d'ombres dures.
-- Zone tactile minimale : 44 x 44.
+Ces éléments donnent le caractère de l'app. Chacun a une règle.
 
-## La carte
-
-C'est l'élément le plus important de l'app.
-
-- **Fond de carte** : style MapLibre sobre et chaud, en harmonie avec le Parchemin (clair) ou Nuit (sombre). Peu de labels.
-- **Brouillard** : couche couleur Brume par-dessus la carte, avec une opacité élevée mais pas totale, pour qu'on devine qu'il y a quelque chose. Les bords des zones découvertes sont adoucis (dégradé), jamais coupés net.
-- **Zones découvertes** : la carte est visible et en couleur autour des lieux validés et des chemins parcourus.
-- **Chemins parcourus** : trait Sentier, 4 de large, extrémités arrondies.
-- **Lieux découverts** : marqueur Sentier avec la miniature de la photo prise.
-- **Lieux non découverts** : pas de marqueur sur la carte. Seulement une flèche de direction, couleur Lanterne, avec la distance.
-- **Position de l'utilisateur** : point Lanterne avec un halo léger.
-- L'apparition d'une zone nouvellement découverte est animée (le brouillard se dissipe, environ 600 ms).
+- **Papier** : fond `paper` avec une fine ligne de cahier (1 px, encre à 5 %, tous les 30 px).
+- **Polaroïd** : cadre `paperWhite`, bord bas plus épais pour la légende manuscrite, ombre portée douce, rotation de -5° à +5°. Il contient la vraie photo du voyageur.
+- **Scotch** : petit rectangle `lantern` à 70 % d'opacité, rotation de ±5°, posé à cheval sur le bord haut. Uniquement sur polaroïds et cartes mises en avant.
+- **Billet** : fond `paperLight`, séparation en pointillés, deux encoches rondes aux extrémités du pointillé. Sert aux sorties.
+- **Tampon** : double contour (3 px), capitales Special Elite, rotation de -14° à +6°. Sert à valider (`VALIDÉ 004`), compter ou signaler (`CHOISIE`).
+- **Pointillé de trajet** : `stamp`, points ronds (`strokeDasharray` 2 9, extrémités rondes), fin du trajet marquée d'une croix.
+- **Rotation** : réservée aux éléments décoratifs (polaroïds, billets, tampons, notes). Boutons, champs et barre d'onglets restent droits ou à 1° maximum.
+- **Ombres** : toujours chaudes (encre à 20 à 30 %), jamais bleutées.
 
 ## Composants
 
-### Bouton principal
-Fond Lanterne, texte Encre, pilule, hauteur 52. État pressé : légèrement plus foncé. État désactivé : opacité réduite.
+- **Barre d'onglets** : fond `ink`, 76 px. Cinq entrées : Carte, Sorties, appareil photo (rond `stamp`, 56 px, bordure `paper`, qui dépasse de 26 px), Cercle, Moi. Onglet actif en `lantern`, les autres en `paper`. Libellés en Special Elite 12 px.
+- **Bouton principal** : fond `stamp`, texte `paperWhite`, Special Elite, capitales, 52 px de haut, coins 4 px.
+- **Bouton secondaire** : contour 2 px `ink`, fond transparent. Variante danger : contour `stamp`.
+- **Pastille de filtre** : 44 px de haut, contour 2 px. Active : fond `ink`, texte `paper`.
+- **Interrupteur** : piste 52 x 30, `stamp` allumé, kraft éteint. Toute la ligne est la zone de toucher (`role=switch`).
+- **Champ** : contour 2 px `ink`, fond `paperWhite`, 48 à 52 px. Libellé visible au-dessus, en capitales `stamp`.
+- **Bouton retour** : rond de 44 px, contour 2 px `ink`.
+- **Carte « fiche »** : `paperWhite`, ombre portée, scotch, rotation légère.
+- **Cible tactile** : 44 px minimum, partout.
 
-### Bouton secondaire
-Fond transparent, bordure Trait, texte Encre, même taille que le principal.
+## La carte
 
-### Carte de lieu
-Fond Papier, rayon 16, ombre douce. Photo en haut (si découvert), titre, catégorie et distance. Non découvert : la photo est remplacée par un aplat Brume avec une icône de point d'interrogation.
+- **Types de carte** (réglage) : Carnet (défaut), Classique (couleurs OpenStreetMap, style `liberty`) et Sombre (carte en `colorsDark`). Le brouillard, les repères et le trajet suivent la palette de la carte.
+- Fond `paper`. Eau en `postal` à 55 %. Parcs en `sage`. Bâtiments en `lantern` à 50 %.
+- **Brouillard** : motif hachuré à 35° (traits `ink` à 12 %, tous les 9 px) sur `fog`, percé de « trous » aux contours irréguliers autour des lieux validés. Le contour d'un trou est un pointillé fin.
+- **Repères** : disque `paperLight` avec contour `stamp`, numéro Special Elite. Un repère choisi est plein `stamp`. Un repère à ajouter est en pointillés avec un « + ».
+- **Annotations** : noms de lieux en Caveat 22 px, légèrement inclinés. Zones inconnues marquées « terra incognita » en Caveat à 55 % d'opacité.
+- **Position de l'utilisateur** : point `postal` avec anneau à 25 %.
+- **Boussole** : en haut de carte, contour fin, aiguille `stamp`.
+- **Tracé de balade** : le trait se colle au chemin le plus proche (réglage activé par défaut). Pendant le dessin, on affiche le geste d'origine en pointillés fins `ink` et le tracé recollé en `stamp`. L'aimant de la barre d'outils coupe l'accroche pour les parcs et les cours.
 
-### Badge "Découvert"
-Pilule Sentier avec texte blanc ou Craie, taille Légende. Le contraste doit rester suffisant.
+## Mouvements
 
-### Écran de prise de photo
-Plein écran, interface minimale. Le bouton de capture est une grande pastille Lanterne en bas au centre. Un message court indique si le lieu est à portée ("Tu y es presque" / "Rapproche-toi").
+| Moment | Durée | Courbe | Description |
+|---|---|---|---|
+| Changer d'onglet | 320 ms | ease-out | La page entrante glisse de 46 px en se redressant de 2°, l'ancienne s'efface de l'autre côté |
+| Valider un lieu | 450 ms + 140 ms | ease-out | Le polaroïd monte depuis le bouton photo, puis le tampon claque, avec une petite vibration |
+| Brouillard qui se lève | 900 ms | ease-in-out | Le trou s'agrandit autour du lieu, la couleur apparaît dessous |
+| Lancement | 3,5 s max | linéaire puis fondu 300 ms | Le trajet se dessine, le mot se pose, la croix se tamponne, le brouillard se retire |
 
-### Feuille du bas
-Fond Papier, rayon 24 en haut, poignée centrée. Sert à la liste des lieux proches et au détail d'un lieu.
+- Rien au-delà de 450 ms sauf le lancement et le brouillard.
+- Pas de rebond de dessin animé.
+- Si « réduire les animations » est activé, tout saute à l'état final.
+- Coupe l'écran de lancement dès que l'app est prête.
 
-### Barre de navigation
-Trois onglets maximum : Carte, Découvertes (ses photos et lieux), Profil. Icône active en Lanterne, les autres en Brume foncée.
+## Identité
 
-## Icônes et images
+- **Nom** : détour, en minuscules.
+- **Logotype** : « détour » en Fraunces italique 700, suivi d'une petite croix de fin de trajet (`stamp` sur papier clair, `lantern` sur fond sombre). Le trajet pointillé complet est réservé à l'écran de lancement et à l'icône.
+- **Icône d'app** : couverture sombre `ink`, couture ocre sur le bord gauche, « d » italique `paper`, trajet pointillé `lantern` qui finit par une croix. À petite taille (40 px), le pointillé disparaît et il reste la lettre et la croix.
+- Export final, dans `app/assets/brand/` : `detour-icon-1024.svg` et `.png` (lettre en tracés, 1024 px, sans coins arrondis, le téléphone les applique), `detour-icon-foreground.svg` (sans fond, pour l'icône adaptative Android, à placer sur un fond `#2A2630`), `detour-logotype-ink.svg` (sur papier clair, croix `stamp`) et `detour-logotype-paper.svg` (sur fond sombre, croix `lantern`). Ne retape jamais le nom avec une police : utilise ces fichiers.
+- Dans `app.json` : `icon` = le PNG 1024, `android.adaptiveIcon.foregroundImage` = le foreground, `backgroundColor` = `#2A2630`. Retire les anciens `app/assets/logo-detour*.svg`.
 
-- Jeu d'icônes unique, trait de 2, extrémités arrondies (Lucide ou Phosphor). Ne mélange pas deux jeux.
-- Les photos des utilisateurs sont affichées avec un rayon de 12 et jamais déformées (recadrage, pas d'étirement).
-- Illustrations : simples, à plat, tons Parchemin et Sentier. Pas de photos de stock.
+## Écrans
 
-## Ton des textes
+| Écran | Rôle |
+|---|---|
+| Chargement | Lancement animé |
+| Carte | Plan du quartier, brouillard, prochain détour proposé |
+| Valider un lieu | Après la photo : polaroïd, tampon, « Coller dans le carnet » |
+| Fiche d'un lieu | Photo, histoire, mots-clés, sorties associées |
+| Sorties | Liste de billets, filtres (ce soir, week-end, gratuit) |
+| Détail d'une sortie | Quand, prix, où, thème, qui y va |
+| Cercle | Fil de pages et de cartes des autres |
+| Cercle, sous-pages | Carte partagée, profil voyageur, mots doux, balades, laisser une balade, dessiner sa balade |
+| Moi | Couverture du carnet, tampons, cartes de villes |
+| Moi, sous-pages | Pages collées, données, réglages, débloquer une ville |
+| Compte | Connexion par e-mail, code à 6 chiffres, compte, déconnexion, suppression. Demandé seulement pour partager, commenter ou laisser une balade |
 
-- Tutoiement, phrases courtes, ton amical.
-- Encourager sans pousser : "Il y a quelque chose par là" plutôt que "Allez, découvre vite !".
-- Pas de jargon technique ni de ton corporate.
-- Exemples : "Lève les yeux, tu y es presque", "Nouvelle zone découverte", "Cette carte se débloque pour 2,99 €".
+## Textes
 
-## Mouvement
+- Français, tutoiement, ton chaleureux et simple. Phrases courtes.
+- Les phrases manuscrites sont des petites remarques, pas des slogans : « 8 min à pied de chez toi », « encore un peu, jusqu'au 3 ».
+- Pas de point d'exclamation en série, pas d'argot marketing, pas de tiret cadratin.
+- Les textes passent par le fichier de traduction. Les prix, adresses et versions encore inconnus restent en `[PRIX]`, `[ADRESSE]`, `[VERSION]` tant qu'ils ne sont pas définis.
+- Toute affirmation sur les données personnelles doit rester vraie dans le produit (position sur l'appareil, photos sur l'appareil par défaut).
 
-- Animations courtes (150 à 300 ms), douces, pas de rebond exagéré.
-- Seule animation "spéciale" : la dissipation du brouillard à une découverte. Elle doit être le moment fort de l'app.
-- Respecte le réglage "réduire les animations" du système.
+## Accessibilité
 
-## Tokens (à copier dans `app/src/theme/tokens.ts`)
+- Cible tactile de 44 px minimum, libellés visibles sur chaque champ.
+- Icône seule : toujours un `accessibilityLabel`.
+- Le texte manuscrit reste lisible : jamais sous 20 px, jamais en `lantern` ou `sage` sur `paper`.
+- Les éléments décoratifs (scotch, rotations, hachures) sont cachés aux lecteurs d'écran.
+- La couleur seule ne porte jamais l'état : un repère choisi est aussi plein, une pastille active aussi inversée.
+
+## Tokens (à copier dans `tokens.ts`)
 
 ```ts
-export const palette = {
-  light: {
-    background: '#F6F1E7',
-    surface: '#FFFFFF',
-    text: '#1F2A33',
-    textMuted: '#5B6670',
-    accent: '#F2A33A',
-    onAccent: '#1F2A33',
-    discovered: '#2F7F79',
-    fog: '#D5D9DD',
-    border: '#E3DCCB',
-  },
-  dark: {
-    background: '#14191E',
-    surface: '#1E262D',
-    text: '#F2EEE4',
-    textMuted: '#A3ADB5',
-    accent: '#F2A33A',
-    onAccent: '#1F2A33',
-    discovered: '#5FB8B0',
-    fog: '#2B343C',
-    border: '#2F3A43',
-  },
-  state: {
-    success: '#3E9B5F',
-    error: '#C94B3B',
-    info: '#3C7DB5',
-  },
+export const colors = {
+  paper: '#EFE4CC',
+  paperLight: '#FBF6E8',
+  paperWhite: '#FFFDF6',
+  kraft: '#D9C39A',
+  fog: '#E2D2AE',
+  ink: '#2A2630',
+  stamp: '#B13F2C',
+  lantern: '#E3A33B',
+  sage: '#6F8660',
+  postal: '#38577A',
+  muted: '#5E5866',
+  tabBar: '#2A2630',
+  postalText: '#38577A',
+  brownStamp: '#6F5A2A',
+  onStamp: '#FFFDF6',
 } as const;
 
-export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 } as const;
-
-export const radius = { sm: 8, photo: 12, md: 16, lg: 24, pill: 999 } as const;
-
-export const font = {
-  heading: 'Fraunces_600SemiBold',
-  body: 'Inter_400Regular',
-  bodyMedium: 'Inter_500Medium',
-  bodyBold: 'Inter_600SemiBold',
+export const colorsDark = {
+  ...colors,
+  paper: '#1C1A21',
+  paperLight: '#26232C',
+  paperWhite: '#2F2B36',
+  kraft: '#3A3641',
+  fog: '#2B2832',
+  ink: '#EFE4CC',
+  stamp: '#E8765F',
+  muted: '#B3AAA0',
+  tabBar: '#121017',
+  postalText: '#7FA3CC',
+  brownStamp: '#C9A860',
+  onStamp: '#1C1A21',
 } as const;
+
+export const fonts = {
+  title: 'Fraunces_700Bold_Italic',
+  hand: 'Caveat_700Bold',
+  stamp: 'SpecialElite_400Regular',
+  body: 'DMSans_400Regular',
+  bodyMedium: 'DMSans_500Medium',
+  bodyBold: 'DMSans_700Bold',
+} as const;
+
+export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
+export const radius = { card: 4, pill: 26, round: 999 } as const;
+export const motion = { tab: 320, polaroid: 450, stamp: 140, fog: 900, splash: 3500 } as const;
 ```
 
 ## Règles pour les agents
 
-1. Toute couleur, taille et police vient des tokens. Si un token manque, ajoute-le ici et dans `tokens.ts` avant de l'utiliser.
-2. Chaque composant doit fonctionner en mode clair et sombre.
-3. Un seul bouton accent par écran.
-4. Les textes affichés passent par le fichier de traduction et respectent le ton ci-dessus.
+1. Toute couleur, taille et police vient des tokens. S'il en manque un, ajoute-le ici et dans `tokens.ts` avant de l'utiliser.
+2. Chaque composant fonctionne en mode clair et en mode sombre, uniquement via les tokens du thème. Le texte sur un bouton `stamp` suit le mode (clair en clair, `#1C1A21` en sombre).
+3. Une seule action principale par écran.
+4. Les rotations restent décoratives, jamais sur un élément interactif.
 5. Si une demande contredit cette charte, signale-le au lieu de contourner.
+6. Si tu ajoutes un composant, vérifie qu'il utilise l'une des quatre voix typographiques et l'une des matières ci-dessus.
+
+## Points ouverts
+
+- Photos réelles dans les polaroïds : l'utilisateur recadre au moment de la photo (1:1 ou 4:3) ; prévoir un fond de secours en `fog`.
+- Accroche du tracé de balade : OpenRouteService `foot-walking`, déjà utilisé pour l'itinéraire. Un appel par tracé validé, pas par mouvement du doigt (quota de la clé).
+- Modération des balades : plus tard, publication directe au début.
+- Les noms, lieux et textes d'exemple du canvas sont inventés et doivent être remplacés par de vraies données.

@@ -12,7 +12,8 @@ import { RecenterButton } from '@/components/RecenterButton';
 import { UserDot } from '@/components/UserDot';
 import { useFog } from '@/features/fog/useFog';
 import { useLocationTracking } from '@/features/location/useLocationTracking';
-import { DEFAULT_CENTER, DEFAULT_ZOOM, MAP_STYLE_URL } from '@/features/map/mapStyle';
+import { DEFAULT_CENTER, DEFAULT_ZOOM } from '@/features/map/mapStyle';
+import { useMapStyle } from '@/features/map/useMapStyle';
 import { useHeading } from '@/features/places/useHeading';
 import { useNearbyPlaces } from '@/features/places/useNearbyPlaces';
 import { useWalkingRoute } from '@/features/places/useWalkingRoute';
@@ -21,6 +22,7 @@ import { spacing } from '@/theme/tokens';
 export function MapScreen() {
   const db = useSQLiteContext();
   const [fog, refreshFog] = useFog(db);
+  const [look, reloadMapStyle] = useMapStyle(db);
   const location = useLocationTracking(db);
   const position = location?.coords ?? null;
   const { places, lockedArea } = useNearbyPlaces(db, position);
@@ -35,6 +37,8 @@ export function MapScreen() {
 
   // Back from the camera: show the new discovery now, not at the next timer tick.
   useFocusEffect(refreshFog);
+  // The map type is changed in the Profile: read it again when coming back.
+  useFocusEffect(reloadMapStyle);
 
   useEffect(() => {
     if (newest) camera.current?.jumpTo({ center: [newest.longitude, newest.latitude] });
@@ -51,16 +55,16 @@ export function MapScreen() {
     <View style={styles.screen}>
       <Map
         style={styles.screen}
-        mapStyle={MAP_STYLE_URL}
+        mapStyle={look.mapStyle}
         logo={false}
         compass={false}
         // The panel covers the bottom of the map: center the camera on the visible part.
         contentInset={{ bottom: panelHeight }}
       >
         <Camera ref={camera} initialViewState={{ center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM }} />
-        <FogLayers {...fog} />
-        <PlaceLayers places={places} route={route} />
-        {position && <UserDot {...position} />}
+        <FogLayers {...fog} colors={look.colors} hatch={look.hatch} />
+        <PlaceLayers places={places} route={route} selectedId={selectedId} colors={look.colors} />
+        {position && <UserDot {...position} colors={look.colors} />}
       </Map>
       <PlacesPanel
         places={places}

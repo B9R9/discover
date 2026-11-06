@@ -71,3 +71,9 @@ Format :
 - Ne pas réessayer une erreur d'authentification, de crédit ou de quota : seuls timeout et réseau, avec un nombre borné d'essais.
 - Un arbre Git sale est normal : mesurer ce que l'agent change par empreinte (baseline) au lieu d'exiger un arbre propre, et ne jamais envoyer à Claude les changements de l'utilisateur.
 - Garder chaque module sous 500 lignes : déplacer les fonctions dans un nouveau module et les ré-importer, les tests patchent les noms du runner.
+
+- **Erreur** : la charte annonçait « contraste 4,5:1 pour tout texte » et « 6:1 » sur le bouton principal sans les mesurer ; le rouge tampon faisait 4,43:1 sur le papier (5,49:1 sur le bouton) et, en sombre, 4,09:1 sur les cartes.
+- **Règle** : tout couple texte/fond de la charte est dans `app/src/theme/tokens.test.ts`, qui échoue sous 4,5:1. On change la valeur du token, pas l'exigence.
+
+- **Erreur** : tests de composants écrits en synchrone ; `@testing-library/react-native` 14 rend et déclenche les événements en asynchrone (`render function has not been called`).
+- **Règle** : dans les tests de composants, `await render(...)` et `await fireEvent.press(...)`.

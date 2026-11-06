@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
     width: SHUTTER_SIZE,
     height: SHUTTER_SIZE,
-    borderRadius: radius.pill,
+    borderRadius: radius.round,
     backgroundColor: palette.light.accent,
     borderWidth: 4,
     borderColor: palette.light.surface,

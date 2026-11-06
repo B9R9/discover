@@ -1,6 +1,7 @@
 import '@/features/location/backgroundTask';
 
 import { Tabs } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 
@@ -9,9 +10,16 @@ import { migrate } from '@/db/migrations';
 import { getSetting } from '@/db/settings';
 import { StoreProvider } from '@/features/purchases/StoreProvider';
 import { t } from '@/lib/i18n/t';
+import { TabBar } from '@/components/TabBar';
 import { OnboardingScreen } from '@/screens/OnboardingScreen';
+import { useAppFonts } from '@/theme/useAppFonts';
+
+// Keep the native splash up until fonts and the onboarding state are known, so the first frame is final.
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
+  const { ready } = useAppFonts();
+  if (!ready) return null;
   return (
     <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrate}>
       <StoreProvider>
@@ -29,11 +37,14 @@ function App() {
     getSetting(db, 'onboardingDone').then(setOnboardingDone);
   }, [db]);
 
+  useEffect(() => {
+    if (onboardingDone !== null) SplashScreen.hideAsync().catch(() => undefined);
+  }, [onboardingDone]);
+
   if (onboardingDone === null) return null;
   if (!onboardingDone) return <OnboardingScreen onDone={() => setOnboardingDone(true)} />;
   return (
-    // No icons until real ones are designed: without tabBarIcon, Expo Router renders a MissingIcon placeholder.
-    <Tabs screenOptions={{ headerShown: false, tabBarIcon: () => null }}>
+    <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: t('tabs.map') }} />
       <Tabs.Screen name="photo" options={{ title: t('tabs.photo') }} />
       <Tabs.Screen name="profile" options={{ title: t('tabs.profile') }} />

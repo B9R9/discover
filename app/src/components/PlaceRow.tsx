@@ -3,7 +3,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { NearbyPlace } from '@/features/places/nearbyPlaces';
 import { categoryLabel, formatDistance } from '@/lib/format';
 import { t } from '@/lib/i18n/t';
-import { palette, radius, spacing } from '@/theme/tokens';
+import { fonts, radius, spacing } from '@/theme/tokens';
+import { useTheme } from '@/theme/useTheme';
+
+import { Stamp } from './Stamp';
 
 interface PlaceRowProps {
   place: NearbyPlace;
@@ -12,25 +15,33 @@ interface PlaceRowProps {
 }
 
 export function PlaceRow({ place, selected, onPress }: PlaceRowProps) {
+  const { colors } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.row, selected && styles.selected]}
+      // Not color alone: the chosen row also gets a bar on its edge.
+      style={[
+        styles.row,
+        { borderLeftColor: selected ? colors.stamp : 'transparent' },
+        selected && { backgroundColor: colors.paper },
+      ]}
     >
-      <View style={[styles.thumb, place.discovered && styles.thumbDiscovered]}>
-        {!place.discovered && <Text style={styles.question}>?</Text>}
+      <View
+        style={[styles.thumb, { backgroundColor: place.discovered ? colors.sage : colors.fog }]}
+      >
+        {!place.discovered && <Text style={[styles.question, { color: colors.muted }]}>?</Text>}
       </View>
       <View style={styles.texts}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={[styles.title, { color: colors.ink }]} numberOfLines={1}>
           {place.discovered ? place.name : t('places.unknown')}
         </Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, { color: colors.muted }]}>
           {categoryLabel(place.category)} · {formatDistance(place.distance)}
         </Text>
       </View>
-      {place.discovered && <Text style={styles.badge}>{t('places.discovered')}</Text>}
+      {place.discovered && <Stamp label={t('places.discovered')} tilt={-6} />}
     </Pressable>
   );
 }
@@ -43,31 +54,18 @@ const styles = StyleSheet.create({
     minHeight: 56,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.sm,
-    borderRadius: radius.sm,
+    borderLeftWidth: 3,
+    borderRadius: radius.card,
   },
-  selected: { backgroundColor: palette.light.background },
   thumb: {
     width: 40,
     height: 40,
-    borderRadius: radius.sm,
-    backgroundColor: palette.light.fog,
+    borderRadius: radius.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  thumbDiscovered: { backgroundColor: palette.light.discovered },
-  question: { fontSize: 18, fontWeight: '600', color: palette.light.textMuted },
+  question: { fontFamily: fonts.hand, fontSize: 24, lineHeight: 28 },
   texts: { flex: 1 },
-  title: { fontSize: 16, lineHeight: 24, fontWeight: '500', color: palette.light.text },
-  subtitle: { fontSize: 14, lineHeight: 20, color: palette.light.textMuted },
-  badge: {
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '500',
-    color: palette.light.surface,
-    backgroundColor: palette.light.discovered,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    overflow: 'hidden',
-  },
+  title: { fontFamily: fonts.bodyMedium, fontSize: 16, lineHeight: 24 },
+  subtitle: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20 },
 });

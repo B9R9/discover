@@ -525,3 +525,52 @@ Choix de sécurité retenus : Hermes Agent v0.21.7 confirme que `-z` contourne l
 - [x] Si Claude est indisponible à la revue, conserver les modifications en état `review`, suspendre le run avec code de sortie 2 et permettre de reprendre la revue sans relancer Hermes.
 - [x] Vérifié par tests simulés : fallback de planification, pause et reprise au stade review, sortie non nulle sur revue différée, capture d'un message d'indisponibilité/crédit.
 - Décision : Hermes ne peut pas s'auto-approuver ; la tâche ne devient terminée qu'après un verdict Claude.
+
+## Refonte visuelle : carnet de voyage — 2026-11-06
+
+Référence : `docs/design.md` (charte validée, mode clair et mode sombre) et le canvas « Détour, direction carnet de voyage ». Visuels de marque dans `app/assets/brand/`.
+
+### R1 — Tokens et polices
+- [x] Remplacer `app/src/theme/tokens.ts` par `colors`, `colorsDark`, `fonts`, `spacing`, `radius`, `motion` de la charte.
+- [x] Hook de thème qui choisit le jeu de couleurs selon le réglage du téléphone.
+- [x] Installer et charger `@expo-google-fonts/fraunces`, `caveat`, `special-elite`, `dm-sans` (garder l'écran de lancement tant que les polices ne sont pas prêtes).
+- [ ] Passer `userInterfaceStyle` à `automatic` dans `app.json` : reporté à la fin de R4, car les écrans lisent encore `palette.light` (le système passerait en sombre sous des écrans clairs).
+- Vérifier : `npm run typecheck`, `npm run lint`, l'app démarre sur le téléphone avec les nouvelles polices.
+- Fait le 2026-11-06 : typecheck, lint et 88 tests passent (dont `tokens.test.ts`, 21 cas de contraste). Pas encore vu sur le téléphone : lancer `cd app && npm start` et vérifier que l'app démarre, que l'écran de lancement disparaît et qu'aucune erreur de police n'apparaît.
+- Écart avec la charte d'origine : `stamp` assombri en clair, éclairci en sombre, `muted` et `kraft` sombre ajoutés (voir `docs/design.md`).
+
+### R2 — Icône et lancement
+- [ ] Brancher `app/assets/brand/` dans `app.json` : `icon`, `adaptiveIcon.foregroundImage`, `backgroundColor` `#2A2630`, image de lancement.
+- [ ] Retirer les anciens `app/assets/logo-detour*.svg` et `chemin-angulaire*.svg` s'ils ne sont plus utilisés.
+- [ ] Écran de lancement animé (trajet, mot, croix), coupé dès que l'app est prête, version sans animation si « réduire les animations ».
+- Vérifier : development build sur le téléphone, icône visible sur l'écran d'accueil.
+
+### R3 — Composants de base
+- [x] Barre d'onglets (bouton photo rond `stamp` ; 3 entrées pour l'instant, Sorties et Cercle n'existent pas encore).
+- [x] Boutons principal, secondaire et danger.
+- [ ] Pastille de filtre, interrupteur, champ, bouton retour : avec les écrans qui s'en servent (R4).
+- [x] Polaroïd, tampon, scotch (galerie du Profil, badge « Découvert »).
+- [ ] Billet, note manuscrite : avec Sorties et la fiche d'un lieu (R4).
+- [ ] Transition entre onglets (320 ms, glissement de 46 px avec redressement de 2°) : pas faite, elle demande une animation Reanimated propre sur le navigateur d'onglets ; à traiter à part.
+- Chaque composant fonctionne en clair et en sombre, uniquement via les tokens. Un fichier par composant, moins de 500 lignes.
+- Fait le 2026-11-06 : typecheck, lint, tests (`Button`, `TabBar`). À voir sur le téléphone : barre d'onglets, bouton photo qui dépasse et reste cliquable sur Android, polaroïds du Profil, tampon « Découvert ».
+
+### R4 — Écrans, un par un
+- [ ] Connexion par code e-mail, compte et déconnexion (habillage de `features/account/`)
+- [x] Carte, première passe (2026-11-06) : brouillard hachuré (`fog-hatch.png` posé sur la couleur `fog`), repères en disque papier à contour `stamp` (plein quand le lieu est choisi), trajet à pied en pointillés `stamp`, point de position `postal`, panneau du bas en carte fiche (Fraunces, note manuscrite, contour encre), liste des lieux, bouton de recentrage, flèche de direction.
+- [ ] Carte, ce qui reste : style de carte sur mesure (le style `liberty` est coloré, la charte veut papier, eau bleu postal, parcs sauge ; il faut surcharger les couleurs du style), repères numérotés, annotations manuscrites, boussole, carte « Prochain détour », croix de fin de trajet. À vérifier sur le téléphone : l'espacement des hachures (image à 1x, peut sortir trop petite ou trop grande selon la densité d'écran).
+- [x] Types de carte (2026-11-06) : Carnet (défaut), Classique et Sombre, réglage dans le Profil en attendant l'écran Réglages. Code, tests de `themeStyle` et typecheck passent ; vérifié sur le téléphone le 2026-11-06 : les trois cartes fonctionnent bien. Idées pour plus tard : aperçu de chaque style dans le choix, satellite (autre fournisseur à étudier).
+- [ ] Valider un lieu, fiche d'un lieu
+- [ ] Sorties et détail d'une sortie
+- [ ] Cercle et sous-pages (carte partagée, voyageur, mots doux, balades, laisser une balade, dessiner)
+- [ ] Moi et sous-pages (pages collées, données, réglages, débloquer une ville)
+- Les écrans sociaux (Cercle) suivent la phase 7 : on ne fait ici que l'habillage de ce qui existe déjà.
+
+### Décisions prises pour R4
+- Accroche du tracé de balade : OpenRouteService `foot-walking`, déjà utilisé pour l'itinéraire (`walkingRoute.ts`). Le trait dessiné est converti en quelques points de passage, ORS renvoie le chemin piéton. Attention au quota de la clé : un appel par tracé validé, pas par mouvement du doigt. Les points de passage partent chez ORS comme pour l'itinéraire ; le tracé n'est envoyé à notre serveur que si l'utilisateur publie sa balade.
+- Modération des balades : plus tard. Au début, publication directe.
+- Recadrage des photos dans les polaroïds : fait par l'utilisateur au moment de la photo.
+- Connexion et déconnexion : ajoutées au design (écrans Connexion, Code, Compte, Déconnexion). Le compte passe par Supabase Auth, code par e-mail (`app/src/features/account/`). Il n'est demandé que pour partager, commenter ou publier une balade. Jouer, découvrir et acheter des cartes marchent sans compte.
+
+### Bilan
+À remplir à la fin de chaque étape.

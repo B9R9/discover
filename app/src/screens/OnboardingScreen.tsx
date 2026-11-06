@@ -70,10 +70,10 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  body: { 
-    fontSize: 16, 
-    lineHeight: 24, 
-    color: palette.light.text, 
+  body: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: palette.light.text,
     marginTop: spacing.lg,
     // Ensure better text rendering
     fontWeight: '400',
@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     padding: 0,
   },
-  actions: { 
-    marginTop: 'auto', 
+  actions: {
+    marginTop: 'auto',
     gap: spacing.md,
     // Ensure this container has proper layout with clear positioning
     alignSelf: 'stretch',

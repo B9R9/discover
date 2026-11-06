@@ -5,6 +5,7 @@ import { KeyboardAvoidingView, ScrollView, StyleSheet, Switch, Text, View } from
 
 import { AccountSection } from '@/components/AccountSection';
 import { DiscoveryGallery } from '@/components/DiscoveryGallery';
+import { MapStyleSection } from '@/components/MapStyleSection';
 import { MapsSection } from '@/components/MapsSection';
 import { PlaceDetailModal } from '@/components/PlaceDetailModal';
 import { Screen } from '@/components/Screen';
@@ -53,6 +54,10 @@ export function ProfileScreen() {
             {t('profile.discoveries')}
           </Text>
           <DiscoveryGallery discoveries={discoveries} onOpen={setOpenId} />
+          <Text style={styles.section} accessibilityRole="header">
+            {t('profile.mapStyle')}
+          </Text>
+          <MapStyleSection />
           <Text style={styles.section} accessibilityRole="header">
             {t('maps.title')}
           </Text>

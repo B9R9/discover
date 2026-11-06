@@ -1,13 +1,20 @@
+import type { MapStyleKind } from '@/features/map/mapStyle';
+
 import type { Db } from './types';
 
 export interface Settings {
   onboardingDone: boolean;
   backgroundTracking: boolean;
+  mapStyle: MapStyleKind;
 }
 
 type SettingKey = keyof Settings;
 
-const DEFAULTS: Settings = { onboardingDone: false, backgroundTracking: true };
+const DEFAULTS: Settings = {
+  onboardingDone: false,
+  backgroundTracking: true,
+  mapStyle: 'carnet',
+};
 
 export async function getSetting<K extends SettingKey>(db: Db, key: K): Promise<Settings[K]> {
   const row = await db.getFirstAsync<{ value: string }>(

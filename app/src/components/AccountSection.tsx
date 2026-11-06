@@ -73,7 +73,7 @@ export function AccountSection() {
               <Text style={styles.text}>{t('account.deleteWarning')}</Text>
               <Button
                 label={t('account.deleteConfirm')}
-                variant="secondary"
+                variant="danger"
                 onPress={() =>
                   run(deleteAccount, () => {
                     setConfirmDelete(false);
@@ -97,7 +97,7 @@ export function AccountSection() {
               />
               <Button
                 label={t('account.delete')}
-                variant="secondary"
+                variant="danger"
                 onPress={() => setConfirmDelete(true)}
               />
             </>
