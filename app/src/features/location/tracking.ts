@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 
-import { palette } from '@/theme/tokens';
+import { colors } from '@/theme/tokens';
 import { getSetting } from '@/db/settings';
 import type { Db } from '@/db/types';
 import { t } from '@/lib/i18n/t';
@@ -29,7 +29,7 @@ export async function syncBackgroundTracking(db: Db): Promise<boolean> {
       foregroundService: {
         notificationTitle: t('tracking.notificationTitle'),
         notificationBody: t('tracking.notificationBody'),
-        notificationColor: palette.light.discovered,
+        notificationColor: colors.stamp,
       },
     });
   } else if (await Location.hasStartedLocationUpdatesAsync(TRACKING_TASK)) {
