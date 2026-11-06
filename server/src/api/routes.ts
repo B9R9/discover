@@ -1,8 +1,11 @@
 import type { AuthAdmin } from './authAdmin.ts';
 import type { PlacesStore } from './placesStore.ts';
+import { postsRoute } from './posts.ts';
+import type { PostsStore } from './postsStore.ts';
 import { authenticate } from './session.ts';
 import { socialRoute } from './social.ts';
 import type { SocialStore } from './socialStore.ts';
+import type { StorageAdmin } from './storageAdmin.ts';
 
 export interface Reply {
   status: number;
@@ -22,15 +25,23 @@ export interface Request {
 export interface Services {
   store: PlacesStore;
   social: SocialStore;
+  posts: PostsStore;
+  // null when the server runs without Supabase settings: sharing is then unavailable.
+  storage: StorageAdmin | null;
   // null when the server runs without Supabase Auth settings (local places-only setup).
   auth: AuthAdmin | null;
 }
 
 const AREA_PLACES = /^\/areas\/([a-z0-9-]+)\/places$/;
 
-async function deleteMe(authorization: string | undefined, auth: AuthAdmin | null): Promise<Reply> {
+// The photos go first: deleting the user removes the post rows, and with them the way to find the files.
+async function deleteMe(
+  authorization: string | undefined,
+  { auth, posts, storage }: Services,
+): Promise<Reply> {
   const user = await authenticate(authorization, auth);
   if (typeof user !== 'string') return user;
+  await storage?.remove(await posts.listPaths(user));
   await auth?.deleteUser(user);
   return { status: 204, body: null };
 }
@@ -50,7 +61,7 @@ async function getRoute(pathname: string, store: PlacesStore): Promise<Reply> {
 }
 
 export async function route(request: Request, services: Services): Promise<Reply> {
-  const social = await socialRoute(request, services);
+  const social = (await socialRoute(request, services)) ?? (await postsRoute(request, services));
   if (social) return social;
   return placesRoute(request, services);
 }
@@ -61,7 +72,7 @@ function placesRoute(
 ): Promise<Reply> {
   if (pathname === '/me') {
     return method === 'DELETE'
-      ? deleteMe(authorization, services.auth)
+      ? deleteMe(authorization, services)
       : Promise.resolve({ status: 405, body: { error: 'method_not_allowed' } });
   }
   if (method !== 'GET')

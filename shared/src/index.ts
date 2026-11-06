@@ -49,3 +49,19 @@ export interface FriendList {
   // You asked, waiting for their answer.
   outgoing: string[];
 }
+
+export const MAX_COMMENT_LENGTH = 280;
+// A post reported by this many different people is hidden until someone looks at it.
+export const HIDE_AFTER_REPORTS = 3;
+
+// A photo and a comment a user chose to share about a place they discovered.
+export interface SharedPost {
+  id: string;
+  pseudo: string;
+  placeId: PlaceId;
+  comment: string;
+  createdAt: string;
+  mine: boolean;
+  // Signed, expires after an hour.
+  photoUrl: string;
+}

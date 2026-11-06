@@ -2,8 +2,10 @@ import { createServer, type IncomingMessage } from 'node:http';
 
 import { supabaseAuthAdmin } from './api/authAdmin.ts';
 import { postgresPlacesStore } from './api/placesStore.ts';
+import { postgresPostsStore } from './api/postsStore.ts';
 import { route, type Reply, type Services } from './api/routes.ts';
 import { postgresSocialStore } from './api/socialStore.ts';
+import { supabaseStorageAdmin } from './api/storageAdmin.ts';
 import { readPort } from './config.ts';
 import { connect } from './db.ts';
 
@@ -13,6 +15,11 @@ const sql = connect(process.env.DATABASE_URL);
 const services: Services = {
   store: postgresPlacesStore(sql),
   social: postgresSocialStore(sql),
+  posts: postgresPostsStore(sql),
+  storage:
+    SUPABASE_URL && SUPABASE_SECRET_KEY
+      ? supabaseStorageAdmin(SUPABASE_URL, SUPABASE_SECRET_KEY)
+      : null,
   auth:
     SUPABASE_URL && SUPABASE_SECRET_KEY
       ? supabaseAuthAdmin(SUPABASE_URL, SUPABASE_SECRET_KEY)

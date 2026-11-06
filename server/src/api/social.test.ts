@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { fakeSessions, fakeSocial } from './fakeSocial.ts';
+import { fakePosts, fakeSessions, fakeSocial } from './fakeSocial.ts';
 import type { PlacesStore } from './placesStore.ts';
 import { route, type Reply, type Services } from './routes.ts';
 
@@ -11,7 +11,13 @@ const store: PlacesStore = {
 };
 
 function setup() {
-  const services: Services = { store, social: fakeSocial(), auth: fakeSessions };
+  const services: Services = {
+    store,
+    social: fakeSocial(),
+    posts: fakePosts(),
+    storage: null,
+    auth: fakeSessions,
+  };
   const as = (user: string, method: string, pathname: string, body?: unknown): Promise<Reply> =>
     route({ method, pathname, authorization: `Bearer token-${user}`, body }, services);
   return { services, as };

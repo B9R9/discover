@@ -1,5 +1,7 @@
 import type { AuthAdmin } from './authAdmin.ts';
+import type { PostsStore } from './postsStore.ts';
 import type { SocialStore } from './socialStore.ts';
+import type { StorageAdmin } from './storageAdmin.ts';
 
 // Test doubles: an in-memory circle, and an Auth that knows the tokens "token-<user>".
 export function fakeSocial(): SocialStore {
@@ -60,3 +62,91 @@ export const fakeSessions: AuthAdmin = {
     Promise.resolve(token.startsWith('token-') ? token.slice('token-'.length) : null),
   deleteUser: () => Promise.resolve(),
 };
+
+interface FakePost {
+  author: string;
+  placeId: string;
+  comment: string;
+  path: string;
+  uploaded: boolean;
+  reporters: Set<string>;
+}
+
+// In-memory posts: only the author sees them (friend visibility is SQL, not tested here).
+export function fakePosts(hasProfile: (user: string) => boolean = () => true): PostsStore {
+  const posts = new Map<string, FakePost>();
+  let next = 0;
+  return {
+    createPost: (user, placeId, comment) => {
+      if (!hasProfile(user)) return Promise.resolve(null);
+      const id = `00000000-0000-4000-8000-${String(++next).padStart(12, '0')}`;
+      const path = `${user}/${id}.jpg`;
+      posts.set(id, {
+        author: user,
+        placeId,
+        comment,
+        path,
+        uploaded: false,
+        reporters: new Set(),
+      });
+      return Promise.resolve({ id, path });
+    },
+    confirmUpload: (user, id) => {
+      const post = posts.get(id);
+      if (!post || post.author !== user) return Promise.resolve(false);
+      post.uploaded = true;
+      return Promise.resolve(true);
+    },
+    listFeed: (user) =>
+      Promise.resolve(
+        [...posts]
+          .filter(([, post]) => post.uploaded && post.author === user)
+          .map(([id, post]) => ({
+            id,
+            pseudo: 'moi',
+            placeId: post.placeId,
+            comment: post.comment,
+            createdAt: '2026-11-07T10:00:00Z',
+            mine: true,
+            path: post.path,
+          })),
+      ),
+    deletePost: (user, id) => {
+      const post = posts.get(id);
+      if (!post || post.author !== user) return Promise.resolve(null);
+      posts.delete(id);
+      return Promise.resolve(post.path);
+    },
+    listPaths: (user) =>
+      Promise.resolve(
+        [...posts.values()].filter((post) => post.author === user).map((post) => post.path),
+      ),
+    report: (user, id) => {
+      const post = posts.get(id);
+      if (!post) return Promise.resolve('unknown');
+      if (post.author === user) return Promise.resolve('own');
+      post.reporters.add(user);
+      return Promise.resolve('ok');
+    },
+    block: (_user, pseudo) =>
+      Promise.resolve(pseudo === 'moi' ? 'self' : pseudo === 'bob' ? 'ok' : 'unknown'),
+  };
+}
+
+export function fakeStorage() {
+  const removed: string[] = [];
+  const storage: StorageAdmin = {
+    createUploadUrl: (path) => Promise.resolve(`https://storage.test/upload/${path}?token=t`),
+    createReadUrls: (paths) =>
+      Promise.resolve(
+        paths.map((path) =>
+          path.includes('missing') ? null : `https://storage.test/read/${path}`,
+        ),
+      ),
+    remove: (paths) => {
+      removed.push(...paths);
+      return Promise.resolve();
+    },
+  };
+  return { storage, removed };
+}

@@ -364,6 +364,15 @@ Découpage en quatre étapes livrables chacune seule :
 - Signaler un post, bloquer un utilisateur, supprimer le sien, suppression en cascade à la suppression du compte.
 - Visible : de ses amis seulement au départ (la communauté ouverte demande une vraie modération, voir 7d).
 
+**7b, plan détaillé (2026-11-07)**
+- Visibilité : l'auteur et ses amis acceptés, personne d'autre. Un utilisateur bloqué (dans un sens ou dans l'autre) disparaît du fil.
+- Photos : Supabase Storage, bucket privé `post-photos`. L'app ne reçoit jamais d'URL publique : l'API signe des URL d'envoi (une par post) et de lecture (1 h). Le serveur ne touche pas aux octets de la photo.
+- EXIF : retiré sur le téléphone avant l'envoi, sans dépendance (`stripJpeg`, fonction pure testée : tous les segments sauf JFIF et profil ICC sont supprimés, l'orientation est conservée dans un EXIF minimal pour que la photo ne tourne pas).
+- Flux : `POST /posts` (lieu + commentaire, 280 caractères au plus) crée la ligne et renvoie l'URL d'envoi ; l'app envoie la photo nettoyée ; `POST /posts/:id/uploaded` la rend visible. Un envoi raté ne laisse donc rien de visible.
+- Fil : `GET /posts` (moi et mes amis, 50 derniers, hors posts masqués). Pas de paramètre dans l'URL : le serveur ignore les query strings par principe.
+- Modération par signalements : `POST /posts/:id/report` ; un post signalé par 3 personnes différentes est masqué automatiquement. `POST /blocks` bloque quelqu'un (et retire l'amitié). Suppression de son post, et à la suppression du compte, de toutes ses photos.
+- App : bouton « Partager » sur la fiche d'un lieu (aperçu, commentaire, confirmation explicite), fil des amis dans l'onglet Cercle, signaler et bloquer depuis un post.
+
 **7c. Carte d'un ami**
 - Partage de la liste des lieux découverts (ids de lieux et dates), pas des chemins, pas de synchronisation automatique : l'utilisateur envoie un instantané, qu'il peut retirer.
 - L'ami voit ses lieux révélés sur sa propre carte en « carte d'un ami » (lecture seule).
