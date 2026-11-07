@@ -343,7 +343,7 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 - [ ] Amis : inviter, accepter, retirer (comptes de la phase 5b)
 - [ ] Voir la carte d'un ami : seulement ce qu'il a choisi de partager (lieux découverts ou image de sa carte), jamais ses chemins parcourus. Pas de synchronisation automatique
 - [x] Partager un lieu ou un spot à des amis choisis (7e, code fait le 2026-11-07, migration `20261107050000_place_shares.sql` à appliquer, 63 tests serveur). Le lieu partagé s'affiche en carte dans Cercle ; l'ouvrir sur la carte avec direction reste à faire.
-- [ ] Événements : à préciser (voir questions ouvertes)
+- [x] Événements (8a, 2026-11-07) : ajoutés par nous (seeds), collecte automatique plus tard ; voir README « Sorties ». Migration `20261107060000_events.sql`. Reste : compteur « X et Y y vont », ajout à l'agenda, collecte (scraping, conditions d'usage et robots.txt à respecter).
 - [ ] Test : une photo partagée ne contient aucune donnée EXIF de position
 
 ### Plan détaillé phase 7 : social (proposé le 2026-11-06, à valider)
@@ -437,7 +437,7 @@ Décisions du 2026-11-06 :
 - Carte offerte après réinstallation ou changement de téléphone : la lier au compte ? (phase 6)
 - Prix par carte : département, grande ville selon son attrait (phase 6)
 - Outil de remontée des crashs (phase 8)
-- Événements (phase 7) : créés par les utilisateurs ou collectés par le serveur ? Date de fin et disparition ? Validés par une photo comme un lieu ?
+- Événements : tranché le 2026-11-07, seeds à la main d'abord puis collecte ; disparition 3 h après le début ou à la fin. Reste à décider : validation par une photo ? création par les utilisateurs (modération) ?
 - Carte d'un ami (phase 7) : partage de la liste des lieux découverts, d'une image, ou des deux ?
 
 ## Bilan

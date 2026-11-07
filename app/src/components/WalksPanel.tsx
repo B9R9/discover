@@ -3,12 +3,6 @@ import * as Location from 'expo-location';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { DrawWalkModal } from '@/components/DrawWalkModal';
-import { FilterChip } from '@/components/FilterChip';
-import { Screen } from '@/components/Screen';
-import { ScreenTitle } from '@/components/ScreenTitle';
-import { WalkCard } from '@/components/WalkCard';
-import { WalkViewerModal } from '@/components/WalkViewerModal';
 import { useSession } from '@/features/account/useSession';
 import { deleteWalk, reportWalk } from '@/features/social/walksApi';
 import { filterWalks, type WalkFilter } from '@/features/walks/filterWalks';
@@ -17,6 +11,11 @@ import { t, type TranslationKey } from '@/lib/i18n/t';
 import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
+import { DrawWalkModal } from './DrawWalkModal';
+import { FilterChip } from './FilterChip';
+import { WalkCard } from './WalkCard';
+import { WalkViewerModal } from './WalkViewerModal';
+
 const FILTERS: { key: WalkFilter; label: TranslationKey }[] = [
   { key: 'all', label: 'walks.filter.all' },
   { key: 'short', label: 'walks.filter.short' },
@@ -24,7 +23,7 @@ const FILTERS: { key: WalkFilter; label: TranslationKey }[] = [
 ];
 
 // The walks made by Détour are open to everyone; drawing, deleting and reporting need an account.
-export function WalksScreen() {
+export function WalksPanel() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const signedIn = Boolean(useSession());
@@ -54,10 +53,8 @@ export function WalksScreen() {
   }
 
   return (
-    <Screen edges={['top', 'right', 'left']}>
+    <View style={styles.panel}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.kicker}>{t('walks.kicker').toUpperCase()}</Text>
-        <ScreenTitle>{t('tabs.walks')}</ScreenTitle>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -113,14 +110,14 @@ export function WalksScreen() {
           reload();
         }}
       />
-    </Screen>
+    </View>
   );
 }
 
 const createStyles = (c: ThemeColors) =>
   StyleSheet.create({
+    panel: { flex: 1 },
     content: { paddingBottom: 120, gap: spacing.md },
-    kicker: { fontFamily: fonts.stamp, fontSize: 12, letterSpacing: 1.9, color: c.stamp },
     chips: { gap: spacing.sm },
     list: { gap: spacing.lg, paddingTop: spacing.sm },
     hint: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
