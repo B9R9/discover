@@ -6,6 +6,8 @@ import type { MapsStore } from './mapsStore.ts';
 import { placeSharesRoute } from './placeShares.ts';
 import type { PlaceSharesStore } from './placeSharesStore.ts';
 import type { PlacesStore } from './placesStore.ts';
+import { postCommentsRoute } from './postComments.ts';
+import type { PostCommentsStore } from './postCommentsStore.ts';
 import { postsRoute } from './posts.ts';
 import type { PostsStore } from './postsStore.ts';
 import { authenticate } from './session.ts';
@@ -36,6 +38,7 @@ export interface Services {
   store: PlacesStore;
   social: SocialStore;
   posts: PostsStore;
+  comments: PostCommentsStore;
   maps: MapsStore;
   spots: SpotsStore;
   walks: WalksStore;
@@ -84,6 +87,7 @@ export async function route(request: Request, services: Services): Promise<Reply
     (await spotsRoute(request, services)) ??
     (await walksRoute(request, services)) ??
     (await placeSharesRoute(request, services)) ??
+    (await postCommentsRoute(request, services)) ??
     (await postsRoute(request, services));
   if (signedIn) return signedIn;
   return placesRoute(request, services);

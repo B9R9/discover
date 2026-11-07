@@ -15,10 +15,11 @@ import { Polaroid } from './Polaroid';
 interface PostCardProps {
   post: SharedPost;
   onChanged: () => void;
+  onOpenComments: (post: SharedPost) => void;
 }
 
 // One shared photo, with what the viewer can do about it: delete their own, report or block another's.
-export function PostCard({ post, onChanged }: PostCardProps) {
+export function PostCard({ post, onChanged, onOpenComments }: PostCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [confirmBlock, setConfirmBlock] = useState(false);
@@ -57,6 +58,7 @@ export function PostCard({ post, onChanged }: PostCardProps) {
         accessibilityLabel={t('feed.photoLabel', { pseudo: post.pseudo })}
       />
       {post.comment !== '' && <Text style={styles.comment}>{post.comment}</Text>}
+      <Button label={t('comments.open')} variant="secondary" onPress={() => onOpenComments(post)} />
       {confirmBlock ? (
         <>
           <Text style={styles.meta}>{t('feed.blockWarning')}</Text>

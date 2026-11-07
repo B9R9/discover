@@ -642,3 +642,4 @@ Référence : `docs/design.md` (charte validée, mode clair et mode sombre) et l
 À remplir à la fin de chaque étape.
 - [x] Page « Débloquer une autre ville » d'après `Debloquer.dc.html` (2026-11-07) : `UnlockModal`, ouverte depuis `MapsSection`. Fiche d'un lieu restylée (en-tête). À voir sur le téléphone.
 - [x] Galerie des découvertes d'après `Pages.dc.html` (2026-11-07) : numéro de page (001, 002…) avec la date, et une case en pointillés « à coller bientôt » pour la prochaine page. Pas de sous-page à part : la galerie du Profil fait déjà ce travail.
+- [x] Mots doux (7f, 2026-11-07) d'après `MotsDoux.dc.html` : commentaires courts sous un post, serveur (migration, routes, tests) et app (`CommentsModal`). Pas encore testé avec deux comptes. Tampons Ville et % dévoilé de Moi non faits : « ville » ne colle pas à nos cartes (départements) et le % n'a pas de définition.

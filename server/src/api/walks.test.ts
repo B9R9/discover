@@ -3,6 +3,7 @@ import { test } from 'node:test';
 
 import {
   fakeMaps,
+  fakeComments,
   fakeEvents,
   fakePlaceShares,
   fakePosts,
@@ -24,6 +25,7 @@ function setup() {
     walks: fakeWalks((user) => user !== 'nobody'),
     placeShares: fakePlaceShares(social),
     events: fakeEvents(),
+    comments: fakeComments(),
     storage: null,
     auth: fakeSessions,
   };

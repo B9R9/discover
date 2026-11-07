@@ -30,6 +30,8 @@ const ERRORS: Record<string, TranslationKey> = {
   invalid_share: 'circle.error.invalidShare',
   unknown_share: 'circle.error.unknownShare',
   unknown_event: 'outings.error.unknown',
+  invalid_comment: 'comments.error.invalid',
+  unknown_comment: 'comments.error.unknown',
 };
 
 const NETWORK: TranslationKey = 'account.error.network';
