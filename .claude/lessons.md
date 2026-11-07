@@ -82,3 +82,6 @@ Format :
 - **Règle** : dans les tests de composants, `await render(...)` et `await fireEvent.press(...)`.
 
 - Un corps JSON limité à quelques Ko ne suffit pas pour une liste d'ids : dimensionner la limite sur le pire cas (5000 ids de 120 caractères) avant d'ajouter une route qui reçoit une liste.
+
+- **Erreur** : ajouter un service (`placeShares`, `events`) à `Services` casse tous les tests qui construisent l'objet à la main.
+- **Règle** : après avoir ajouté un champ à `Services`, chercher `walks: fakeWalks(` dans `server/src/api/*.test.ts` et ajouter le fake partout dans la même passe ; le fake qui dépend du cercle prend la même instance `fakeSocial()` que le test.
