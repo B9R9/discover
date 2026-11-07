@@ -67,6 +67,24 @@ export interface SharedPost {
   photoUrl: string;
 }
 
+// A dated outing (phase 8a), added by Détour: a market, a concert, a workshop. Open to everyone.
+// `kind` is free text ("Brocante"), `area` the neighbourhood, `free` true when it costs nothing.
+export interface DetourEvent {
+  id: string;
+  title: string;
+  kind: string;
+  theme: string;
+  description: string;
+  placeName: string;
+  area: string;
+  latitude: number;
+  longitude: number;
+  startsAt: string;
+  endsAt: string | null;
+  free: boolean;
+  priceNote: string;
+}
+
 // A place sent to chosen friends (phase 7e): the exact position goes with it, so the sender confirms first.
 // `genre` is null for a private place. `to` is filled for the sender's own shares, `pseudo` is the sender.
 export const MAX_SHARE_FRIENDS = 10;

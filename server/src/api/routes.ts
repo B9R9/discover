@@ -1,4 +1,6 @@
 import type { AuthAdmin } from './authAdmin.ts';
+import { eventsRoute } from './events.ts';
+import type { EventsStore } from './eventsStore.ts';
 import { mapsRoute } from './maps.ts';
 import type { MapsStore } from './mapsStore.ts';
 import { placeSharesRoute } from './placeShares.ts';
@@ -38,6 +40,7 @@ export interface Services {
   spots: SpotsStore;
   walks: WalksStore;
   placeShares: PlaceSharesStore;
+  events: EventsStore;
   // null when the server runs without Supabase settings: sharing is then unavailable.
   storage: StorageAdmin | null;
   // null when the server runs without Supabase Auth settings (local places-only setup).
@@ -73,6 +76,8 @@ async function getRoute(pathname: string, store: PlacesStore): Promise<Reply> {
 }
 
 export async function route(request: Request, services: Services): Promise<Reply> {
+  const open = await eventsRoute(request, services);
+  if (open) return open;
   const signedIn =
     (await socialRoute(request, services)) ??
     (await mapsRoute(request, services)) ??

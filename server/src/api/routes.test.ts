@@ -7,6 +7,7 @@ import type { AuthAdmin } from './authAdmin.ts';
 import type { PlacesStore } from './placesStore.ts';
 import {
   fakeMaps,
+  fakeEvents,
   fakePlaceShares,
   fakeSpots,
   fakeWalks,
@@ -56,6 +57,7 @@ const services: Services = {
   spots: fakeSpots(),
   walks: fakeWalks(),
   placeShares: fakePlaceShares(fakeSocial()),
+  events: fakeEvents(),
   storage: null,
   auth: null,
 };
@@ -88,6 +90,7 @@ test('DELETE /me deletes the user behind a valid session token', async () => {
       spots: fakeSpots(),
       walks: fakeWalks(),
       placeShares: fakePlaceShares(fakeSocial()),
+      events: fakeEvents(),
       storage: null,
       auth,
     },
@@ -109,6 +112,7 @@ test('DELETE /me refuses a missing or bad token and deletes nobody', async () =>
         spots: fakeSpots(),
         walks: fakeWalks(),
         placeShares: fakePlaceShares(fakeSocial()),
+        events: fakeEvents(),
         storage: null,
         auth,
       },
@@ -133,6 +137,7 @@ test('/me answers 503 without Auth settings and 405 for other methods', async ()
           spots: fakeSpots(),
           walks: fakeWalks(),
           placeShares: fakePlaceShares(fakeSocial()),
+          events: fakeEvents(),
           storage: null,
           auth: fakeAuth().auth,
         },

@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Brocante dans une cour cachée",
+    "kind": "Brocante",
+    "theme": "Objets d'avant",
+    "description": "Une dizaine de voisins vident leurs caves dans la cour de l'immeuble. On y vient pour fouiller, pas pour acheter.",
+    "placeName": "Le café sans nom",
+    "area": "Kallio",
+    "latitude": 60.1843,
+    "longitude": 24.9504,
+    "startsAt": "2026-11-07T17:00:00+02:00",
+    "endsAt": "2026-11-07T21:00:00+02:00",
+    "free": true,
+    "priceNote": "Sans réservation"
+  },
+  {
+    "title": "Atelier risographie",
+    "kind": "Atelier",
+    "theme": "Impression",
+    "description": "Une après-midi pour imprimer ses propres affiches en deux couleurs.",
+    "placeName": "Atelier de Vallila",
+    "area": "Vallila",
+    "latitude": 60.1975,
+    "longitude": 24.9615,
+    "startsAt": "2026-11-08T15:00:00+02:00",
+    "endsAt": "2026-11-08T18:00:00+02:00",
+    "free": true,
+    "priceNote": "Matériel fourni"
+  },
+  {
+    "title": "Sauna de rue, brunch",
+    "kind": "Sauna",
+    "theme": "Brunch",
+    "description": "Un sauna monté sur le trottoir, puis un brunch partagé.",
+    "placeName": "Place de Hermanni",
+    "area": "Hermanni",
+    "latitude": 60.1967,
+    "longitude": 24.9702,
+    "startsAt": "2026-11-08T11:00:00+02:00",
+    "endsAt": "2026-11-08T14:00:00+02:00",
+    "free": false,
+    "priceNote": "12 € le brunch"
+  },
+  {
+    "title": "Concert dans un salon",
+    "kind": "Concert",
+    "theme": "Acoustique",
+    "description": "Trois musiciens, vingt chaises, un appartement de Sörnäinen.",
+    "placeName": "Chez Aino",
+    "area": "Sörnäinen",
+    "latitude": 60.1872,
+    "longitude": 24.9605,
+    "startsAt": "2026-11-13T19:30:00+02:00",
+    "endsAt": "2026-11-13T22:00:00+02:00",
+    "free": false,
+    "priceNote": "À prix libre"
+  }
+]

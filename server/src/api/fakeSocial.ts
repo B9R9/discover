@@ -6,8 +6,9 @@ import type { SharedWalk } from '@discover/shared';
 
 import type { WalksStore } from './walksStore.ts';
 import { MAX_PENDING_SPOTS, type SpotsStore } from './spotsStore.ts';
-import type { SharedPlace } from '@discover/shared';
+import type { DetourEvent, SharedPlace } from '@discover/shared';
 
+import type { EventsStore } from './eventsStore.ts';
 import { MAX_SENT_SHARES, type PlaceSharesStore } from './placeSharesStore.ts';
 import type { PostsStore } from './postsStore.ts';
 import type { SocialStore } from './socialStore.ts';
@@ -316,4 +317,8 @@ export function fakePlaceShares(social: SocialStore): PlaceSharesStore {
       return true;
     },
   };
+}
+
+export function fakeEvents(list: DetourEvent[] = []): EventsStore {
+  return { listUpcoming: () => Promise.resolve(list) };
 }
