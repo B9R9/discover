@@ -10,6 +10,7 @@ import type { DetourEvent, EventAttendance, SharedPlace } from '@discover/shared
 
 import type { EventsStore } from './eventsStore.ts';
 import { MAX_SENT_SHARES, type PlaceSharesStore } from './placeSharesStore.ts';
+import type { CommentRow, PostCommentsStore } from './postCommentsStore.ts';
 import type { PostsStore } from './postsStore.ts';
 import type { SocialStore } from './socialStore.ts';
 import type { StorageAdmin } from './storageAdmin.ts';
@@ -351,6 +352,53 @@ export function fakeEvents(
         out.push({ eventId, me: users.has(user), friends: names.sort(), others });
       }
       return out;
+    },
+  };
+}
+
+export const UNKNOWN_POST = '00000000-0000-4000-8000-0000000000ff';
+
+// Every post is visible except UNKNOWN_POST, and only its commenter may remove a comment.
+export function fakeComments(
+  pseudoOf: (user: string) => string = (user) => user,
+): PostCommentsStore {
+  const all: (CommentRow & { postId: string; author: string })[] = [];
+  let next = 0;
+  const view = (user: string, row: (typeof all)[number]): CommentRow => ({
+    id: row.id,
+    pseudo: row.pseudo,
+    text: row.text,
+    createdAt: row.createdAt,
+    mine: row.author === user,
+    byPostAuthor: false,
+  });
+  return {
+    list: (user, postId) =>
+      Promise.resolve(
+        postId === UNKNOWN_POST
+          ? null
+          : all.filter((row) => row.postId === postId).map((row) => view(user, row)),
+      ),
+    add: (user, postId, text) => {
+      if (postId === UNKNOWN_POST) return Promise.resolve('unknown');
+      const row = {
+        id: `00000000-0000-4000-9000-${String(++next).padStart(12, '0')}`,
+        pseudo: pseudoOf(user),
+        text,
+        createdAt: '2026-11-07T10:00:00Z',
+        mine: true,
+        byPostAuthor: false,
+        postId,
+        author: user,
+      };
+      all.push(row);
+      return Promise.resolve(view(user, row));
+    },
+    remove: (user, commentId) => {
+      const index = all.findIndex((row) => row.id === commentId && row.author === user);
+      if (index < 0) return Promise.resolve(false);
+      all.splice(index, 1);
+      return Promise.resolve(true);
     },
   };
 }

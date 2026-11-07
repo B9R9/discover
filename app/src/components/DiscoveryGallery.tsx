@@ -12,6 +12,8 @@ import { Polaroid } from './Polaroid';
 // Charter: polaroids tilt between -5 and +5 degrees. Fixed by position so the grid does not jump on reload.
 const TILTS = [-3, 2, -1.5, 3.5, -2.5, 1];
 
+const pageNumber = (n: number) => String(n).padStart(3, '0');
+
 // ponytail: plain wrapped views, fine for a few hundred photos; switch to a FlatList grid beyond that.
 interface DiscoveryGalleryProps {
   discoveries: DiscoveryWithPhoto[];
@@ -44,11 +46,17 @@ export function DiscoveryGallery({ discoveries, onOpen }: DiscoveryGalleryProps)
               accessibilityLabel={name}
             />
             <Text style={[styles.date, { color: colors.muted }]}>
-              {formatDay(discovery.discoveredAt)}
+              {`${pageNumber(discoveries.length - index)} · ${formatDay(discovery.discoveredAt)}`}
             </Text>
           </Pressable>
         );
       })}
+      <View style={[styles.item, styles.next, { borderColor: colors.muted }]}>
+        <Text style={[styles.nextNumber, { color: colors.stamp }]}>
+          {pageNumber(discoveries.length + 1)}
+        </Text>
+        <Text style={[styles.nextHand, { color: colors.ink }]}>{t('profile.nextPage')}</Text>
+      </View>
     </View>
   );
 }
@@ -64,5 +72,16 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     textAlign: 'center',
   },
+  next: {
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    minHeight: 150,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    transform: [{ rotate: '-1deg' }],
+  },
+  nextNumber: { fontFamily: fonts.stamp, fontSize: 22 },
+  nextHand: { fontFamily: fonts.hand, fontSize: 22, lineHeight: 26, textAlign: 'center' },
   empty: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20 },
 });

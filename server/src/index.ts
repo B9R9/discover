@@ -5,6 +5,7 @@ import { postgresPlacesStore } from './api/placesStore.ts';
 import { postgresMapsStore } from './api/mapsStore.ts';
 import { postgresSpotsStore } from './api/spotsStore.ts';
 import { postgresEventsStore } from './api/eventsStore.ts';
+import { postgresPostCommentsStore } from './api/postCommentsStore.ts';
 import { postgresPlaceSharesStore } from './api/placeSharesStore.ts';
 import { postgresWalksStore } from './api/walksStore.ts';
 import { postgresPostsStore } from './api/postsStore.ts';
@@ -26,6 +27,7 @@ const services: Services = {
   walks: postgresWalksStore(sql),
   placeShares: postgresPlaceSharesStore(sql),
   events: postgresEventsStore(sql),
+  comments: postgresPostCommentsStore(sql),
   storage:
     SUPABASE_URL && SUPABASE_SECRET_KEY
       ? supabaseStorageAdmin(SUPABASE_URL, SUPABASE_SECRET_KEY)

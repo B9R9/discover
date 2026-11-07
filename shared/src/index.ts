@@ -67,6 +67,18 @@ export interface SharedPost {
   photoUrl: string;
 }
 
+// A short kind word under a friend's post (« mot doux »).
+export const MAX_POST_COMMENT = 140;
+export interface PostComment {
+  id: string;
+  pseudo: string;
+  text: string;
+  createdAt: string;
+  mine: boolean;
+  // True for the author of the post, shown as « l'autrice » / « l'auteur ».
+  byPostAuthor: boolean;
+}
+
 // A dated outing (phase 8a), added by Détour: a market, a concert, a workshop. Open to everyone.
 // `kind` is free text ("Brocante"), `area` the neighbourhood, `free` true when it costs nothing.
 export interface DetourEvent {

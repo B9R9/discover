@@ -1,8 +1,10 @@
+import type { SharedPost } from '@discover/shared';
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { AddFriendForm } from '@/components/AddFriendForm';
 import { AccountSection } from '@/components/AccountSection';
+import { CommentsModal } from '@/components/CommentsModal';
 import { FriendMapModal } from '@/components/FriendMapModal';
 import { FriendsList } from '@/components/FriendsList';
 import { MyMapSection } from '@/components/MyMapSection';
@@ -28,6 +30,7 @@ export function CircleScreen() {
   const [posts, reloadFeed] = useFeed(Boolean(session));
   const [sharedPlaces, reloadShared] = useSharedPlaces(Boolean(session));
   const [mapOf, setMapOf] = useState<string | null>(null);
+  const [commented, setCommented] = useState<SharedPost | null>(null);
 
   return (
     <Screen edges={['top', 'right', 'left']}>
@@ -55,6 +58,7 @@ export function CircleScreen() {
                 <PostCard
                   key={post.id}
                   post={post}
+                  onOpenComments={setCommented}
                   onChanged={() => {
                     reloadFeed();
                     reload();
@@ -70,6 +74,7 @@ export function CircleScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
       <FriendMapModal pseudo={mapOf} onClose={() => setMapOf(null)} />
+      <CommentsModal key={commented?.id ?? 'closed'} post={commented} onClose={() => setCommented(null)} />
     </Screen>
   );
 }

@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import type { DetourEvent } from '@discover/shared';
 
 import {
+  fakeComments,
   fakeEvents,
   fakeMaps,
   fakePlaceShares,
@@ -41,6 +42,7 @@ function services(): Services {
     store: { listAreas: () => Promise.resolve([]), listPlaces: () => Promise.resolve(null) },
     social,
     posts: fakePosts(),
+    comments: fakeComments(),
     maps: fakeMaps(),
     spots: fakeSpots(),
     walks: fakeWalks(),
