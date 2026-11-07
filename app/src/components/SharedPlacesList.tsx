@@ -8,6 +8,7 @@ import { fonts, spacing, type ThemeColors } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 import { Button } from './Button';
+import { SharedPlaceModal } from './SharedPlaceModal';
 
 // Places friends sent to me, and the ones I sent. A recipient only hides their copy; the author deletes for all.
 export function SharedPlacesList({
@@ -20,6 +21,7 @@ export function SharedPlacesList({
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [error, setError] = useState<TranslationKey | null>(null);
+  const [opened, setOpened] = useState<SharedPlace | null>(null);
 
   async function remove(id: string) {
     setError(null);
@@ -45,6 +47,9 @@ export function SharedPlacesList({
           <Text style={styles.name}>{place.name}</Text>
           {place.genre && <Text style={styles.meta}>{t(`category.${place.genre}`)}</Text>}
           {place.comment !== '' && <Text style={styles.comment}>{place.comment}</Text>}
+          {!place.mine && (
+            <Button label={t('sharedPlaces.direction')} onPress={() => setOpened(place)} />
+          )}
           <Button
             label={t(place.mine ? 'sharedPlaces.delete' : 'sharedPlaces.hide')}
             variant="secondary"
@@ -53,6 +58,7 @@ export function SharedPlacesList({
         </View>
       ))}
       {error && <Text style={styles.error}>{t(error)}</Text>}
+      <SharedPlaceModal place={opened} onClose={() => setOpened(null)} />
     </View>
   );
 }

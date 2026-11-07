@@ -342,8 +342,8 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 - [ ] Rien ne part vers le serveur sans action explicite de l'utilisateur
 - [ ] Amis : inviter, accepter, retirer (comptes de la phase 5b)
 - [ ] Voir la carte d'un ami : seulement ce qu'il a choisi de partager (lieux découverts ou image de sa carte), jamais ses chemins parcourus. Pas de synchronisation automatique
-- [x] Partager un lieu ou un spot à des amis choisis (7e, code fait le 2026-11-07, migration `20261107050000_place_shares.sql` à appliquer, 63 tests serveur). Le lieu partagé s'affiche en carte dans Cercle ; l'ouvrir sur la carte avec direction reste à faire.
-- [x] Événements (8a, 2026-11-07) : ajoutés par nous (seeds), collecte automatique plus tard ; voir README « Sorties ». Migration `20261107060000_events.sql`. Reste : compteur « X et Y y vont », ajout à l'agenda, collecte (scraping, conditions d'usage et robots.txt à respecter).
+- [x] Partager un lieu ou un spot à des amis choisis (7e, code fait le 2026-11-07, migration `20261107050000_place_shares.sql` à appliquer, 63 tests serveur). Le lieu partagé s'affiche en carte dans Cercle ; il s'ouvre avec distance et direction (pas de pastille sur la carte).
+- [x] Événements (8a, 2026-11-07) : ajoutés par nous (seeds), collecte automatique plus tard ; voir README « Sorties ». Migration `20261107060000_events.sql`. Compteur « X et Y y vont » fait (8b, migration `20261107070000_event_attendees.sql`). Reste : ajout à l'agenda, collecte (scraping, conditions d'usage et robots.txt à respecter).
 - [ ] Test : une photo partagée ne contient aucune donnée EXIF de position
 
 ### Plan détaillé phase 7 : social (proposé le 2026-11-06, à valider)

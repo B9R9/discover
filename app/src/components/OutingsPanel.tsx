@@ -1,10 +1,12 @@
 import type { DetourEvent } from '@discover/shared';
-import * as Location from 'expo-location';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { GeoPoint } from '@/db/types';
+import { useSession } from '@/features/account/useSession';
+import { setGoing } from '@/features/outings/outingsApi';
+import { useAttendance } from '@/features/outings/useAttendance';
 import { filterOutings, type OutingFilters } from '@/features/outings/filterOutings';
+import { useLastKnownPosition } from '@/features/location/useLastKnownPosition';
 import { useOutings } from '@/features/outings/useOutings';
 import { t, type TranslationKey } from '@/lib/i18n/t';
 import { fonts, spacing, type ThemeColors } from '@/theme/tokens';
@@ -28,21 +30,20 @@ export function OutingsPanel({ onCount }: { onCount: (count: number) => void }) 
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const events = useOutings();
+  const signedIn = Boolean(useSession());
+  const [attendance, reloadAttendance] = useAttendance(signedIn);
   const [filters, setFilters] = useState<OutingFilters>({
     evening: false,
     weekend: false,
     free: false,
   });
-  const [here, setHere] = useState<GeoPoint | null>(null);
+  const here = useLastKnownPosition();
   const [opened, setOpened] = useState<DetourEvent | null>(null);
 
-  useEffect(() => {
-    Location.getLastKnownPositionAsync()
-      .then((position) => {
-        if (position) setHere(position.coords);
-      })
-      .catch(console.warn);
-  }, []);
+  async function toggleGoing(eventId: string, going: boolean) {
+    const result = await setGoing(eventId, going);
+    if (result.ok) reloadAttendance();
+  }
 
   const shown = useMemo(
     () => filterOutings(events, filters, new Date(), here),
@@ -80,7 +81,16 @@ export function OutingsPanel({ onCount }: { onCount: (count: number) => void }) 
           ))}
         </View>
       </ScrollView>
-      <OutingDetailModal event={opened} here={here} onClose={() => setOpened(null)} />
+      <OutingDetailModal
+        event={opened}
+        here={here}
+        attendance={opened ? attendance[opened.id] : undefined}
+        signedIn={signedIn}
+        onToggleGoing={(going) => {
+          if (opened) toggleGoing(opened.id, going).catch(console.warn);
+        }}
+        onClose={() => setOpened(null)}
+      />
     </View>
   );
 }

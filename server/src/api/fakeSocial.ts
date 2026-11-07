@@ -6,7 +6,7 @@ import type { SharedWalk } from '@discover/shared';
 
 import type { WalksStore } from './walksStore.ts';
 import { MAX_PENDING_SPOTS, type SpotsStore } from './spotsStore.ts';
-import type { DetourEvent, SharedPlace } from '@discover/shared';
+import type { DetourEvent, EventAttendance, SharedPlace } from '@discover/shared';
 
 import type { EventsStore } from './eventsStore.ts';
 import { MAX_SENT_SHARES, type PlaceSharesStore } from './placeSharesStore.ts';
@@ -319,6 +319,38 @@ export function fakePlaceShares(social: SocialStore): PlaceSharesStore {
   };
 }
 
-export function fakeEvents(list: DetourEvent[] = []): EventsStore {
-  return { listUpcoming: () => Promise.resolve(list) };
+export function fakeEvents(
+  list: DetourEvent[] = [],
+  social: SocialStore = fakeSocial(),
+): EventsStore {
+  // event id -> users going
+  const going = new Map<string, Set<string>>();
+  return {
+    listUpcoming: () => Promise.resolve(list),
+    setGoing(user, eventId, value) {
+      if (!list.some((event) => event.id === eventId)) return Promise.resolve(false);
+      const users = going.get(eventId) ?? new Set<string>();
+      if (value) users.add(user);
+      else users.delete(user);
+      going.set(eventId, users);
+      return Promise.resolve(true);
+    },
+    async attendance(user) {
+      const { friends } = await social.listFriends(user);
+      const out: EventAttendance[] = [];
+      for (const [eventId, users] of going) {
+        if (users.size === 0) continue;
+        const names: string[] = [];
+        let others = 0;
+        for (const other of users) {
+          if (other === user) continue;
+          const pseudo = await social.getPseudo(other);
+          if (pseudo && friends.includes(pseudo)) names.push(pseudo);
+          else others += 1;
+        }
+        out.push({ eventId, me: users.has(user), friends: names.sort(), others });
+      }
+      return out;
+    },
+  };
 }

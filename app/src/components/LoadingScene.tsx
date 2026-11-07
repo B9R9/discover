@@ -38,7 +38,13 @@ function RouteDot({ progress, index, x, y, color }: DotProps) {
     />
   );
 }
-type DotProps = { progress: SharedValue<number>; index: number; x: number; y: number; color: string };
+type DotProps = {
+  progress: SharedValue<number>;
+  index: number;
+  x: number;
+  y: number;
+  color: string;
+};
 
 // Full-screen loading scene: a fog opening, a dotted route drawn to an X, the app name.
 // `place` completes the kicker ("Carnet de route · Biscarrosse") when it is known.
@@ -70,7 +76,9 @@ export function LoadingScene({ place }: { place?: string }) {
   }));
   const cross = useAnimatedStyle(() => ({
     opacity: progress.value >= DRAW_END ? 1 : 0,
-    transform: [{ scale: interpolate(progress.value, [DRAW_END, DRAW_END + 0.05], [0.3, 1], 'clamp') }],
+    transform: [
+      { scale: interpolate(progress.value, [DRAW_END, DRAW_END + 0.05], [0.3, 1], 'clamp') },
+    ],
   }));
   const word = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0, 0.15], [0, 1], 'clamp'),
@@ -96,10 +104,17 @@ export function LoadingScene({ place }: { place?: string }) {
     >
       <Animated.View style={[StyleSheet.absoluteFill, scene]} pointerEvents="none">
         {Array.from({ length: GRID_LINES }, (_, i) => (
-          <View key={i} style={[styles.gridLine, { top: ((i + 1) / (GRID_LINES + 1)) * size.height }]} />
+          <View
+            key={i}
+            style={[styles.gridLine, { top: ((i + 1) / (GRID_LINES + 1)) * size.height }]}
+          />
         ))}
         <Animated.View
-          style={[styles.fog, { left: size.width * 0.62 - 140, top: size.height * 0.46 - 140 }, fog]}
+          style={[
+            styles.fog,
+            { left: size.width * 0.62 - 140, top: size.height * 0.46 - 140 },
+            fog,
+          ]}
         />
         {DOTS.map((p, i) => (
           <RouteDot
@@ -121,7 +136,9 @@ export function LoadingScene({ place }: { place?: string }) {
           <Animated.Text style={[styles.word, word]}>{t('loading.title')}</Animated.Text>
           <Animated.Text style={[styles.tagline, tag]}>{t('loading.tagline')}</Animated.Text>
         </View>
-        <Animated.Text style={[styles.footer, blink]}>{t('loading.maps').toUpperCase()}</Animated.Text>
+        <Animated.Text style={[styles.footer, blink]}>
+          {t('loading.maps').toUpperCase()}
+        </Animated.Text>
       </Animated.View>
     </View>
   );
@@ -149,11 +166,31 @@ const createStyles = (c: ThemeColors) =>
       borderColor: c.kraft,
       opacity: 0.8,
     },
-    cross: { position: 'absolute', width: 28, fontFamily: fonts.stamp, fontSize: 44, lineHeight: 44, color: c.stamp, textAlign: 'center' },
-    center: { position: 'absolute', left: 0, right: 0, top: '14%', alignItems: 'center', gap: spacing.sm },
+    cross: {
+      position: 'absolute',
+      width: 28,
+      fontFamily: fonts.stamp,
+      fontSize: 44,
+      lineHeight: 44,
+      color: c.stamp,
+      textAlign: 'center',
+    },
+    center: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: '14%',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
     kicker: { fontFamily: fonts.stamp, fontSize: 12, letterSpacing: 2.6, color: c.stamp },
     word: { fontFamily: fonts.title, fontSize: 96, lineHeight: 104, color: c.ink },
-    tagline: { fontFamily: fonts.hand, fontSize: 30, color: c.ink, transform: [{ rotate: '-2deg' }] },
+    tagline: {
+      fontFamily: fonts.hand,
+      fontSize: 30,
+      color: c.ink,
+      transform: [{ rotate: '-2deg' }],
+    },
     footer: {
       position: 'absolute',
       bottom: spacing.xl,

@@ -85,6 +85,14 @@ export interface DetourEvent {
   priceNote: string;
 }
 
+// Who goes to an outing, as seen by one user: themselves, their friends by pseudo, and a count of the others.
+export interface EventAttendance {
+  eventId: string;
+  me: boolean;
+  friends: string[];
+  others: number;
+}
+
 // A place sent to chosen friends (phase 7e): the exact position goes with it, so the sender confirms first.
 // `genre` is null for a private place. `to` is filled for the sender's own shares, `pseudo` is the sender.
 export const MAX_SHARE_FRIENDS = 10;

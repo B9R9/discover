@@ -29,6 +29,7 @@ const ERRORS: Record<string, TranslationKey> = {
   too_many_shares: 'circle.error.tooManyShares',
   invalid_share: 'circle.error.invalidShare',
   unknown_share: 'circle.error.unknownShare',
+  unknown_event: 'outings.error.unknown',
 };
 
 const NETWORK: TranslationKey = 'account.error.network';

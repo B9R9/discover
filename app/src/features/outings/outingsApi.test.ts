@@ -1,4 +1,4 @@
-import { parseEvents } from './outingsApi';
+import { parseAttendance, parseEvents } from './outingsApi';
 
 jest.mock('@/features/account/supabase', () => ({ supabase: {} }));
 
@@ -26,5 +26,17 @@ describe('parseEvents', () => {
     expect(parseEvents({ events: [{ ...event, free: 'yes' }] })).toBeNull();
     expect(parseEvents({ events: [{ ...event, startsAt: 'soon' }] })).toBeNull();
     expect(parseEvents({})).toBeNull();
+  });
+});
+
+describe('parseAttendance', () => {
+  it('reads who goes', () => {
+    const row = { eventId: 'e', me: true, friends: ['tom'], others: 2 };
+    expect(parseAttendance({ attendance: [row] })).toEqual([row]);
+  });
+  it('refuses a malformed row', () => {
+    expect(
+      parseAttendance({ attendance: [{ eventId: 'e', me: 1, friends: [], others: 0 }] }),
+    ).toBeNull();
   });
 });

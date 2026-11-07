@@ -1,21 +1,26 @@
-import type { DetourEvent } from '@discover/shared';
+import type { DetourEvent, EventAttendance } from '@discover/shared';
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { GeoPoint } from '@/db/types';
-import { bearingDegrees, distanceMeters } from '@/lib/geo';
-import { cardinalKey } from '@/lib/cardinal';
-import { crowWalkMinutes, formatDistance, formatLongDay, ticketDate } from '@/lib/format';
+import { goingSentence } from '@/features/outings/goingSentence';
+import { distanceMeters } from '@/lib/geo';
+import { crowWalkMinutes, formatLongDay, ticketDate } from '@/lib/format';
 import { t } from '@/lib/i18n/t';
 import { fonts, spacing, type ThemeColors } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
+import { Button } from './Button';
+import { CrowDirection } from './CrowDirection';
 import { SubpageModal } from './SubpageModal';
 import { Tape } from './Tape';
 
 interface OutingDetailModalProps {
   event: DetourEvent | null;
   here: GeoPoint | null;
+  attendance: EventAttendance | undefined;
+  signedIn: boolean;
+  onToggleGoing: (going: boolean) => void;
   onClose: () => void;
 }
 
@@ -32,7 +37,14 @@ function Fact({ label, value, note }: { label: string; value: string; note?: str
 }
 
 // One outing: when, price, where, theme, then how far and which way (never an itinerary).
-export function OutingDetailModal({ event, here, onClose }: OutingDetailModalProps) {
+export function OutingDetailModal({
+  event,
+  here,
+  attendance,
+  signedIn,
+  onToggleGoing,
+  onClose,
+}: OutingDetailModalProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const visible = event !== null;
@@ -74,15 +86,21 @@ export function OutingDetailModal({ event, here, onClose }: OutingDetailModalPro
             {event.theme !== '' && <Fact label={t('outings.theme')} value={event.theme} />}
           </View>
           {event.description !== '' && <Text style={styles.description}>{event.description}</Text>}
-          <Text style={styles.direction}>
-            {here && distance !== null
-              ? t('outings.direction', {
-                  distance: formatDistance(distance),
-                  cardinal: t(cardinalKey(bearingDegrees(here, event))),
-                })
-              : t('outings.noPosition')}
-          </Text>
-          <Text style={styles.note}>{t('outings.directionNote')}</Text>
+          <CrowDirection here={here} target={event} />
+          {goingSentence(attendance) && (
+            <Text style={styles.going}>{goingSentence(attendance)}</Text>
+          )}
+          {signedIn ? (
+            <View style={styles.actions}>
+              <Button
+                label={t(attendance?.me ? 'outings.notGoing' : 'outings.go')}
+                variant={attendance?.me ? 'secondary' : 'primary'}
+                onPress={() => onToggleGoing(!attendance?.me)}
+              />
+            </View>
+          ) : (
+            <Text style={styles.note}>{t('outings.signIn')}</Text>
+          )}
         </>
       )}
     </SubpageModal>
@@ -133,6 +151,8 @@ const createStyles = (c: ThemeColors) =>
       color: c.ink,
       marginTop: spacing.lg,
     },
+    going: { fontFamily: fonts.hand, fontSize: 24, lineHeight: 30, color: c.ink },
+    actions: { marginBottom: spacing.xl },
     note: {
       fontFamily: fonts.body,
       fontSize: 13,
