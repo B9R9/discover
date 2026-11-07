@@ -16,6 +16,7 @@ import { Button } from './Button';
 import { Polaroid } from './Polaroid';
 import { ProposeSpot } from './ProposeSpot';
 import { PersonalPlaceForm } from './PersonalPlaceForm';
+import { SharePlace } from './SharePlace';
 import { SharePostForm } from './SharePostForm';
 import { Stamp } from './Stamp';
 
@@ -157,6 +158,7 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
                       />
                     </>
                   )}
+                  {personal && mode === 'view' && <SharePlace place={personal} />}
                   {personal?.visibility === 'public' && personal.genre && mode === 'view' && (
                     <ProposeSpot place={personal} />
                   )}

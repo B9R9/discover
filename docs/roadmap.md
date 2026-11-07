@@ -342,7 +342,7 @@ Fait le 2026-10-10 (étape 6) : `mapStatus` et `listMaps` (testés) dans `featur
 - [ ] Rien ne part vers le serveur sans action explicite de l'utilisateur
 - [ ] Amis : inviter, accepter, retirer (comptes de la phase 5b)
 - [ ] Voir la carte d'un ami : seulement ce qu'il a choisi de partager (lieux découverts ou image de sa carte), jamais ses chemins parcourus. Pas de synchronisation automatique
-- [ ] Partager un lieu ou un spot à des amis choisis
+- [x] Partager un lieu ou un spot à des amis choisis (7e, code fait le 2026-11-07, migration `20261107050000_place_shares.sql` à appliquer, 63 tests serveur). Le lieu partagé s'affiche en carte dans Cercle ; l'ouvrir sur la carte avec direction reste à faire.
 - [ ] Événements : à préciser (voir questions ouvertes)
 - [ ] Test : une photo partagée ne contient aucune donnée EXIF de position
 

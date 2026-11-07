@@ -7,11 +7,13 @@ import { FriendMapModal } from '@/components/FriendMapModal';
 import { FriendsList } from '@/components/FriendsList';
 import { MyMapSection } from '@/components/MyMapSection';
 import { PostCard } from '@/components/PostCard';
+import { SharedPlacesList } from '@/components/SharedPlacesList';
 import { PseudoForm } from '@/components/PseudoForm';
 import { Screen } from '@/components/Screen';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { useSession } from '@/features/account/useSession';
 import { useCircle } from '@/features/social/useCircle';
+import { useSharedPlaces } from '@/features/social/useSharedPlaces';
 import { useFeed } from '@/features/social/useFeed';
 import { t } from '@/lib/i18n/t';
 import { fonts, spacing, type ThemeColors } from '@/theme/tokens';
@@ -24,6 +26,7 @@ export function CircleScreen() {
   const session = useSession();
   const [circle, reload] = useCircle(Boolean(session));
   const [posts, reloadFeed] = useFeed(Boolean(session));
+  const [sharedPlaces, reloadShared] = useSharedPlaces(Boolean(session));
   const [mapOf, setMapOf] = useState<string | null>(null);
 
   return (
@@ -58,6 +61,7 @@ export function CircleScreen() {
                   }}
                 />
               ))}
+              <SharedPlacesList places={sharedPlaces} onChanged={reloadShared} />
               <FriendsList list={circle.list} onChanged={reload} onOpenMap={setMapOf} />
               <MyMapSection />
               <AddFriendForm onSent={reload} />

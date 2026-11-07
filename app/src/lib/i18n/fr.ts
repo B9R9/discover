@@ -149,6 +149,22 @@ export const fr = {
   'feed.blockWarning':
     "Tu ne verras plus ses posts et il sera retiré de tes amis. Tu ne pourras pas l'inviter de nouveau.",
   'feed.blockConfirm': 'Oui, bloquer',
+  'sharePlace.button': 'Envoyer à des amis',
+  'sharePlace.hint':
+    "Choisis les amis qui recevront ce lieu. Ils verront son nom, l'endroit exact et ton commentaire. Personne d'autre.",
+  'sharePlace.noFriends': "Tu n'as pas encore d'ami. Invite quelqu'un dans Cercle.",
+  'sharePlace.confirm': 'Envoyer à {count} ami(s)',
+  'sharePlace.done': 'Envoyé.',
+  'sharePlace.signIn': 'Connecte-toi pour envoyer ce lieu à des amis.',
+  'sharedPlaces.title': 'Lieux envoyés',
+  'sharedPlaces.from': 'De {pseudo}',
+  'sharedPlaces.sentTo': 'Envoyé à {pseudos}',
+  'sharedPlaces.hide': 'Retirer de ma liste',
+  'sharedPlaces.delete': 'Supprimer pour tous',
+  'circle.error.notFriends': "Tu ne peux envoyer qu'à tes amis.",
+  'circle.error.tooManyShares': 'Trop de lieux envoyés. Supprime-en pour en envoyer d’autres.',
+  'circle.error.invalidShare': 'Ce lieu ne peut pas être envoyé : vérifie le commentaire.',
+  'circle.error.unknownShare': "Ce lieu n'existe plus.",
   'spot.propose': 'Proposer à la communauté',
   'spot.hint':
     'Si tu confirmes, le nom, le genre et la position exacte de ce lieu sont envoyés. Après validation, il apparaît sur les cartes de tout le monde.',

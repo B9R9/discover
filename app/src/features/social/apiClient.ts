@@ -25,6 +25,10 @@ const ERRORS: Record<string, TranslationKey> = {
   invalid_walk: 'walk.error.invalid',
   unknown_walk: 'walk.error.unknown',
   own_walk: 'walk.error.own',
+  not_friends: 'circle.error.notFriends',
+  too_many_shares: 'circle.error.tooManyShares',
+  invalid_share: 'circle.error.invalidShare',
+  unknown_share: 'circle.error.unknownShare',
 };
 
 const NETWORK: TranslationKey = 'account.error.network';

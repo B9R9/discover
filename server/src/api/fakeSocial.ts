@@ -6,6 +6,9 @@ import type { SharedWalk } from '@discover/shared';
 
 import type { WalksStore } from './walksStore.ts';
 import { MAX_PENDING_SPOTS, type SpotsStore } from './spotsStore.ts';
+import type { SharedPlace } from '@discover/shared';
+
+import { MAX_SENT_SHARES, type PlaceSharesStore } from './placeSharesStore.ts';
 import type { PostsStore } from './postsStore.ts';
 import type { SocialStore } from './socialStore.ts';
 import type { StorageAdmin } from './storageAdmin.ts';
@@ -256,6 +259,61 @@ export function fakeWalks(hasProfile: (user: string) => boolean = () => true): W
       const walk = walks.get(id);
       if (!walk) return Promise.resolve('unknown');
       return Promise.resolve(walk.author === user ? 'own' : 'ok');
+    },
+  };
+}
+
+// Shares are checked against the fake circle: recipients must be friends of the sender.
+export function fakePlaceShares(social: SocialStore): PlaceSharesStore {
+  const shares: {
+    place: Omit<SharedPlace, 'mine' | 'to' | 'pseudo'>;
+    author: string;
+    to: string[];
+  }[] = [];
+  return {
+    async create(user, input) {
+      const pseudo = await social.getPseudo(user);
+      if (!pseudo) return 'profile_required';
+      if (shares.filter((share) => share.author === user).length >= MAX_SENT_SHARES)
+        return 'too_many';
+      const { friends } = await social.listFriends(user);
+      if (!input.pseudos.every((p) => friends.includes(p))) return 'not_friends';
+      const { pseudos, ...place } = input;
+      shares.push({
+        place: {
+          ...place,
+          genre: place.genre as SharedPlace['genre'],
+          id: crypto.randomUUID(),
+          createdAt: new Date().toISOString(),
+        },
+        author: user,
+        to: pseudos,
+      });
+      return 'ok';
+    },
+    async list(user) {
+      const me = await social.getPseudo(user);
+      const out: SharedPlace[] = [];
+      for (const share of shares) {
+        const mine = share.author === user;
+        if (!mine && !(me && share.to.includes(me))) continue;
+        const pseudo = (await social.getPseudo(share.author)) ?? '';
+        out.push({ ...share.place, pseudo, mine, to: mine ? share.to : [] });
+      }
+      return out;
+    },
+    async remove(user, id) {
+      const index = shares.findIndex((share) => share.place.id === id);
+      const share = shares[index];
+      if (!share) return false;
+      if (share.author === user) {
+        shares.splice(index, 1);
+        return true;
+      }
+      const me = await social.getPseudo(user);
+      if (!me || !share.to.includes(me)) return false;
+      share.to = share.to.filter((p) => p !== me);
+      return true;
     },
   };
 }

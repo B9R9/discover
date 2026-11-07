@@ -3,6 +3,7 @@ import { test } from 'node:test';
 
 import {
   fakeMaps,
+  fakePlaceShares,
   fakePosts,
   fakeSessions,
   fakeSocial,
@@ -12,13 +13,15 @@ import {
 import { route, type Reply, type Services } from './routes.ts';
 
 function setup() {
+  const social = fakeSocial();
   const services: Services = {
     store: { listAreas: () => Promise.resolve([]), listPlaces: () => Promise.resolve(null) },
-    social: fakeSocial(),
+    social,
     posts: fakePosts(),
     maps: fakeMaps(),
     spots: fakeSpots(),
     walks: fakeWalks((user) => user !== 'nobody'),
+    placeShares: fakePlaceShares(social),
     storage: null,
     auth: fakeSessions,
   };

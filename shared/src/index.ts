@@ -67,6 +67,23 @@ export interface SharedPost {
   photoUrl: string;
 }
 
+// A place sent to chosen friends (phase 7e): the exact position goes with it, so the sender confirms first.
+// `genre` is null for a private place. `to` is filled for the sender's own shares, `pseudo` is the sender.
+export const MAX_SHARE_FRIENDS = 10;
+export const MAX_SHARE_COMMENT = 280;
+export interface SharedPlace {
+  id: string;
+  name: string;
+  genre: SpotGenre | null;
+  latitude: number;
+  longitude: number;
+  comment: string;
+  pseudo: string;
+  mine: boolean;
+  to: string[];
+  createdAt: string;
+}
+
 // Map shared with friends (phase 7c): the places discovered, as ids. No dates, no paths, no personal places.
 export const MAX_SHARED_PLACES = 5000;
 
