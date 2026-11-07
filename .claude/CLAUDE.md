@@ -148,6 +148,8 @@ Installation, téléphone Android, JDK et pannes connues : `docs/runbook.md`.
 
 ## État actuel
 
+- Pour le moment, une seule carte : Helsinki. La France est mise de côté (code gardé, collecte hebdomadaire arrêtée).
+
 À mettre à jour au fil du projet : ce qui est fait, ce qui est en cours, ce qui est prévu.
 
 - [x] Squelette Expo et navigation
