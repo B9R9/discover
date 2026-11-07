@@ -11,11 +11,13 @@ import { getSetting } from '@/db/settings';
 import { StoreProvider } from '@/features/purchases/StoreProvider';
 import { t } from '@/lib/i18n/t';
 import { TabBar } from '@/components/TabBar';
+import { motion } from '@/theme/tokens';
 import { OnboardingScreen } from '@/screens/OnboardingScreen';
 import { useAppFonts } from '@/theme/useAppFonts';
 
 // Keep the native splash up until fonts and the onboarding state are known, so the first frame is final.
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+const splashShownAt = Date.now();
 
 export default function RootLayout() {
   const { ready } = useAppFonts();
@@ -38,7 +40,11 @@ function App() {
   }, [db]);
 
   useEffect(() => {
-    if (onboardingDone !== null) SplashScreen.hideAsync().catch(() => undefined);
+    if (onboardingDone === null) return;
+    // Stay on the splash for at least motion.splash so the logo is actually seen.
+    const wait = Math.max(0, motion.splash - (Date.now() - splashShownAt));
+    const timer = setTimeout(() => SplashScreen.hideAsync().catch(() => undefined), wait);
+    return () => clearTimeout(timer);
   }, [onboardingDone]);
 
   if (onboardingDone === null) return null;
