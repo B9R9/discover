@@ -41,6 +41,7 @@ export function ProfileScreen() {
       <KeyboardAvoidingView behavior="padding" style={styles.keyboard}>
         <ScrollView keyboardShouldPersistTaps="handled">
           <View style={styles.cover}>
+            <Text style={styles.coverKicker}>{t('profile.kicker').toUpperCase()}</Text>
             <Text style={styles.coverTitle} accessibilityRole="header">
               {t('profile.title')}
             </Text>
@@ -78,6 +79,7 @@ export function ProfileScreen() {
           </Text>
           <MapsSection />
           <AccountSection />
+          <Text style={styles.footer}>{t('profile.footer')}</Text>
         </ScrollView>
       </KeyboardAvoidingView>
       <PlaceDetailModal
@@ -100,17 +102,27 @@ const createStyles = (c: ThemeColors) =>
       gap: spacing.md,
       marginTop: spacing.md,
     },
+    coverKicker: { fontFamily: fonts.stamp, fontSize: 11, letterSpacing: 2, color: c.lantern },
     coverTitle: { fontFamily: fonts.title, fontSize: 36, lineHeight: 42, color: c.paper },
     row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xl },
     texts: { flex: 1 },
     label: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
     section: {
-      fontFamily: fonts.title,
-      fontSize: 18,
-      lineHeight: 24,
+      fontFamily: fonts.hand,
+      fontSize: 28,
+      lineHeight: 34,
       color: c.ink,
       marginTop: spacing.xxl,
       marginBottom: spacing.md,
     },
     hint: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
+    footer: {
+      fontFamily: fonts.hand,
+      fontSize: 22,
+      lineHeight: 28,
+      color: c.ink,
+      marginTop: spacing.xl,
+      marginBottom: spacing.xl,
+      transform: [{ rotate: '-1.5deg' }],
+    },
   });
