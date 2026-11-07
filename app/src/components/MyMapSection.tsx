@@ -42,7 +42,7 @@ export function MyMapSection() {
   return (
     <View style={styles.box}>
       <Text style={styles.section} accessibilityRole="header">
-        {t('mymap.title')}
+        {t('mymap.title').toUpperCase()}
       </Text>
       <Text style={styles.hint}>{t('mymap.hint')}</Text>
       <Text style={styles.text}>
@@ -77,15 +77,27 @@ export function MyMapSection() {
 
 const createStyles = (c: ThemeColors) =>
   StyleSheet.create({
-    box: { gap: spacing.sm },
-    section: {
-      fontFamily: fonts.title,
-      fontSize: 18,
-      lineHeight: 24,
-      color: c.ink,
-      marginTop: spacing.lg,
+    // A pinned page of the notebook, slightly off-square like the other cards.
+    box: {
+      gap: spacing.sm,
+      marginTop: spacing.xl,
+      padding: spacing.lg,
+      backgroundColor: c.paperLight,
+      shadowColor: c.ink,
+      shadowOpacity: 0.14,
+      shadowRadius: 0,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 1,
+      transform: [{ rotate: '0.6deg' }],
     },
-    text: { fontFamily: fonts.bodyBold, fontSize: 16, lineHeight: 24, color: c.ink },
+    section: { fontFamily: fonts.stamp, fontSize: 11, letterSpacing: 1.3, color: c.postalText },
+    text: {
+      fontFamily: fonts.hand,
+      fontSize: 22,
+      lineHeight: 28,
+      color: c.ink,
+      transform: [{ rotate: '-1deg' }],
+    },
     hint: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
     actions: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
     error: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.stamp },

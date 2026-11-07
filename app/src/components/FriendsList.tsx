@@ -41,7 +41,12 @@ export function FriendsList({ list, onChanged, onOpenMap }: FriendsListProps) {
     extra?: React.ReactNode,
   ) => (
     <View key={pseudo} style={styles.row}>
-      <Text style={styles.pseudo}>{pseudo}</Text>
+      <View style={styles.who}>
+        <View style={styles.avatar} accessibilityElementsHidden>
+          <Text style={styles.initial}>{pseudo.slice(0, 1).toUpperCase()}</Text>
+        </View>
+        <Text style={styles.pseudo}>{pseudo}</Text>
+      </View>
       <View style={styles.actions}>
         {actions.map((action) => (
           <Button
@@ -120,9 +125,19 @@ const createStyles = (c: ThemeColors) =>
       color: c.ink,
       marginTop: spacing.lg,
     },
-    row: { gap: spacing.sm },
-    pseudo: { fontFamily: fonts.bodyBold, fontSize: 16, lineHeight: 24, color: c.ink },
-    actions: { flexDirection: 'row', gap: spacing.sm },
+    row: { gap: spacing.sm, padding: spacing.md, backgroundColor: c.paperWhite },
+    who: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm + 2 },
+    avatar: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: c.postal,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    initial: { fontFamily: fonts.title, fontSize: 20, color: c.onStamp },
+    pseudo: { fontFamily: fonts.stamp, fontSize: 14, color: c.ink },
+    actions: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
     hint: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
     error: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.stamp },
   });
