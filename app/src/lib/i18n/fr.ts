@@ -46,6 +46,8 @@ export const fr = {
   'place.close': 'Fermer',
   'profile.title': 'Mon carnet',
   'profile.kicker': 'Voyageur',
+  'profile.stamp.places': 'lieux',
+  'profile.stamp.maps': 'cartes',
   'profile.footer': 'ta position reste sur ton téléphone.',
   'profile.discoveries': 'Mes découvertes',
   'profile.cover.count': '{count} lieux',

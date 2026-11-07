@@ -31,7 +31,7 @@ function MapRow({ name, description, status, indented = false, price, onBuy }: M
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
-    <View style={[styles.row, indented && styles.city]}>
+    <View style={[styles.row, indented && styles.city, status === 'locked' && styles.rowLocked]}>
       <View style={styles.texts}>
         <Text style={styles.name} numberOfLines={1}>
           {name}
@@ -100,18 +100,34 @@ export function MapsSection() {
 
 const createStyles = (c: ThemeColors) =>
   StyleSheet.create({
+    // A card per map: bought ones are pasted in, the others stay a dashed outline.
     row: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.md,
       minHeight: 56,
-      paddingVertical: spacing.sm,
+      padding: spacing.md,
+      marginBottom: spacing.sm + 2,
+      backgroundColor: c.paperWhite,
+      shadowColor: c.ink,
+      shadowOpacity: 0.14,
+      shadowRadius: 0,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 1,
+    },
+    rowLocked: {
+      backgroundColor: c.paperLight,
+      borderWidth: 2,
+      borderStyle: 'dashed',
+      borderColor: c.muted,
+      shadowOpacity: 0,
+      elevation: 0,
     },
     texts: { flex: 1 },
     city: { paddingLeft: spacing.lg },
-    name: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
+    name: { fontFamily: fonts.title, fontSize: 21, lineHeight: 26, color: c.ink },
     description: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
-    status: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: c.ink },
+    status: { fontFamily: fonts.stamp, fontSize: 11, letterSpacing: 1.1, color: c.stamp },
     locked: { fontFamily: fonts.body, color: c.muted },
     buy: {
       borderWidth: 1,

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { AccountSection } from '@/components/AccountSection';
+import { CountStamp } from '@/components/CountStamp';
 import { DiscoveryGallery } from '@/components/DiscoveryGallery';
 import { MapStyleSection } from '@/components/MapStyleSection';
 import { MapsSection } from '@/components/MapsSection';
@@ -12,6 +13,7 @@ import { Screen } from '@/components/Screen';
 import { Stamp } from '@/components/Stamp';
 import { getSetting } from '@/db/settings';
 import { setBackgroundTracking } from '@/features/location/backgroundSetting';
+import { useMaps } from '@/features/maps/useMaps';
 import { useDiscoveryGallery } from '@/features/photo/useDiscoveryGallery';
 import { t } from '@/lib/i18n/t';
 import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
@@ -24,6 +26,8 @@ export function ProfileScreen() {
   const [background, setBackground] = useState(false);
   const [discoveries, reloadDiscoveries] = useDiscoveryGallery(db);
   const [openId, setOpenId] = useState<PlaceId | null>(null);
+  const { maps } = useMaps(db);
+  const ownedMaps = maps.filter((entry) => entry.status !== 'locked').length;
   const opened = discoveries.find((discovery) => discovery.placeId === openId) ?? null;
 
   useEffect(() => {
@@ -52,6 +56,21 @@ export function ProfileScreen() {
                   : t('profile.cover.count', { count: discoveries.length })
               }
               tilt={-6}
+            />
+          </View>
+          <View style={styles.stamps}>
+            <CountStamp
+              value={String(discoveries.length)}
+              label={t('profile.stamp.places')}
+              tone="stamp"
+              round
+              tilt={-8}
+            />
+            <CountStamp
+              value={String(ownedMaps)}
+              label={t('profile.stamp.maps')}
+              tone="postal"
+              tilt={5}
             />
           </View>
           <View style={styles.row}>
@@ -104,6 +123,11 @@ const createStyles = (c: ThemeColors) =>
     },
     coverKicker: { fontFamily: fonts.stamp, fontSize: 11, letterSpacing: 2, color: c.lantern },
     coverTitle: { fontFamily: fonts.title, fontSize: 36, lineHeight: 42, color: c.paper },
+    stamps: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      marginTop: spacing.xl,
+    },
     row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xl },
     texts: { flex: 1 },
     label: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
