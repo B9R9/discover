@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -10,6 +10,8 @@ import { useStore } from '@/features/purchases/StoreProvider';
 import { t, type TranslationKey } from '@/lib/i18n/t';
 import { fonts, radius, spacing, type ThemeColors } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+
+import { UnlockModal, type UnlockChoice } from './UnlockModal';
 
 const STATUS_LABEL: Record<MapStatus, TranslationKey> = {
   free: 'maps.free',
@@ -63,6 +65,27 @@ export function MapsSection() {
   const { maps, country, prices } = useMaps(useSQLiteContext());
   const { message, buy, restore } = useStore();
   const countryProduct = mapProductId(COUNTRY_MAP);
+  const [unlocking, setUnlocking] = useState(false);
+
+  const choices: UnlockChoice[] = [
+    ...(country === 'locked' && prices[countryProduct]
+      ? [
+          {
+            productId: countryProduct,
+            name: t('maps.country'),
+            description: t('maps.describe.country'),
+            price: prices[countryProduct],
+          },
+        ]
+      : []),
+    ...maps.flatMap((entry) => {
+      const productId = mapProductId(entry.area.id);
+      const price = prices[productId];
+      if (entry.status !== 'locked' || !price) return [];
+      const { key, params } = describeMap(entry, maps);
+      return [{ productId, name: entry.area.name, description: t(key, params), price }];
+    }),
+  ];
 
   if (maps.length === 0) return <Text style={styles.hint}>{t('maps.empty')}</Text>;
   return (
@@ -91,6 +114,22 @@ export function MapsSection() {
         );
       })}
       {message && <Text style={styles.hint}>{t(message)}</Text>}
+      {choices.length > 0 && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setUnlocking(true)}
+          style={styles.restore}
+        >
+          <Text style={styles.restoreText}>{t('unlock.open')}</Text>
+        </Pressable>
+      )}
+      <UnlockModal
+        visible={unlocking}
+        choices={choices}
+        message={message}
+        onBuy={buy}
+        onClose={() => setUnlocking(false)}
+      />
       <Pressable accessibilityRole="button" onPress={restore} style={styles.restore}>
         <Text style={styles.restoreText}>{t('maps.restore')}</Text>
       </Pressable>

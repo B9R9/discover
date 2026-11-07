@@ -640,3 +640,4 @@ Référence : `docs/design.md` (charte validée, mode clair et mode sombre) et l
 
 ### Bilan
 À remplir à la fin de chaque étape.
+- [x] Page « Débloquer une autre ville » d'après `Debloquer.dc.html` (2026-11-07) : `UnlockModal`, ouverte depuis `MapsSection`. Fiche d'un lieu restylée (en-tête). À voir sur le téléphone.
