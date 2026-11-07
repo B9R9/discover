@@ -53,6 +53,7 @@ export const fr = {
   'profile.stamp.maps': 'cartes',
   'profile.footer': 'ta position reste sur ton téléphone.',
   'profile.discoveries': 'Mes découvertes',
+  'profile.nextPage': 'à coller bientôt',
   'profile.cover.count': '{count} lieux',
   'profile.cover.countOne': '1 lieu',
   'profile.noDiscoveries':
