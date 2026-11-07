@@ -39,6 +39,8 @@ export const fr = {
   'personal.refused.limit': 'Tu as déjà créé 3 lieux aujourd’hui. Reviens demain pour en ajouter.',
   'personal.editTitle': 'Modifier ce lieu',
   'personal.save': 'Enregistrer',
+  'place.kicker': 'Page du carnet',
+  'place.discoveredOn': 'découvert le {date}',
   'place.edit': 'Modifier',
   'place.delete': 'Supprimer ce lieu',
   'place.deleteWarning':

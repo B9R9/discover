@@ -16,6 +16,7 @@ import { Button } from './Button';
 import { Polaroid } from './Polaroid';
 import { ProposeSpot } from './ProposeSpot';
 import { PersonalPlaceForm } from './PersonalPlaceForm';
+import { RoundButton } from './RoundButton';
 import { SharePlace } from './SharePlace';
 import { SharePostForm } from './SharePostForm';
 import { Stamp } from './Stamp';
@@ -111,21 +112,27 @@ export function PlaceDetailModal({ discovery, onClose, onChanged }: PlaceDetailM
           ) : (
             discovery && (
               <ScrollView contentContainerStyle={styles.content}>
+                <View style={styles.top}>
+                  <RoundButton glyph="‹" label={t('subpage.back')} onPress={onClose} />
+                  <Text style={styles.kicker}>{t('place.kicker').toUpperCase()}</Text>
+                </View>
                 <View style={styles.polaroid}>
                   <Polaroid
                     photoUri={discovery.photoUri}
                     caption={formatDay(discovery.discoveredAt)}
-                    tilt={-2}
+                    tilt={-3}
                     accessibilityLabel={name}
                   />
                 </View>
+                <Text style={styles.kicker}>
+                  {`${categoryLabel(discovery.category)} · ${t('place.discoveredOn', {
+                    date: formatDay(discovery.discoveredAt),
+                  })}`.toUpperCase()}
+                </Text>
                 <Text accessibilityRole="header" style={styles.name}>
                   {name}
                 </Text>
-                <View style={styles.metaRow}>
-                  <Text style={styles.meta}>{categoryLabel(discovery.category)}</Text>
-                  <Stamp label={t('places.discovered')} tilt={-6} />
-                </View>
+                <Stamp label={t('places.discovered')} tilt={-6} />
                 {error && <Text style={styles.error}>{t(error)}</Text>}
                 {notice && <Text style={styles.meta}>{t(notice)}</Text>}
                 {mode === 'confirmDelete' && (
@@ -190,8 +197,9 @@ const createStyles = (c: ThemeColors) =>
     screen: { flex: 1, backgroundColor: c.paper, padding: spacing.lg },
     content: { gap: spacing.md },
     polaroid: { paddingHorizontal: spacing.md, paddingTop: spacing.sm },
-    metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    name: { fontFamily: fonts.title, fontSize: 28, lineHeight: 34, color: c.ink },
+    top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    kicker: { fontFamily: fonts.stamp, fontSize: 12, letterSpacing: 1.9, color: c.stamp },
+    name: { fontFamily: fonts.title, fontSize: 32, lineHeight: 38, color: c.ink },
     meta: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.muted },
     warning: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: c.ink },
     error: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: c.stamp },
