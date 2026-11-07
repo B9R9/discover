@@ -8,6 +8,9 @@ export interface DepartmentSource {
 }
 
 export const DEPARTMENT_SOURCES: readonly DepartmentSource[] = [
+  // Not a French department: for now the app ships with a Helsinki map (the municipality, admin_level 8).
+  // Relation id from memory, to check on openstreetmap.org/relation/34914 before the first collect.
+  { id: 'helsinki', name: 'Helsinki', osmRelation: 34914 },
   { id: 'ain', name: 'Ain', osmRelation: 7387 },
   { id: 'aisne', name: 'Aisne', osmRelation: 7411 },
   { id: 'allier', name: 'Allier', osmRelation: 1450201 },

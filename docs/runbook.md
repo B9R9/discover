@@ -122,6 +122,7 @@ Supabase local, ports 544xx (un autre projet Supabase du poste peut occuper les 
 cd server && supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor
 cd server && npm run collect -- landes    # environ 1 min, plus si Overpass est chargé (504 : 30 s d'attente puis nouvel essai)
 cd server && npm run collect -- gironde   # environ 4 min : département, Bordeaux à part
+cd server && npm run collect -- helsinki  # la carte de départ pour l'instant (commune d'admin_level 8, relation OSM 34914 à vérifier sur openstreetmap.org/relation/34914 avant la première collecte)
 cd server && npm run dev
 curl -s localhost:3000/areas/landes/places | head -c 300
 ```
